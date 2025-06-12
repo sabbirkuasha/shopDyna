@@ -1,0 +1,2 @@
+# shopDyna
+Dynamic Shopify Theme

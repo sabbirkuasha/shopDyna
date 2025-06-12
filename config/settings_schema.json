@@ -1,0 +1,24 @@
+[
+  {
+    "name": "Theme settings",
+    "settings": [
+      {
+        "type": "color",
+        "id": "background_color",
+        "label": "Background color",
+        "default": "#ffffff"
+      }
+    ]
+  },
+  {
+    "name": "Default",
+    "settings": [
+      {
+        "type": "color",
+        "id": "default_color",
+        "label": "default color",
+        "default": "#ffffff"
+      }
+    ]
+  }
+]
