@@ -8,15 +8,5 @@
  * ------------------------------------------------------------
  */
 {
-  "sections": {
-    "banner": {
-      "type": "banner",
-      "settings": {
-        "banner_text": "Hello Ola"
-      }
-    }
-  },
-  "order": [
-    "banner"
-  ]
+  "current": {}
 }
