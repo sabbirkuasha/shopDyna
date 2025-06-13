@@ -1,13 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-   {{ content_for_header }}
-   
-  {{ 'tailwind.output.css' | asset_url | stylesheet_tag: preload: true, media: 'all' }}
-</head>
-<body>
+  <head>
+    {{ content_for_header }}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {{ 'tailwind.output.css' | asset_url | stylesheet_tag: preload: true, media: 'all' }}
+  </head>
+  <body>
     <main id="main" role="main">
-        {{ content_for_layout }}
+      {{ content_for_layout }}
     </main>
-</body>
+  </body>
 </html>
