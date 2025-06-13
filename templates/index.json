@@ -17,8 +17,31 @@
     },
     "hero": {
       "type": "hero",
+      "blocks": {
+        "text_yndAHe": {
+          "type": "text",
+          "settings": {
+            "title_text": "Slider 1 Heading",
+            "description_text": "Slider 1  short paragraph describing the first slide content. You can customize it as needed."
+          }
+        },
+        "text_gfxFWE": {
+          "type": "text",
+          "settings": {
+            "title_text": "Slider 2 Heading",
+            "description_text": "Slider 2  short paragraph describing the first slide content. You can customize it as needed."
+          }
+        }
+      },
+      "block_order": [
+        "text_yndAHe",
+        "text_gfxFWE"
+      ],
       "settings": {}
     }
   },
-  "order": ["banner", "hero"]
+  "order": [
+    "banner",
+    "hero"
+  ]
 }
