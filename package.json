@@ -24,7 +24,9 @@
     "tailwindcss": "^4.1.10"
   },
   "devDependencies": {
+    "@shopify/prettier-plugin-liquid": "^1.9.3",
     "concurrently": "^9.1.2",
-    "daisyui": "^5.0.43"
+    "daisyui": "^5.0.43",
+    "prettier": "^3.5.3"
   }
 }

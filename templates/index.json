@@ -14,9 +14,11 @@
       "settings": {
         "banner_text": "Hello Ola Amigo"
       }
+    },
+    "hero": {
+      "type": "hero",
+      "settings": {}
     }
   },
-  "order": [
-    "banner"
-  ]
+  "order": ["banner", "hero"]
 }
