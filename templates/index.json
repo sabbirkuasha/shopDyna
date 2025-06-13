@@ -20,6 +20,7 @@
       "blocks": {
         "text_yndAHe": {
           "type": "text",
+          "name": "S1",
           "settings": {
             "title_text": "Slider 1 Heading",
             "description_text": "Slider 1  short paragraph describing the first slide content. You can customize it as needed."
@@ -27,6 +28,7 @@
         },
         "text_gfxFWE": {
           "type": "text",
+          "name": "S2",
           "settings": {
             "title_text": "Slider 2 Heading",
             "description_text": "Slider 2  short paragraph describing the first slide content. You can customize it as needed."
