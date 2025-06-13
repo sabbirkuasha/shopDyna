@@ -26,7 +26,7 @@
         <img
           width="100%"
           height="100%"
-          src="{{ 'Banner_2.jpg' | asset_url }}"
+          src="{{ 'Banner_5.jpg' | asset_url }}"
           class="w-full"
         >
         <div class="absolute bottom-0 left-0 md:left-10 p-2 md:p-6 text-left text-white">
@@ -85,6 +85,26 @@
 {% schema %}
 {
   "name": "Hero",
+  "blocks": [
+    {
+      "type": "text",
+      "name": "title",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title_text",
+          "label": "Title Text",
+          "default": "Welcome to Our Store (default)"
+        },
+        {
+          "type": "textarea",
+          "id": "description_text",
+          "label": "Description Text",
+          "default": "This is a short description of the store (default)"
+        }
+      ]
+    }
+  ],
   "presets": [
     {
       "name": "Hero"
