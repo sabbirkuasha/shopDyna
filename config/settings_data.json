@@ -8,5 +8,18 @@
  * ------------------------------------------------------------
  */
 {
-  "current": {}
+  "current": {
+    "sections": {
+      "navbar": {
+        "type": "navbar",
+        "settings": {
+          "site_name": "Mocktail Island",
+          "main_menu": "main-menu",
+          "navbar_bg_color": "#ffffff",
+          "navbar_text_color": "#333333"
+        }
+      }
+    },
+    "content_for_index": []
+  }
 }
