@@ -1,8 +1,10 @@
 <!doctype html>
 <html lang="en">
   <head>
-    {{ content_for_header }}
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ 'plannet.ico' | asset_url }}" type="image/x-icon">
+    {{ content_for_header }}
     {{ 'tailwind.output.css' | asset_url | stylesheet_tag: preload: true, media: 'all' }}
   </head>
   <body>
