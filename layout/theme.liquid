@@ -6,6 +6,7 @@
     <link rel="icon" href="{{ 'plannet.ico' | asset_url }}" type="image/x-icon">
     {{ content_for_header }}
     {{ 'tailwind.output.css' | asset_url | stylesheet_tag: preload: true, media: 'all' }}
+    <title>{{ page_title }}</title>
   </head>
   <body>
     {% section 'navbar' %}
