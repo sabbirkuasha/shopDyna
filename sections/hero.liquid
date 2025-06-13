@@ -85,9 +85,10 @@
 {% schema %}
 {
   "name": "Hero",
+  "max_blocks": 4,
   "blocks": [
     {
-      "type": "text",
+      "type": "slider",
       "name": "title",
       "settings": [
         {
@@ -113,7 +114,8 @@
   ],
   "presets": [
     {
-      "name": "Hero"
+      "name": "Hero",
+      "blocks": [{ "type": "slider" }, { "type": "slider" }, { "type": "slider" }]
     }
   ]
 }
