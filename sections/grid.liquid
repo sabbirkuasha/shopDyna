@@ -1,0 +1,113 @@
+<section class="w-full">
+  <!-- Hero Banner -->
+  <div class="flex flex-col lg:flex-row">
+    <!-- Left Image with hover effect -->
+    <div class="group w-full h-[900px] overflow-hidden lg:w-2/3">
+      <img
+        width="100%"
+        height="100%"
+        loading="lazy"
+        src="{{ 'Women.webp' | asset_url }}"
+        alt="Banner"
+        class="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-130 group-hover:rotate-1 group-hover:brightness-110"
+      >
+    </div>
+
+    <!-- Right Branding with hover effects -->
+    <div class="group flex w-full items-center justify-center bg-white p-6 text-center transition-colors duration-300 lg:w-1/3">
+      <div class="transition-transform duration-300 ease-out group-hover:scale-[1.15]">
+        <img
+          width="100%  "
+          height="100%"
+          src="{{ 'wedding-dress.png' | asset_url }}"
+          alt="Logo"
+          class="mx-auto mb-4 w-16 transition duration-300 group-hover:animate-pulse"
+        >
+        <h1 class="text-4xl font-bold text-red-600 transition-colors duration-300 group-hover:text-red-500">
+          SOMETHING <span class="text-black group-hover:text-gray-700">SQUAD</span>
+        </h1>
+        <button class="btn mt-4 rounded-full px-6 transition duration-300 btn-outline btn-neutral group-hover:scale-105 group-hover:rotate-8 group-hover:brightness-110 hover:rotate-0">
+          Shop Now
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Grid -->
+  <div class="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-4">
+    <div class="group relative overflow-hidden h-[600px]">
+      <img
+        width="100%"
+        height="100%"
+        loading="lazy"
+        src="{{ 'Male.webp' | asset_url }}"
+        class="w-full object-cover transition-transform duration-500 ease-out group-hover:scale-125 group-hover:rotate-2 group-hover:brightness-110"
+      >
+      <span class="absolute bottom-4 left-1/2 -translate-x-1/2 transform text-2xl font-semibold text-white">MEN</span>
+    </div>
+
+    <div class="group relative overflow-hidden h-[600px]">
+      <img
+        width="100%"
+        height="100%"
+        loading="lazy"
+        src="{{ 'Female.webp' | asset_url }}"
+        class="w-full object-cover transition-transform duration-500 ease-out group-hover:scale-125 group-hover:rotate-2 group-hover:brightness-110"
+      >
+      <span class="absolute bottom-4 left-1/2 -translate-x-1/2 transform text-2xl font-semibold text-white">WOMEN</span>
+    </div>
+
+    <div class="group relative overflow-hidden h-[600px]">
+      <img
+        width="100%"
+        height="100%"
+        loading="lazy"
+        src="{{ 'Set.webp' | asset_url }}"
+        class="w-full object-cover transition-transform duration-500 ease-out group-hover:scale-125 group-hover:rotate-2 group-hover:brightness-110"
+      >
+      <span class="absolute bottom-4 left-1/2 -translate-x-1/2 transform text-2xl font-semibold text-white"
+        >LIFESTYLE</span
+      >
+    </div>
+
+    <div class="group relative overflow-hidden h-[600px]">
+      <img
+        width="100%"
+        height="100%"
+        loading="lazy"
+        src="{{ 'kid.webp' | asset_url }}"
+        class="w-full object-cover transition-transform duration-500 ease-out group-hover:scale-125 group-hover:rotate-2 group-hover:brightness-110"
+      >
+      <span class="absolute bottom-4 left-1/2 -translate-x-1/2 transform text-2xl font-semibold text-white">KIDS</span>
+    </div>
+  </div>
+
+  <!-- New Arrival Grid -->
+  <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <div class="group relative overflow-hidden h-[800px]">
+      <img
+        width="100%"
+        height="100%"
+        loading="lazy"
+        src="{{ 'FemaleNewArrival.webp' | asset_url }}"
+        class="w-full object-cover transition-transform duration-500 ease-out group-hover:scale-125 group-hover:rotate-2 group-hover:brightness-110"
+      >
+      <span class="absolute bottom-4 left-1/2 -translate-x-1/2 transform text-2xl font-semibold text-white"
+        >NEW ARRIVAL</span
+      >
+    </div>
+
+    <div class="group relative overflow-hidden h-[800px]">
+      <img
+        width="100%"
+        height="100%"
+        loading="lazy"
+        src="{{ 'MaleNewArrival.webp' | asset_url }}"
+        class="w-full object-cover transition-transform duration-500 ease-out group-hover:scale-125 group-hover:rotate-2 group-hover:brightness-110"
+      >
+      <span class="absolute bottom-4 left-1/2 -translate-x-1/2 transform text-2xl font-semibold text-white"
+        >NEW ARRIVAL</span
+      >
+    </div>
+  </div>
+</section>

@@ -56,6 +56,14 @@
       ],
       "settings": {}
     },
+    "grid": {
+      "type": "grid",
+      "settings": {}
+    },
+    "card": {
+      "type": "card",
+      "settings": {}
+    },
     "footer": {
       "type": "footer",
       "settings": {
@@ -67,9 +75,5 @@
       }
     }
   },
-  "order": [
-    "banner",
-    "hero",
-    "footer"
-  ]
+  "order": ["banner", "hero", "grid", "card", "footer"]
 }
