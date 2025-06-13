@@ -12,7 +12,8 @@
     "banner": {
       "type": "banner",
       "settings": {
-        "banner_text": "Hello Ola Amigo"
+        "message_bar": true,
+        "message_text": "Let's Do It!"
       }
     },
     "hero": {
@@ -58,9 +59,17 @@
     "footer": {
       "type": "footer",
       "settings": {
-        "footer_info": "Default footer information"
+        "footer_menu": "footer",
+        "social_twitter_url": "",
+        "social_youtube_url": "",
+        "social_facebook_url": "",
+        "copyright_owner": "Zoetrone Studios"
       }
     }
   },
-  "order": ["banner", "hero", "footer"]
+  "order": [
+    "banner",
+    "hero",
+    "footer"
+  ]
 }
