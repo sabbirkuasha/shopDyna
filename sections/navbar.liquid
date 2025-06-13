@@ -1,0 +1,116 @@
+<script>
+  // console.log('Site Name:', '{{ section.settings }}');
+  // console.log('Navbar Background Color:', '{{ section.settings.navbar_bg_color }}');
+  // console.log('Navbar Text Color:', '{{ section.settings.navbar_text_color }}');
+</script>
+<section>
+  <div class="navbar bg-gray-400 navbar-dynamic shadow-sm">
+    <div class="navbar-start">
+      <div class="dropdown">
+        <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
+          </svg>
+        </div>
+        <ul
+          tabindex="0"
+          class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow"
+        >
+          <!-- Main menu -->
+          {% for link in linklists['main-menu'].links -%}
+            <li>
+              {{ link.title | link_to: link.url }}
+            </li>
+          {%- endfor %}
+        </ul>
+      </div>
+    </div>
+    <!-- Website Name -->
+    <div class="navbar-center">
+      <a href="{{ routes.root_url }}" class="btn btn-ghost text-xl text-red-500 site-name-dynamic">
+        {{ section.settings.site_name }}
+      </a>
+    </div>
+
+    <!-- Search -->
+    <div class="navbar-end ">
+      <form action="{{ routes.search_url }}">
+        <input
+          type="text"
+          placeholder="Search"
+          class="input bg-gray-200 focus:outline-0 focus:border-primary focus:border-2 input-bordered w-24 md:w-auto"
+        >
+      </form>
+      {% comment %}
+        <button class="btn btn-ghost btn-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </button>
+      {% endcomment %}
+      <button class="btn btn-ghost btn-circle">
+        <div class="indicator">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+          <span class="badge badge-xs badge-primary indicator-item"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</section>
+
+<style>
+  .navbar-dynamic {
+    background-color: {{ section.settings.navbar_bg_color }};
+  }
+  .site-name-dynamic {
+    color: {{ section.settings.navbar_text_color }};
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Navbar",
+  "settings": [
+    {
+      "type": "text",
+      "id": "site_name",
+      "label": "Site Name",
+      "default": "My Store",
+      "info": "Enter the name of your store or brand."
+    },
+    {
+      "type": "link_list",
+      "id": "main_menu",
+      "label": "Main menu",
+      "default": "main-menu",
+      "info": "Select the menu to display in the header. This will be used for both desktop and mobile navigation."
+    },
+    {
+      "type": "header",
+      "content": "Colors (Requires CSS integration)"
+    },
+    {
+      "type": "color",
+      "id": "navbar_bg_color",
+      "label": "Navbar background color",
+      "default": "#ffffff",
+      "info": "This color will be applied to the navbar background. Requires custom CSS to integrate with DaisyUI."
+    },
+    {
+      "type": "color",
+      "id": "navbar_text_color",
+      "label": "Navbar text color",
+      "default": "#333333",
+      "info": "This color will be applied to the navbar text. Requires custom CSS to integrate with DaisyUI."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Default Navbar",
+      "category": "Header"
+    }
+  ]
+}
+{% endschema %}
