@@ -15,7 +15,7 @@
         "settings": {
           "site_name": "Mocktail Island",
           "main_menu": "main-menu",
-          "navbar_bg_color": "#ffffff",
+          "navbar_bg_color": "#dfe3ef",
           "navbar_text_color": "#333333"
         }
       }
