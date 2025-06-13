@@ -54,10 +54,13 @@
         "slider_ThbgeN"
       ],
       "settings": {}
+    },
+    "footer": {
+      "type": "footer",
+      "settings": {
+        "footer_info": "Default footer information"
+      }
     }
   },
-  "order": [
-    "banner",
-    "hero"
-  ]
+  "order": ["banner", "hero", "footer"]
 }

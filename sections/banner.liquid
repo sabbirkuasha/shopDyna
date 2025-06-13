@@ -1,22 +1,32 @@
-<section>
-    Banner Section
-     <h1>{{ section.settings.banner_text }}</h1>
-</section>
+{% if section.settings.message_bar %}
+  <div class="w-full bg-slate-400 flex px-2 justify-center">
+    <div class="">
+      <h5>{{ section.settings.message_text }}</h5>
+    </div>
+  </div>
+{% endif %}
 
-{%  schema  %} 
+{% schema %}
 {
-    "name": "Banner",
-    
-    "settings": [{
-        "type": "text",
-        "id": "banner_text",
-        "label": "Banner Text"
-    }],
-    "presets":[
-        {
-            "name": "Banner"
-            
-        }
-    ]
+  "name": "Message Bar",
+
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "message_bar",
+      "label": "Message Bar Top",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "message_text",
+      "label": "This is a default message bar text"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Message Bar"
+    }
+  ]
 }
 {% endschema %}
