@@ -1,0 +1,13 @@
+{
+  "sections": {
+    "collection": {
+      "type": "collection",
+      "settings": {}
+    },
+    "grid": {
+      "type": "grid",
+      "settings": {}
+    }
+  },
+  "order": ["collection", "grid"]
+}
