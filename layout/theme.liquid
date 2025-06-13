@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
    {{ content_for_header }}
+   
+  {{ 'tailwind.output.css' | asset_url | stylesheet_tag: preload: true, media: 'all' }}
 </head>
 <body>
     <main id="main" role="main">
