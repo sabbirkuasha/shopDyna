@@ -1,8 +1,13 @@
 <section>
   <h1>Blog</h1>
-  {% for blog in blogs.news.articles %}
-    <h2>{{ blog.title }}</h2>
-    <p>{{ blog.excerpt }}</p>
-    <a href="{{ blog.url }}">Read more</a>
-  {% endfor %}
+  {% assign news_blog = blogs.news %}
+  {% if news_blog.articles.size > 0 %}
+    {% for article in news_blog.articles %}
+      <h2>{{ article.title }}</h2>
+      <p>{{ article.excerpt }}</p>
+      <a href="{{ article.url }}">Read more</a>
+    {% endfor %}
+  {% else %}
+    <p>No articles available.</p>
+  {% endif %}
 </section>
