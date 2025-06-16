@@ -10,4 +10,9 @@
   {% else %}
     <p>No articles available.</p>
   {% endif %}
+  {% for blog in blog.news.articles %}
+    <h2>{{ blog.title }}</h2>
+    <p>{{ blog.excerpt }}</p>
+    <a href="{{ blog.url }}">Read more</a>
+  {% endfor %}
 </section>
