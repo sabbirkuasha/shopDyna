@@ -1,3 +1,18 @@
-<section>
-  <h1>Blog</h1>
+<script>
+  console.log('All Blogs:', '{{ blogs.news.articles }}');
+  console.log('Blog Title:', '{{  blog.title | escape  }}');
+</script>
+
+<section class="p-5">
+  <h1>All Blog List</h1>
+
+  <div class="flex gap-5 flex-col py-5">
+    {%- for article in blogs.news.articles -%}
+      <div class=" bg-gray-400 p-5">
+        <h1>{{ article.title }}</h1>
+        <span>{{ article.id }} </span> <span> | </span> <span>{{ article.author }}</span>
+        <p>{{ article.content }}</p>
+      </div>
+    {%- endfor -%}
+  </div>
 </section>
