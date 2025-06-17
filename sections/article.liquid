@@ -1,9 +1,22 @@
-<section>
-  <h1>Article</h1>
+<section class="p-5">
   {% if article.image %}
-    <h1>{{ article.title }}</h1>
+    <h1 class="text-xl font-bold">{{ article.title }}</h1>
+    <div class="flex flex-wrap gap-2 pt-1">
+      {%- for badge in article.tags -%}
+        <div class="badge badge-neutral hover:badge-primary badge-outline cursor-pointer">{{ badge }}</div>
+      {% endfor %}
+    </div>
+    <div class="flex justify-center py-5 ">
+      <img width="auto" height="auto" class="w-1/2" src="{{ article.image | image_url }}" alt="">
+    </div>
     <p>
       {{ article.content | strip_html }}
     </p>
+
+    <hr class="mt-5">
+    <div class="italic text-right ">
+      <span>{{ article.id }} </span> <span> | </span> <span>{{ article.author }}</span> |
+      <span>{{ article.published_at | date: '%B %d, %Y' }}</span>
+    </div>
   {% endif %}
 </section>

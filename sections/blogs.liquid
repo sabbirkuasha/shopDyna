@@ -1,6 +1,6 @@
 <script>
-  console.log('All Blogs:', '{{ blogs.news.articles }}');
-  console.log('Blog Title:', '{{  blog.title | escape  }}');
+  // console.log('All Blogs:', '{{ blogs.news.articles }}');
+  // console.log('Blog Title:', '{{  blog.title | escape  }}');
 </script>
 
 <section class="p-5">
@@ -9,9 +9,14 @@
   <div class="flex gap-5 flex-col py-5">
     {%- for article in blogs.news.articles -%}
       <div class=" bg-gray-400 p-5">
-        <h1>{{ article.title }}</h1>
+        <a href="{{ article.url | escape }}">
+          <h1 class="text-xl font-bold">{{ article.title }}</h1>
+        </a>
         <span>{{ article.id }} </span> <span> | </span> <span>{{ article.author }}</span>
-        <p>{{ article.content }}</p>
+        <p class="py-2">{{ article.content }}</p>
+        <div class="pt-2">
+          <a href="{{ article.url | escape }}" class="btn btn-outline btn-neutral">Read More</a>
+        </div>
       </div>
     {%- endfor -%}
   </div>
