@@ -1,22 +1,46 @@
-<div class="card rounded-none bg-base-100 hover:shadow-xl border-black/10 border duration-500 transition-all">
-  <figure>
-    <img
-      width="100%"
-      height="100%"
-      loading="lazy"
-      src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
-      alt="Shoes"
-    >
+{% comment %}
+  Product card snippet
+  Accepts:
+  - product_card_product: {Object} Product Liquid object (required)
+{% endcomment %}
+
+<div class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow duration-300 rounded-lg overflow-hidden">
+  <figure class="overflow-hidden">
+    <a href="{{ product_card_product.url | within: collection }}" aria-label="{{ product_card_product.title | escape }}">
+      {% if product_card_product.featured_image %}
+        <img
+          src="{{ product_card_product.featured_image | image_url: width: 400 }}"
+          alt="{{ product_card_product.featured_image.alt | escape }}"
+          loading="lazy"
+          width="400"
+          height="{{ 400 | divided_by: product_card_product.featured_image.aspect_ratio | round }}"
+          class="w-full h-auto object-cover transform hover:scale-105 transition-transform duration-300"
+        >
+      {% else %}
+        {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg w-full h-auto object-cover' }}
+      {% endif %}
+    </a>
   </figure>
-  <div class="card-body">
-    <h2 class="card-title">
-      Card Title
-      <div class="badge badge-secondary">NEW</div>
+  <div class="card-body p-4">
+    <h2 class="card-title text-lg font-semibold">
+      <a href="{{ product_card_product.url | within: collection }}" class="hover:underline">
+        {{ product_card_product.title }}
+      </a>
     </h2>
-    <p>A card component has a figure, a body part, and inside body there are title and actions parts</p>
-    <div class="card-actions justify-end">
-      <div class="badge border-neutral hover:badge-neutral cursor-pointer">Fashion</div>
-      <div class="badge border-neutral hover:badge-neutral cursor-pointer">Products</div>
+    <p class="text-sm text-gray-600 mb-2">{{ product_card_product.vendor }}</p>
+    <div class="card-actions justify-between items-center">
+      <p class="text-base font-bold text-primary">
+        {{ product_card_product.price | money }}
+        {% if product_card_product.compare_at_price > product_card_product.price %}
+          <span class="text-sm line-through text-gray-500 ml-2">{{ product_card_product.compare_at_price | money }}</span>
+        {% endif %}
+      </p>
+      <a href="{{ product_card_product.url | within: collection }}" class="btn btn-sm btn-outline btn-primary">
+        View Product
+      </a>
     </div>
+    {% if product_card_product.available == false %}
+      <div class="badge badge-error mt-2">Sold Out</div>
+    {% endif %}
   </div>
 </div>
