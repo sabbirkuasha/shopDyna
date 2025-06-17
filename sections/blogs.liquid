@@ -12,6 +12,8 @@
         <a href="{{ article.url | escape }}">
           <h1 class="text-xl font-bold">{{ article.title }}</h1>
         </a>
+
+        {{ article.title | link_to: article.url | escape }}
         <span>{{ article.id }} </span> <span> | </span> <span>{{ article.author }}</span>
         <p class="py-2">{{ article.content }}</p>
         <div class="pt-2">
