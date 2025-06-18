@@ -1,9 +1,9 @@
 {
   "sections": {
-    "article": {
+    "main": {
       "type": "article",
       "settings": {}
     }
   },
-  "order": ["article"]
+  "order": ["main"]
 }
