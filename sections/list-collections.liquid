@@ -1,1 +1,24 @@
-<section>This is all collection page</section>
+<section class="p-5 ">
+  <div class="flex gap-2 flex-row flex-wrap  mx-auto justify-center flex-grow">
+    {% for collection in collections %}
+      <div class="card bg-base-100 hover:shadow-xl duration-500 transition-all border border-black/20 max-w-72 w-full  ">
+        <figure class="px-6 pt-6  h-1/2 ">
+          <img
+            width="auto"
+            height="50px"
+            src="{{ collection.image | image_url }}"
+            alt="{{- collection.title }}"
+            class="rounded-xl my-auto"
+          >
+        </figure>
+        <div class="card-body items-center text-center">
+          <h2 class="card-title">{{- collection.title }}</h2>
+          <p>A card component has a figure, a body part, and inside body there are title and actions parts</p>
+          <div class="card-actions w-full ">
+            <a href="{{ collection.url }}" class="btn w-full btn-outline ">Browse Now</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
