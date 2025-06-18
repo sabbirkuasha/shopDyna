@@ -1,3 +1,14 @@
 <section>
-  <h1>Collection</h1>
+  <h1>This is Collection Page</h1>
+  {% paginate collection.products by 8 %}
+    <div class="p-5 bg-blue-300">
+      {% for product in collection.products %}
+        <div class=" p-5 bg-pink-200">
+          <h1>This is product Card</h1>
+          <h1 class="text-xl font-bold">{{ product.title }}</h1>
+          <img src="{{ product.image }}" alt="{{ product.title }}">
+        </div>
+      {% endfor %}
+    </div>
+  {% endpaginate %}
 </section>
