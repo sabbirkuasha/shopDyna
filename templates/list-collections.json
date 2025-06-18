@@ -3,7 +3,18 @@
     "main": {
       "type": "list-collections",
       "settings": {}
+    },
+    "footer": {
+      "type": "footer",
+      "settings": {
+        "footer_menu": "footer",
+        "social_twitter_url": "",
+        "social_youtube_url": "",
+        "social_facebook_url": "",
+        "copyright_owner": "Zoetrone Studios"
+      }
     }
   },
-  "order": ["main"]
+
+  "order": ["main", "footer"]
 }
