@@ -3,9 +3,10 @@
     "main": {
       "type": "collection",
       "settings": {
-        "products_per_page": 12
+        "products_per_page": 16
       }
     }
   },
-  "order": ["main"]
+  "order": ["main"],
+  "layout": "theme.liquid"
 }
