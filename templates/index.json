@@ -71,9 +71,15 @@
         "social_twitter_url": "",
         "social_youtube_url": "",
         "social_facebook_url": "",
-        "copyright_owner": "Zoetrone Studios"
+        "copyright_owner": "Zoetrone Studio"
       }
     }
   },
-  "order": ["banner", "hero", "grid", "card", "footer"]
+  "order": [
+    "banner",
+    "hero",
+    "grid",
+    "card",
+    "footer"
+  ]
 }
