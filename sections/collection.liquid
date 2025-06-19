@@ -1,10 +1,9 @@
-<section>
-  <h1>This is Collection Page</h1>
-  {% paginate collection.products by 8 %}
-    <div class="p-5 bg-blue-300">
+<section class="p-5">
+  <div class="flex flex-row gap-5 flex-wrap justify-center w-full ">
+    {% paginate collection.products by 8 %}
       {% for product in collection.products %}
         {% render 'product_single', product_card_product: product %}
       {% endfor %}
-    </div>
-  {% endpaginate %}
+    {% endpaginate %}
+  </div>
 </section>
