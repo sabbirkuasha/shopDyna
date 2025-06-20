@@ -13,10 +13,20 @@
       "navbar": {
         "type": "navbar",
         "settings": {
-          "site_name": "Mocktail Island",
+          "site_name": "Mocktail",
           "main_menu": "main-menu",
           "navbar_bg_color": "#dfe3ef",
           "navbar_text_color": "#333333"
+        }
+      },
+      "footer": {
+        "type": "footer",
+        "settings": {
+          "footer_menu": "footer",
+          "social_twitter_url": "",
+          "social_youtube_url": "",
+          "social_facebook_url": "",
+          "copyright_owner": "Zoetrone Studios"
         }
       }
     },
