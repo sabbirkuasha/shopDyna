@@ -26,9 +26,7 @@
   </figure>
   <div class="card-body p-4">
     <h2 class="card-title text-lg font-semibold">
-      <a href="{{ product_card_product.url | within: collection }}" class="hover:underline">
-        {{ product_card_product.title }}
-      </a>
+      {{- product_card_product.title | link_to: product_card_product.url }}
     </h2>
     <p class="text-sm text-gray-600 mb-2">{{ product_card_product.vendor }}</p>
     <div class="card-actions justify-between items-center">

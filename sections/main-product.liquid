@@ -1,3 +1,43 @@
-<section>
-  <h1>Product</h1>
+<section class="p-8" data-section-id="{{ section.id }}">
+  <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div>
+      {% if product.featured_image %}
+        <img
+          width="auto"
+          height="auto"
+          src="{{ product.featured_image | image_url: width: 800 }}"
+          alt="{{ product.featured_image.alt | escape }}"
+          loading="lazy"
+          class="w-full rounded-lg shadow-lg"
+        >
+      {% else %}
+        {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg w-full h-auto' }}
+      {% endif %}
+    </div>
+
+    <div>
+      <h1 class="text-3xl font-bold mb-2">{{ product.title }}</h1>
+      <p class="text-lg text-gray-600 mb-4">{{ product.vendor }}</p>
+
+      <div class="prose mb-4">
+        {{ product.description }}
+      </div>
+
+      <p class="text-2xl font-semibold text-neutral">
+        {{ product.price | money }}
+      </p>
+
+      {% comment %} Add your "Add to Cart" form here later {% endcomment %}
+    </div>
+  </div>
 </section>
+
+{% comment %}
+  Every section file MUST have a schema tag, even if it's empty.
+{% endcomment %}
+{% schema %}
+{
+  "name": "Main product",
+  "settings": []
+}
+{% endschema %}
