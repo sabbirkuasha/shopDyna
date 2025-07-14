@@ -10,8 +10,6 @@
     --color-red-300: oklch(80.8% 0.114 19.571);
     --color-red-500: oklch(63.7% 0.237 25.331);
     --color-red-600: oklch(57.7% 0.245 27.325);
-    --color-blue-300: oklch(80.9% 0.105 251.813);
-    --color-pink-200: oklch(89.9% 0.061 343.231);
     --color-slate-400: oklch(70.4% 0.04 256.788);
     --color-gray-200: oklch(92.8% 0.006 264.531);
     --color-gray-400: oklch(70.7% 0.022 261.325);
@@ -26,7 +24,6 @@
     --breakpoint-sm: 40rem;
     --breakpoint-xl: 80rem;
     --container-md: 28rem;
-    --container-3xl: 48rem;
     --container-4xl: 56rem;
     --text-sm: 0.875rem;
     --text-sm--line-height: calc(1.25 / 0.875);
@@ -47,7 +44,6 @@
     --text-9xl: 8rem;
     --text-9xl--line-height: 1;
     --font-weight-light: 300;
-    --font-weight-medium: 500;
     --font-weight-semibold: 600;
     --font-weight-bold: 700;
     --font-weight-extrabold: 800;
@@ -56,7 +52,6 @@
     --radius-xl: 0.75rem;
     --drop-shadow-lg: 0 4px 4px rgb(0 0 0 / 0.15);
     --ease-out: cubic-bezier(0, 0, 0.2, 1);
-    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
     --animate-pulse: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     --default-transition-duration: 150ms;
     --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -1435,9 +1430,6 @@
   .bg-gray-400 {
     background-color: var(--color-gray-400);
   }
-  .bg-red-300 {
-    background-color: var(--color-red-300);
-  }
   .bg-slate-400 {
     background-color: var(--color-slate-400);
   }
@@ -1828,13 +1820,6 @@
     &:hover {
       @media (hover: hover) {
         rotate: 0deg;
-      }
-    }
-  }
-  .hover\:underline {
-    &:hover {
-      @media (hover: hover) {
-        text-decoration-line: underline;
       }
     }
   }
