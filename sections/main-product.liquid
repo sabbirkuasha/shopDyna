@@ -54,6 +54,8 @@
           <a href="{{ related_product.url | within: collection }}">
             {% if related_product.featured_image %}
               <img
+                width="auto"
+                height="auto"
                 src="{{ related_product.featured_image | image_url: width: 400 }}"
                 alt="{{ related_product.featured_image.alt | escape }}"
                 loading="lazy"
