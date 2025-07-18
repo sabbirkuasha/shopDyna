@@ -1,0 +1,101 @@
+{%- assign selected_variant = product.selected_or_first_available_variant -%}
+
+<!-- Main Product Container -->
+<div class="w-full max-w-2xl space-y-6 rounded-lg bg-white p-6 md:p-8">
+  <!-- Product Title and Price -->
+  <div>
+    <h1 class="text-3xl font-bold text-gray-800">{{ product.title }}</h1>
+    <div class="mt-2 flex items-center space-x-3">
+      <span class="text-2xl font-bold text-red-600">{{ selected_variant.price | money }}</span>
+      <span class="text-xl text-gray-500 line-through">{{ selected_variant.compare_at_price | money }}</span>
+      <span class="text-xs text-gray-500">**10% vat inclusive</span>
+    </div>
+  </div>
+
+  <!-- SKU and Color -->
+  <div class="space-y-2 text-gray-700">
+    <div class="flex items-center">
+      <span>SKU: {{ selected_variant.sku }}</span>
+      <button class="btn btn-square btn-ghost btn-sm">
+        <!-- Copy Icon SVG -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+      </button>
+    </div>
+    {% for option in product.options_with_values %}
+      {% if option.name == 'Color' %}
+        <p><span class="font-medium">Color:</span> {{ selected_variant.options[forloop.index0] }}</p>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <!-- Size Selector -->
+  {% for option in product.options_with_values %}
+    {% if option.name == 'Size' %}
+      <div class="space-y-2">
+        <p class="font-medium text-gray-700">Select Size</p>
+        <div class="join">
+          {% for value in option.values %}
+            <input
+              class="btn join-item"
+              type="radio"
+              name="size"
+              aria-label="{{ value }}"
+              {% if option.selected_value == value %}
+                checked
+              {% endif %}
+            />
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  {% endfor %}
+
+
+  <!-- Actions: Quantity, Add to Cart, Buy Now -->
+  <div class="flex w-full flex-col items-center gap-4 md:flex-row">
+    <!-- Quantity Selector -->
+    <div class="join">
+      <button class="btn join-item border-gray-300 bg-gray-200 text-xl hover:bg-gray-300">-</button>
+      <input type="text" value="1" class="input-bordered input join-item w-16 text-center" />
+      <button class="btn join-item border-gray-300 bg-gray-200 text-xl hover:bg-gray-300">+</button>
+    </div>
+    <!-- CTA Buttons -->
+    <div class="grid w-full flex-grow grid-cols-1 gap-4 md:grid-cols-2">
+      <button class="custom-red-btn btn">Add To Cart</button>
+      <button class="custom-gold-btn btn">Buy Now</button>
+    </div>
+  </div>
+
+  <!-- Wishlist and Availability -->
+  <div class="flex w-full flex-col items-center gap-4 md:flex-row">
+    <button class="btn btn-square border-gray-300 btn-outline">
+      <!-- Heart Icon SVG -->
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+      </svg>
+    </button>
+    <button class="btn flex-grow border-gray-300 btn-outline">Check In-Store Availability</button>
+  </div>
+
+  <!-- Disclaimer -->
+  <p class="text-center text-xs text-gray-500">*Product color may slightly vary, depending on your device's screen resolution</p>
+
+  <!-- Product Details -->
+  <div class="space-y-2 border-t pt-6">
+    <h2 class="mb-4 text-xl font-bold text-red-600">Product Details</h2>
+    <div class="text-gray-700">{{ product.description }}</div>
+  </div>
+
+  <!-- Share Section -->
+  <div class="space-y-4 border-t pt-6 text-center">
+    <h3 class="text-lg font-semibold text-gray-800">SHARE WITH FRIENDS</h3>
+    <button class="btn btn-circle btn-primary ">
+      <!-- Link Icon SVG -->
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+      </svg>
+    </button>
+  </div>
+</div>
