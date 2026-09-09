@@ -2,7 +2,14 @@
   "sections": {
     "main": {
       "type": "collection",
-      "settings": {}
+      "settings": {
+        "category_menu": "main-menu",
+        "button_label": "View products",
+        "accent_color": "#7d1717",
+        "show_category_heading": false,
+        "show_description": true,
+        "products_per_page": 16
+      }
     }
   },
   "order": ["main"]

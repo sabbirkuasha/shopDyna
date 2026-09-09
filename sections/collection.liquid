@@ -1,9 +1,147 @@
-<section class="p-5">
-  <div class="flex flex-row gap-5 flex-wrap justify-center w-full ">
-    {% paginate collection.products by 8 %}
-      {% for product in collection.products %}
-        {% render 'product_single', product_card_product: product %}
+{% liquid
+  assign category_navigation = section.settings.category_menu
+  assign category_links = blank
+  for parent_link in category_navigation.links
+    if parent_link.type == 'collection_link' and parent_link.object.handle == collection.handle
+      assign category_links = parent_link.links
+      break
+    endif
+  endfor
+%}
+
+<section class="w-full bg-white text-gray-900" style="--collection-accent: {{ section.settings.accent_color }};">
+  {% if category_links != blank %}
+    {% if section.settings.show_category_heading %}
+      <header class="flex min-h-20 items-center justify-center bg-gray-200 px-5 py-5 uppercase md:min-h-24">
+        <h1 class="m-0 text-center text-4xl font-bold tracking-tight text-[var(--collection-accent)] md:text-6xl">
+          {{ collection.title | escape }}
+        </h1>
+      </header>
+    {% endif %}
+
+    {% if section.settings.show_description and collection.description != blank %}
+      <div class="mx-auto max-w-4xl px-5 py-7 text-center leading-7 text-gray-600 [&_p]:m-0">
+        {{ collection.description }}
+      </div>
+    {% endif %}
+
+    <div class="grid grid-cols-2 content-center gap-1 px-1 py-4 md:gap-4 md:px-4 lg:grid-cols-3">
+      {% for child_link in category_links %}
+        {% liquid
+          assign card_image = blank
+          if child_link.type == 'collection_link'
+            assign card_image = child_link.object.image
+            if card_image == blank and child_link.object.products.first.featured_image != blank
+              assign card_image = child_link.object.products.first.featured_image
+            endif
+          endif
+        %}
+        <article class="group relative m-auto w-full overflow-hidden bg-gray-100">
+          <a class="block" href="{{ child_link.url }}">
+            {% if card_image != blank %}
+              {{
+                card_image
+                | image_url: width: 1600
+                | image_tag:
+                  class: 'block aspect-[633/750] w-full object-cover transition-transform duration-500 group-hover:scale-[1.025]',
+                  widths: '360, 540, 720, 960, 1200, 1600',
+                  sizes: '(min-width: 1024px) 33vw, 50vw',
+                  loading: 'lazy',
+                  alt: child_link.title
+              }}
+            {% else %}
+              <div class="flex aspect-[633/750] w-full items-center justify-center bg-gradient-to-br from-stone-100 to-stone-300 p-6 text-center">
+                <span class="text-lg font-semibold uppercase tracking-widest text-gray-500 md:text-2xl">
+                  {{- child_link.title | escape -}}
+                </span>
+              </div>
+            {% endif %}
+
+            <div class="absolute inset-x-0 bottom-0 z-10 flex flex-col items-center bg-gradient-to-t from-black/60 via-black/10 to-transparent px-2 pb-2 pt-16 text-center md:px-5 md:pb-5 md:pt-24 lg:pb-10">
+              <h2 class="m-0 w-full text-base font-bold uppercase text-white drop-shadow-md sm:text-xl md:text-3xl xl:text-4xl">
+                {{ child_link.title | escape }}
+              </h2>
+              <span class="mt-1 inline-flex min-h-8 items-center justify-center bg-[var(--collection-accent)] px-3 py-1.5 text-[9px] font-medium uppercase tracking-wide text-white shadow-md sm:text-[10px] md:mt-4 md:min-h-11 md:px-9 md:py-2 md:text-sm">
+                {{- section.settings.button_label | escape -}}
+              </span>
+            </div>
+          </a>
+        </article>
       {% endfor %}
+    </div>
+  {% else %}
+    <header class="bg-gray-100 px-5 py-8 text-center">
+      <h1 class="m-0 text-3xl font-bold uppercase text-[var(--collection-accent)] md:text-5xl">
+        {{ collection.title | escape }}
+      </h1>
+      {% if section.settings.show_description and collection.description != blank %}
+        <div class="mx-auto mt-4 max-w-3xl leading-7 text-gray-600 [&_p]:m-0">{{ collection.description }}</div>
+      {% endif %}
+    </header>
+
+    {% paginate collection.products by section.settings.products_per_page %}
+      {% if collection.products_count > 0 %}
+        <div class="grid grid-cols-2 gap-3 px-3 py-7 sm:gap-5 sm:px-5 lg:grid-cols-3 xl:grid-cols-4">
+          {% for product in collection.products -%}
+            {%- render 'product_single', product_card_product: product -%}
+          {%- endfor %}
+        </div>
+        {% if paginate.pages > 1 %}
+          <nav class="flex items-center justify-center gap-2 px-5 pb-10" aria-label="Collection pagination">
+            {% if paginate.previous -%}
+              <a
+                class="rounded border border-gray-300 px-4 py-2 hover:border-[var(--collection-accent)] hover:text-[var(--collection-accent)]"
+                href="{{ paginate.previous.url }}"
+                >Previous</a
+              >
+            {%- endif %}
+            <span class="px-3 text-sm text-gray-600">Page {{ paginate.current_page }} of {{ paginate.pages }}</span>
+            {% if paginate.next -%}
+              <a
+                class="rounded border border-gray-300 px-4 py-2 hover:border-[var(--collection-accent)] hover:text-[var(--collection-accent)]"
+                href="{{ paginate.next.url }}"
+                >Next</a
+              >
+            {%- endif %}
+          </nav>
+        {% endif %}
+      {% else %}
+        <div class="px-5 py-20 text-center text-gray-500">No products are available in this collection yet.</div>
+      {% endif %}
     {% endpaginate %}
-  </div>
+  {% endif %}
 </section>
+
+{% schema %}
+{
+  "name": "Collection and categories",
+  "settings": [
+    {
+      "type": "link_list",
+      "id": "category_menu",
+      "label": "Category navigation menu",
+      "default": "main-menu",
+      "info": "Top-level collections with nested collection links display as category landing pages."
+    },
+    { "type": "text", "id": "button_label", "label": "Category button label", "default": "View products" },
+    { "type": "color", "id": "accent_color", "label": "Accent color", "default": "#7d1717" },
+    {
+      "type": "checkbox",
+      "id": "show_category_heading",
+      "label": "Show heading on category landing pages",
+      "default": false
+    },
+    { "type": "checkbox", "id": "show_description", "label": "Show collection description", "default": true },
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "label": "Products per page",
+      "min": 8,
+      "max": 32,
+      "step": 4,
+      "default": 16
+    }
+  ],
+  "presets": [{ "name": "Collection and categories" }]
+}
+{% endschema %}
