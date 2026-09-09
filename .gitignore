@@ -42,6 +42,9 @@ build/Release
 node_modules/
 jspm_packages/
 
+# Local project documentation (not part of the Shopify theme package)
+docs/
+
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/
 
