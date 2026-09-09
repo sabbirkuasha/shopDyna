@@ -3,6 +3,10 @@
   assign terms_url = shop.terms_of_service.url | default: '/policies/terms-of-service'
   assign shipping_url = shop.shipping_policy.url | default: '/policies/shipping-policy'
   assign refund_url = shop.refund_policy.url | default: '/policies/refund-policy'
+  assign brand_profile_url = section.settings.brand_profile_url | default: '/pages/brand-profile'
+  assign about_us_url = section.settings.about_us_url | default: '/pages/about-us'
+  assign outlets_url = section.settings.outlets_url | default: '/pages/outlets'
+  assign contact_url = section.settings.contact_url | default: '/pages/contact-us'
 %}
 
 <footer
@@ -34,13 +38,14 @@
             </a>
           {%- endfor %}
         {% else %}
-          <a class="capitalize hover:text-[var(--footer-accent)] hover:underline" href="/pages/about-us"
+          <a class="capitalize hover:text-[var(--footer-accent)] hover:underline" href="{{ brand_profile_url }}"
             >Brand profile</a
           >
-          <a class="capitalize hover:text-[var(--footer-accent)] hover:underline" href="/pages/outlets"
+          <a class="capitalize hover:text-[var(--footer-accent)] hover:underline" href="{{ about_us_url }}">About us</a>
+          <a class="capitalize hover:text-[var(--footer-accent)] hover:underline" href="{{ outlets_url }}"
             >Outlet location</a
           >
-          <a class="capitalize hover:text-[var(--footer-accent)] hover:underline" href="/pages/contact-us"
+          <a class="capitalize hover:text-[var(--footer-accent)] hover:underline" href="{{ contact_url }}"
             >Contact us</a
           >
         {% endif %}
@@ -186,6 +191,10 @@
     { "type": "header", "content": "Menu columns" },
     { "type": "text", "id": "about_heading", "label": "First column heading", "default": "About us" },
     { "type": "link_list", "id": "about_menu", "label": "First column menu" },
+    { "type": "url", "id": "brand_profile_url", "label": "Brand profile page" },
+    { "type": "url", "id": "about_us_url", "label": "About us page" },
+    { "type": "url", "id": "outlets_url", "label": "Outlets page" },
+    { "type": "url", "id": "contact_url", "label": "Contact page" },
     { "type": "text", "id": "policies_heading", "label": "Second column heading", "default": "Policies" },
     { "type": "link_list", "id": "policies_menu", "label": "Second column menu" },
     { "type": "text", "id": "help_heading", "label": "Third column heading", "default": "Policies" },

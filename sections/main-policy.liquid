@@ -1,0 +1,28 @@
+<section class="min-h-[60vh] bg-white text-gray-800" style="--policy-accent: {{ section.settings.accent_color }};">
+  <header class="flex min-h-20 items-center justify-center bg-gray-200 px-5 py-5 uppercase md:min-h-24">
+    <h1 class="m-0 text-center text-4xl font-bold tracking-tight text-[var(--policy-accent)] md:text-6xl">
+      {{ policy.title | escape }}
+    </h1>
+  </header>
+
+  <div class="mx-auto max-w-5xl px-5 py-10 sm:px-8 sm:py-14 lg:py-20">
+    {% if policy.body != blank %}
+      <div class="space-y-5 leading-7 text-gray-700 [&_a]:font-medium [&_a]:text-[var(--policy-accent)] [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-[var(--policy-accent)] [&_blockquote]:pl-5 [&_h2]:pt-4 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:text-gray-900 [&_h3]:pt-3 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-gray-900 [&_li]:mb-2 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:m-0 [&_table]:w-full [&_table]:border-collapse [&_td]:border [&_td]:border-gray-200 [&_td]:p-3 [&_th]:border [&_th]:border-gray-200 [&_th]:bg-gray-100 [&_th]:p-3 [&_ul]:list-disc [&_ul]:pl-6">
+        {{ policy.body }}
+      </div>
+    {% else %}
+      <div class="border border-dashed border-gray-300 px-6 py-12 text-center text-gray-500">
+        Add this policy in Shopify Admin under Settings → Policies.
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Policy content",
+  "tag": "section",
+  "class": "section-main-policy",
+  "settings": [{ "type": "color", "id": "accent_color", "label": "Accent color", "default": "#7d1717" }]
+}
+{% endschema %}

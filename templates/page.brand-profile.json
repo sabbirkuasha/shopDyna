@@ -1,0 +1,17 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "settings": {
+        "heading": "Brand Profile",
+        "eyebrow": "Our story",
+        "show_hero": true,
+        "hero_image": "",
+        "show_content_heading": true,
+        "fallback_content": "<p>Deshal Limited is a progressive fashion and lifestyle company from Bangladesh. Deshal is an umbrella multi-category store brand with a unique ethnic, artisanal positioning across fashion, lifestyle, and home décor. For almost two decades, Deshal has focused on handcrafted, native, and indigenous products, each given its own contemporary deshi expression. The brand is built on fine arts, artisanal heritage, and tradition across its product categories.</p><p>Deshal brings together more than 200 rural artisans and producers in a close-knit community. Its progressive production methods make handcrafted fashion comfortable, durable, and affordable while helping preserve the skills and stories behind every piece.</p>",
+        "accent_color": "#7d1717"
+      }
+    }
+  },
+  "order": ["main"]
+}

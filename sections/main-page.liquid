@@ -1,0 +1,98 @@
+{% liquid
+  assign page_heading = section.settings.heading | default: page.title
+  assign page_body = page.content
+  if page_body == blank
+    assign page_body = section.settings.fallback_content
+  endif
+%}
+
+<section class="bg-white text-gray-800" style="--page-accent: {{ section.settings.accent_color }};">
+  {% if section.settings.show_hero %}
+    <div class="relative overflow-hidden bg-gray-800">
+      {% if section.settings.hero_image != blank %}
+        {{
+          section.settings.hero_image
+          | image_url: width: 2400
+          | image_tag:
+            class: 'block aspect-[1920/650] min-h-56 w-full object-cover sm:min-h-72',
+            widths: '640, 960, 1280, 1600, 1920, 2400',
+            sizes: '100vw',
+            loading: 'eager',
+            fetchpriority: 'high',
+            alt: section.settings.hero_image.alt
+        }}
+      {% else %}
+        <img
+          class="block aspect-[1920/650] min-h-56 w-full object-cover sm:min-h-72"
+          src="{{ 'contact-hero.jpg' | asset_url }}"
+          alt=""
+          width="1920"
+          height="650"
+          loading="eager"
+          fetchpriority="high"
+        >
+      {% endif %}
+      <div class="absolute inset-0 flex items-center justify-center bg-black/40 px-5">
+        <h1 class="m-0 text-center text-4xl font-bold uppercase tracking-tight text-white sm:text-5xl">
+          {{ page_heading | escape }}
+        </h1>
+      </div>
+    </div>
+  {% else %}
+    <header class="flex min-h-20 items-center justify-center bg-gray-200 px-5 py-5 uppercase md:min-h-24">
+      <h1 class="m-0 text-center text-4xl font-bold tracking-tight text-[var(--page-accent)] md:text-6xl">
+        {{ page_heading | escape }}
+      </h1>
+    </header>
+  {% endif %}
+
+  <div class="mx-auto max-w-5xl px-5 py-10 sm:px-8 sm:py-14 lg:py-20">
+    {% if section.settings.eyebrow != blank %}
+      <p class="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-[var(--page-accent)]">
+        {{ section.settings.eyebrow | escape }}
+      </p>
+    {% endif %}
+
+    {% if section.settings.show_content_heading %}
+      <h2 class="mb-6 text-2xl font-bold text-gray-600 sm:text-3xl">{{ page_heading | escape }}</h2>
+    {% endif %}
+
+    {% if page_body != blank %}
+      <div class="space-y-5 leading-7 text-gray-700 [&_a]:font-medium [&_a]:text-[var(--page-accent)] [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-[var(--page-accent)] [&_blockquote]:pl-5 [&_h2]:pt-4 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:text-gray-900 [&_h3]:pt-3 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-gray-900 [&_li]:mb-2 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:m-0 [&_table]:w-full [&_table]:border-collapse [&_td]:border [&_td]:border-gray-200 [&_td]:p-3 [&_th]:border [&_th]:border-gray-200 [&_th]:bg-gray-100 [&_th]:p-3 [&_ul]:list-disc [&_ul]:pl-6">
+        {{ page_body }}
+      </div>
+    {% else %}
+      <div class="border border-dashed border-gray-300 px-6 py-12 text-center text-gray-500">
+        Add content to this page in Shopify Admin.
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Page content",
+  "tag": "section",
+  "class": "section-main-page",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Custom heading", "info": "Uses the page title when blank." },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow text" },
+    { "type": "checkbox", "id": "show_hero", "label": "Show hero banner", "default": false },
+    { "type": "image_picker", "id": "hero_image", "label": "Hero image" },
+    {
+      "type": "checkbox",
+      "id": "show_content_heading",
+      "label": "Show heading above content",
+      "default": false
+    },
+    {
+      "type": "richtext",
+      "id": "fallback_content",
+      "label": "Starter content",
+      "info": "Displayed only while the Shopify page content is empty."
+    },
+    { "type": "color", "id": "accent_color", "label": "Accent color", "default": "#7d1717" }
+  ],
+  "presets": [{ "name": "Page content" }]
+}
+{% endschema %}

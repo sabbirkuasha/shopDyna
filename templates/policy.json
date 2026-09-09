@@ -1,0 +1,11 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-policy",
+      "settings": {
+        "accent_color": "#7d1717"
+      }
+    }
+  },
+  "order": ["main"]
+}
