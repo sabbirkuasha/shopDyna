@@ -20,7 +20,6 @@
       "navbar": {
         "type": "navbar",
         "settings": {
-          "site_name": "Mocktail",
           "main_menu": "main-menu",
           "outlet_url": "/pages/outlets",
           "navbar_bg_color": "#dfe3ef",

@@ -1,8 +1,37 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "main": {
       "type": "main-outlets",
       "blocks": {
+        "outlet_bhAN8j": {
+          "type": "outlet",
+          "settings": {
+            "name": "Bashundhara Outlet",
+            "address": "Level 7, Block A, Bashundhara City Shopping Complex, Panthapath, Dhaka",
+            "phone": "01318 240411",
+            "map_embed_url": "",
+            "directions_url": ""
+          }
+        },
+        "outlet_xEDnt7": {
+          "type": "outlet",
+          "settings": {
+            "name": "Bashundhara Outlet",
+            "address": "Level 7, Block A, Bashundhara City Shopping Complex, Panthapath, Dhaka",
+            "phone": "01318 240411",
+            "map_embed_url": "",
+            "directions_url": ""
+          }
+        },
         "bashundhara": {
           "type": "outlet",
           "settings": {
@@ -14,7 +43,11 @@
           }
         }
       },
-      "block_order": ["bashundhara"],
+      "block_order": [
+        "outlet_bhAN8j",
+        "outlet_xEDnt7",
+        "bashundhara"
+      ],
       "settings": {
         "heading": "Outlets",
         "introduction": "<p>Walk into our store to get up close and personal with the world of handcrafted goodness.</p><p>From appealing apparel to homey homeware; explore the world of DESHAL.</p>",
@@ -22,5 +55,7 @@
       }
     }
   },
-  "order": ["main"]
+  "order": [
+    "main"
+  ]
 }
