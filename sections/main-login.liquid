@@ -1,0 +1,119 @@
+<section class="bg-gray-50 py-12 sm:py-20" style="--account-accent: {{ section.settings.accent_color }}">
+  <div class="mx-auto max-w-md px-4">
+    <div class="rounded-md bg-white p-6 shadow-xl sm:p-10" data-login-panel>
+      <div class="text-center">
+        <img
+          class="mx-auto h-16 w-auto"
+          src="{{ 'DeshalMain.png' | asset_url }}"
+          width="160"
+          height="64"
+          alt="{{ shop.name }}"
+        >
+        <h1 class="mt-5 text-3xl font-bold uppercase text-[var(--account-accent)]">Login</h1>
+        <p class="mt-2 text-gray-500">Welcome back to {{ shop.name }}</p>
+      </div>
+      {% form 'customer_login', class: 'mt-8 space-y-5' %}
+        {% if form.errors %}
+          <div class="border border-red-200 bg-red-50 p-4 text-sm text-red-700" role="alert">
+            {{ form.errors | default_errors }}
+          </div>
+        {% endif %}
+        <div>
+          <label class="mb-2 block text-sm font-medium" for="CustomerEmail">Email</label
+          ><input
+            class="h-12 w-full border border-gray-300 px-4 outline-none focus:border-[var(--account-accent)]"
+            id="CustomerEmail"
+            name="customer[email]"
+            type="email"
+            autocomplete="email"
+            required
+          >
+        </div>
+        {% if form.password_needed %}
+          <div>
+            <div class="mb-2 flex justify-between">
+              <label class="text-sm font-medium" for="CustomerPassword">Password</label
+              ><button class="border-0 bg-transparent text-sm underline" type="button" data-recover-show>
+                Forgot password?
+              </button>
+            </div>
+            <input
+              class="h-12 w-full border border-gray-300 px-4 outline-none focus:border-[var(--account-accent)]"
+              id="CustomerPassword"
+              name="customer[password]"
+              type="password"
+              autocomplete="current-password"
+              required
+            >
+          </div>
+        {% endif %}
+        <button
+          class="h-12 w-full border-0 bg-[var(--account-accent)] font-semibold uppercase text-white hover:brightness-110"
+          type="submit"
+        >
+          Sign in
+        </button>
+      {% endform %}
+      <p class="mt-6 text-center text-sm">
+        New customer?
+        <a class="font-semibold text-[var(--account-accent)] underline" href="{{ routes.account_register_url }}"
+          >Create an account</a
+        >
+      </p>
+    </div>
+    <div class="hidden rounded-md bg-white p-6 shadow-xl sm:p-10" data-recover-panel>
+      <div class="text-center">
+        <h2 class="text-3xl font-bold uppercase text-[var(--account-accent)]">Reset password</h2>
+        <p class="mt-2 text-gray-500">We’ll send you a recovery link.</p>
+      </div>
+      {% form 'recover_customer_password', class: 'mt-8 space-y-5' %}
+        {% if form.posted_successfully? %}
+          <p class="bg-green-50 p-4 text-green-700">Recovery email sent.</p>
+        {% endif -%}
+        {{- form.errors | default_errors }}
+        <div>
+          <label class="mb-2 block text-sm font-medium" for="RecoverEmail">Email</label
+          ><input
+            class="h-12 w-full border border-gray-300 px-4 outline-none focus:border-[var(--account-accent)]"
+            id="RecoverEmail"
+            name="email"
+            type="email"
+            autocomplete="email"
+            required
+          >
+        </div>
+        <button class="h-12 w-full bg-[var(--account-accent)] font-semibold uppercase text-white" type="submit">
+          Send recovery email
+        </button>
+      {% endform %}
+      <button class="mt-5 w-full border-0 bg-transparent text-sm underline" type="button" data-recover-hide>
+        Back to login
+      </button>
+    </div>
+  </div>
+</section>
+<script>
+  (() => {
+    const section = document.currentScript.previousElementSibling,
+      login = section.querySelector('[data-login-panel]'),
+      recover = section.querySelector('[data-recover-panel]');
+    section.querySelector('[data-recover-show]')?.addEventListener('click', () => {
+      login.classList.add('hidden');
+      recover.classList.remove('hidden');
+    });
+    section.querySelector('[data-recover-hide]')?.addEventListener('click', () => {
+      recover.classList.add('hidden');
+      login.classList.remove('hidden');
+    });
+    if (location.hash === '#recover') {
+      login.classList.add('hidden');
+      recover.classList.remove('hidden');
+    }
+  })();
+</script>
+{% schema %}
+{
+  "name": "Customer login",
+  "settings": [{ "type": "color", "id": "accent_color", "label": "Accent color", "default": "#7d1717" }]
+}
+{% endschema %}

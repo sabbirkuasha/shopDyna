@@ -13,7 +13,19 @@
   endif
 %}
 
-<article class="group w-full overflow-hidden rounded-md bg-white shadow-sm transition-shadow hover:shadow-lg">
+<article class="group relative w-full overflow-hidden rounded-md bg-white shadow-sm transition-shadow hover:shadow-lg">
+  <button
+    class="absolute left-2 top-2 z-30 grid size-10 cursor-pointer place-items-center rounded-full border-0 bg-white/90 text-gray-700 shadow hover:text-red-700"
+    type="button"
+    aria-label="Add {{ product_card_product.title | escape }} to favourites"
+    aria-pressed="false"
+    data-favorite-toggle
+    data-product='{"handle":{{ product_card_product.handle | json }},"title":{{ product_card_product.title | json }},"url":{{ product_card_product.url | json }},"image":{{ product_card_product.featured_image | image_url: width: 700 | json }},"price":{{ product_card_product.price | money | json }}}'
+  >
+    <svg class="size-5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+      <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.9-8.6a5.5 5.5 0 0 0-.1-7.8Z"/>
+    </svg>
+  </button>
   <a class="block" href="{{ product_url }}" aria-label="{{ product_card_product.title | escape }}">
     <figure class="relative m-0 aspect-[4/5] overflow-hidden bg-gray-100">
       {% if is_new -%}

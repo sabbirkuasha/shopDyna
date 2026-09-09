@@ -16,6 +16,8 @@
     <main id="main" role="main">
       {{ content_for_layout }}
     </main>
+    {% section 'cart-drawer' %}
     {% section 'footer' %}
+    <script src="{{ 'storefront.js' | asset_url }}" defer></script>
   </body>
 </html>

@@ -1,3 +1,166 @@
-<section>
-  <h1>Cart</h1>
+<section class="bg-gray-50 py-8 text-gray-900 sm:py-12" style="--cart-accent: {{ section.settings.accent_color }}">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="mb-8 text-center">
+      <p class="text-sm uppercase tracking-[0.24em] text-gray-500">Your selection</p>
+      <h1 class="mt-2 text-3xl font-bold uppercase text-[var(--cart-accent)] sm:text-5xl">Shopping Cart</h1>
+    </div>
+    {% if cart.item_count == 0 %}
+      <div class="mx-auto max-w-xl rounded-md bg-white px-6 py-16 text-center shadow-sm">
+        <svg class="mx-auto size-20 fill-none stroke-gray-300 stroke-1" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 3h2l2.2 10.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.6L21 6H6"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/>
+        </svg>
+        <h2 class="mt-5 text-xl font-semibold">Your cart is empty</h2>
+        <p class="mt-2 text-gray-500">Looks like you haven't added anything yet.</p>
+        <a
+          class="mt-7 inline-flex h-12 items-center justify-center bg-[var(--cart-accent)] px-8 font-semibold uppercase text-white hover:brightness-110"
+          href="{{ routes.all_products_collection_url }}"
+          >Start shopping</a
+        >
+      </div>
+    {% else %}
+      <form action="{{ routes.cart_url }}" method="post">
+        <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <div class="overflow-hidden rounded-md bg-white shadow-sm">
+            <div class="hidden grid-cols-[minmax(0,2fr)_1fr_150px_1fr_44px] gap-4 border-b bg-gray-100 px-6 py-4 text-sm font-semibold uppercase lg:grid">
+              <span>Product</span><span>Unit price</span><span class="text-center">Quantity</span
+              ><span class="text-right">Total</span><span></span>
+            </div>
+            {% for item in cart.items %}
+              <div class="grid gap-4 border-b border-gray-200 p-4 last:border-0 sm:grid-cols-[112px_minmax(0,1fr)] lg:grid-cols-[minmax(0,2fr)_1fr_150px_1fr_44px] lg:items-center lg:px-6">
+                <div class="flex gap-4 sm:col-span-2 lg:col-span-1">
+                  <a class="h-32 w-24 shrink-0 overflow-hidden bg-gray-100" href="{{ item.url }}">
+                    {%- if item.image -%}
+                      {{-
+                        item.image
+                        | image_url: width: 240
+                        | image_tag: class: 'h-full w-full object-cover', loading: 'lazy', alt: item.product.title
+                      -}}
+                    {%- else -%}
+                      {{- 'product-1' | placeholder_svg_tag: 'h-full w-full text-gray-300' -}}
+                    {%- endif -%}
+                  </a>
+                  <div class="min-w-0 py-1">
+                    <a class="font-semibold hover:text-[var(--cart-accent)]" href="{{ item.url }}">
+                      {{- item.product.title -}}
+                    </a>
+                    {%- unless item.product.has_only_default_variant %}
+                      <p class="mt-1 text-sm text-gray-500">{{ item.variant.title }}</p>
+                    {% endunless -%}
+                    {%- if item.sku != blank %}
+                      <p class="mt-1 text-xs text-gray-400">SKU: {{ item.sku }}</p>
+                    {% endif -%}
+                    {%- for property in item.properties -%}
+                      {%- assign first_character = property.first | slice: 0 -%}
+                      {%- unless property.last == blank or first_character == '_' %}
+                        <p class="text-xs text-gray-500">{{ property.first }}: {{ property.last }}</p>
+                      {% endunless -%}
+                    {%- endfor %}
+                  </div>
+                </div>
+                <div>
+                  <span class="mr-2 text-xs uppercase text-gray-400 lg:hidden">Unit price</span>
+                  {{- item.final_price | money -}}
+                  {%- if item.original_price > item.final_price -%}
+                    <s class="ml-1 text-sm text-gray-400">{{ item.original_price | money }}</s>
+                  {%- endif %}
+                </div>
+                <div class="flex h-11 w-36 items-center border border-gray-300">
+                  <button class="size-10 cursor-pointer border-0 bg-white text-xl" type="button" data-cart-page-minus>
+                    −</button
+                  ><label class="sr-only" for="CartQuantity-{{ forloop.index }}">Quantity</label
+                  ><input
+                    class="h-full min-w-0 flex-1 border-x border-y-0 border-gray-300 text-center outline-0"
+                    id="CartQuantity-{{ forloop.index }}"
+                    name="updates[]"
+                    value="{{ item.quantity }}"
+                    min="0"
+                    type="number"
+                    data-cart-page-quantity
+
+                  ><button class="size-10 cursor-pointer border-0 bg-white text-xl" type="button" data-cart-page-plus>
+                    +
+                  </button>
+                </div>
+                <div class="font-semibold lg:text-right">
+                  <span class="mr-2 text-xs font-normal uppercase text-gray-400 lg:hidden">Total</span>
+                  {{- item.final_line_price | money }}
+                </div>
+                <a
+                  class="grid size-10 place-items-center rounded-full text-gray-500 hover:bg-red-50 hover:text-red-700"
+                  href="{{ item.url_to_remove }}"
+                  aria-label="Remove {{ item.product.title }}"
+                >
+                  <svg class="size-5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+                    <path d="M4 7h16M10 11v6M14 11v6M6 7l1 14h10l1-14M9 7V4h6v3"/>
+                  </svg>
+                </a>
+                {% if item.line_level_discount_allocations.size > 0 %}
+                  <ul class="text-sm text-green-700 sm:col-span-2 lg:col-span-5">
+                    {% for discount in item.line_level_discount_allocations %}
+                      <li>{{ discount.discount_application.title }} (−{{ discount.amount | money }})</li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+          <aside class="h-fit rounded-md bg-white p-6 shadow-sm lg:sticky lg:top-36">
+            <h2 class="text-xl font-bold uppercase">Order summary</h2>
+            <div class="mt-5 space-y-3 border-b border-gray-200 pb-5">
+              <div class="flex justify-between">
+                <span>Subtotal</span><strong>{{ cart.items_subtotal_price | money }}</strong>
+              </div>
+              {% for discount in cart.cart_level_discount_applications %}
+                <div class="flex justify-between text-green-700">
+                  <span>{{ discount.title }}</span><span>−{{ discount.total_allocated_amount | money }}</span>
+                </div>
+              {% endfor %}
+              <p class="text-sm text-gray-500">Shipping, taxes and discounts are calculated at checkout.</p>
+            </div>
+            <div class="flex justify-between py-5 text-xl">
+              <strong>Total</strong><strong class="text-[var(--cart-accent)]">{{ cart.total_price | money }}</strong>
+            </div>
+            <label class="mb-2 block text-sm font-medium" for="CartNote">Order note</label>><textarea
+              class="min-h-24 w-full resize-y border border-gray-300 p-3 outline-none focus:border-[var(--cart-accent)]"
+              id="CartNote"
+              name="note"
+            >{{ cart.note }}</textarea>
+            <button
+              class="mt-4 h-12 w-full cursor-pointer border border-[var(--cart-accent)] bg-white font-semibold uppercase text-[var(--cart-accent)] hover:bg-gray-50"
+              type="submit"
+              name="update"
+            >
+              Update cart</button
+            ><button
+              class="mt-3 h-12 w-full cursor-pointer border-0 bg-[var(--cart-accent)] font-semibold uppercase text-white hover:brightness-110"
+              type="submit"
+              name="checkout"
+            >
+              Proceed to checkout
+            </button>
+            {%- if additional_checkout_buttons %}
+              <div class="mt-4">{{ content_for_additional_checkout_buttons }}</div>
+            {% endif -%}
+            <a class="mt-5 block text-center text-sm underline" href="{{ routes.all_products_collection_url }}"
+              >Continue shopping</a
+            >
+          </aside>
+        </div>
+      </form>
+    {% endif %}
+  </div>
 </section>
+<script>
+  document.querySelectorAll('[data-cart-page-minus],[data-cart-page-plus]').forEach((button) =>
+    button.addEventListener('click', () => {
+      const input = button.parentElement.querySelector('[data-cart-page-quantity]');
+      input.value = Math.max(0, Number(input.value || 0) + (button.hasAttribute('data-cart-page-plus') ? 1 : -1));
+    }),
+  );
+</script>
+{% schema %}
+{
+  "name": "Cart page",
+  "settings": [{ "type": "color", "id": "accent_color", "label": "Accent color", "default": "#7d1717" }]
+}
+{% endschema %}

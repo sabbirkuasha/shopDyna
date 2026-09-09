@@ -258,17 +258,18 @@
         </div>
 
         <div class="mt-1 flex flex-wrap gap-2 uppercase">
-          {% if section.settings.wishlist_url != blank -%}
-            <a
-              class="inline-flex h-11 items-center justify-center border border-gray-400 px-4 hover:border-[var(--product-accent)]"
-              href="{{ section.settings.wishlist_url }}"
-            >
-              <svg class="mr-2 size-5 fill-none stroke-current stroke-1.5" viewBox="0 0 24 24">
-                <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.9-8.6a5.5 5.5 0 0 0-.1-7.8Z"/>
-              </svg>
-              Wishlist</a
-            >
-          {%- endif -%}
+          <button
+            class="inline-flex h-11 cursor-pointer items-center justify-center border border-gray-400 bg-white px-4 hover:border-[var(--product-accent)]"
+            type="button"
+            aria-pressed="false"
+            data-favorite-toggle
+            data-product='{"handle":{{ product.handle | json }},"title":{{ product.title | json }},"url":{{ product.url | json }},"image":{{ product.featured_image | image_url: width: 700 | json }},"price":{{ product.price | money | json }}}'
+          >
+            <svg class="mr-2 size-5 fill-none stroke-current stroke-1.5" viewBox="0 0 24 24">
+              <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.9-8.6a5.5 5.5 0 0 0-.1-7.8Z"/>
+            </svg>
+            Add to favourites
+          </button>
           {%- if selected_variant.store_availabilities.size > 0 %}
             <details class="min-w-52 flex-1 border border-gray-400">
               <summary class="flex h-11 cursor-pointer list-none items-center justify-center px-4 text-center">

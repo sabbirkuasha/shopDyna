@@ -96,20 +96,23 @@
         </a>
       {% endif %}
 
-      <a
+      <button
         class="relative grid size-8 shrink-0 place-items-center rounded-full p-1 transition hover:scale-110 hover:bg-black/5 sm:size-9"
-        href="{{ routes.cart_url }}"
+        type="button"
         aria-label="Cart with {{ cart.item_count }} items"
+        aria-controls="CartDrawerSection"
+        data-cart-drawer-open
       >
         <svg class="size-6 fill-none stroke-current stroke-2" aria-hidden="true" viewBox="0 0 24 24">
           <path d="M3 3h2l2.2 10.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.6L21 6H6"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/>
         </svg>
-        {% if cart.item_count > 0 -%}
-          <span class="absolute -right-1 -top-1 grid h-4.5 min-w-4.5 place-items-center rounded-full bg-[var(--header-accent)] px-1 text-[11px] font-bold leading-none text-white">
-            {{- cart.item_count -}}
-          </span>
-        {%- endif %}
-      </a>
+        <span
+          class="absolute -right-1 -top-1 grid h-4.5 min-w-4.5 place-items-center rounded-full bg-[var(--header-accent)] px-1 text-[11px] font-bold leading-none text-white{% if cart.item_count == 0 %} hidden{% endif %}"
+          data-cart-count
+        >
+          {{- cart.item_count -}}
+        </span>
+      </button>
 
       <a
         class="grid size-8 shrink-0 place-items-center rounded-full p-1 transition hover:scale-110 hover:bg-black/5 sm:size-9"

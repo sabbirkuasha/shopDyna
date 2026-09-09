@@ -1,0 +1,82 @@
+<section class="bg-gray-50 py-12 sm:py-20" style="--account-accent: {{ section.settings.accent_color }}">
+  <div class="mx-auto max-w-lg px-4">
+    <div class="rounded-md bg-white p-6 shadow-xl sm:p-10">
+      <div class="text-center">
+        <img
+          class="mx-auto h-16 w-auto"
+          src="{{ 'DeshalMain.png' | asset_url }}"
+          width="160"
+          height="64"
+          alt="{{ shop.name }}"
+        >
+        <h1 class="mt-5 text-3xl font-bold uppercase text-[var(--account-accent)]">Create account</h1>
+        <p class="mt-2 text-gray-500">Join {{ shop.name }} for faster checkout and order history.</p>
+      </div>
+      {% form 'create_customer', class: 'mt-8 grid gap-5 sm:grid-cols-2' %}
+        {% if form.errors %}
+          <div class="border border-red-200 bg-red-50 p-4 text-sm text-red-700 sm:col-span-2" role="alert">
+            {{ form.errors | default_errors }}
+          </div>
+        {% endif %}
+        <div>
+          <label class="mb-2 block text-sm font-medium" for="RegisterFirstName">First name</label
+          ><input
+            class="h-12 w-full border border-gray-300 px-4 outline-none focus:border-[var(--account-accent)]"
+            id="RegisterFirstName"
+            name="customer[first_name]"
+            type="text"
+            autocomplete="given-name"
+          >
+        </div>
+        <div>
+          <label class="mb-2 block text-sm font-medium" for="RegisterLastName">Last name</label
+          ><input
+            class="h-12 w-full border border-gray-300 px-4 outline-none focus:border-[var(--account-accent)]"
+            id="RegisterLastName"
+            name="customer[last_name]"
+            type="text"
+            autocomplete="family-name"
+          >
+        </div>
+        <div class="sm:col-span-2">
+          <label class="mb-2 block text-sm font-medium" for="RegisterEmail">Email</label
+          ><input
+            class="h-12 w-full border border-gray-300 px-4 outline-none focus:border-[var(--account-accent)]"
+            id="RegisterEmail"
+            name="customer[email]"
+            type="email"
+            autocomplete="email"
+            required
+          >
+        </div>
+        <div class="sm:col-span-2">
+          <label class="mb-2 block text-sm font-medium" for="RegisterPassword">Password</label
+          ><input
+            class="h-12 w-full border border-gray-300 px-4 outline-none focus:border-[var(--account-accent)]"
+            id="RegisterPassword"
+            name="customer[password]"
+            type="password"
+            autocomplete="new-password"
+            minlength="5"
+            required
+          >
+        </div>
+        <button class="h-12 bg-[var(--account-accent)] font-semibold uppercase text-white sm:col-span-2" type="submit">
+          Create account
+        </button>
+      {% endform %}
+      <p class="mt-6 text-center text-sm">
+        Already registered?
+        <a class="font-semibold text-[var(--account-accent)] underline" href="{{ routes.account_login_url }}"
+          >Sign in</a
+        >
+      </p>
+    </div>
+  </div>
+</section>
+{% schema %}
+{
+  "name": "Customer registration",
+  "settings": [{ "type": "color", "id": "accent_color", "label": "Accent color", "default": "#7d1717" }]
+}
+{% endschema %}
