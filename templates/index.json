@@ -9,13 +9,6 @@
  */
 {
   "sections": {
-    "banner": {
-      "type": "banner",
-      "settings": {
-        "message_bar": true,
-        "message_text": "Let's Do It!"
-      }
-    },
     "hero": {
       "type": "hero",
       "blocks": {
@@ -65,5 +58,5 @@
       "settings": {}
     }
   },
-  "order": ["banner", "hero", "grid", "card"]
+  "order": ["hero", "grid", "card"]
 }
