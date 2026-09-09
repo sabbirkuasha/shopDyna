@@ -1,0 +1,55 @@
+{% liquid
+  assign related_collection = product.collections.first
+  assign also_like_collection = section.settings.also_like_collection | default: collections.all
+%}
+<section class="bg-white py-6 text-gray-900" style="--collection-accent:{{ section.settings.accent_color }}">
+  {% if section.settings.show_related and related_collection.products_count > 1 %}
+    <div class="mb-8">
+      <h2 class="m-0 px-5 text-2xl font-medium sm:px-10">{{ section.settings.related_heading | escape }}</h2>
+      <div class="mt-4 grid auto-cols-[80%] grid-flow-col gap-4 overflow-x-auto px-4 pb-4 sm:auto-cols-[45%] md:auto-cols-[31%] lg:auto-cols-auto lg:grid-flow-row lg:grid-cols-4">
+        {% for related_product in related_collection.products limit: section.settings.products_to_show %}
+          {% unless related_product.id == product.id -%}
+            {%- render 'product_single', product_card_product: related_product -%}
+          {%- endunless %}
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  {% if section.settings.show_also_like and also_like_collection.products_count > 1 %}
+    <div>
+      <h2 class="m-0 px-5 text-2xl font-medium sm:px-10">{{ section.settings.also_like_heading | escape }}</h2>
+      <div class="mt-4 grid auto-cols-[80%] grid-flow-col gap-4 overflow-x-auto px-4 pb-4 sm:auto-cols-[45%] md:auto-cols-[31%] lg:auto-cols-auto lg:grid-flow-row lg:grid-cols-4">
+        {% for suggested_product in also_like_collection.products limit: section.settings.products_to_show offset: 4 %}
+          {% unless suggested_product.id == product.id -%}
+            {%- render 'product_single', product_card_product: suggested_product -%}
+          {%- endunless %}
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</section>
+
+{% schema %}
+{
+  "name": "Product recommendations",
+  "settings": [
+    { "type": "checkbox", "id": "show_related", "label": "Show related products", "default": true },
+    { "type": "text", "id": "related_heading", "label": "Related heading", "default": "Related Products" },
+    { "type": "checkbox", "id": "show_also_like", "label": "Show also-like products", "default": true },
+    { "type": "text", "id": "also_like_heading", "label": "Also-like heading", "default": "You Might Also Like" },
+    { "type": "collection", "id": "also_like_collection", "label": "Also-like collection" },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "label": "Products per row",
+      "min": 4,
+      "max": 12,
+      "step": 4,
+      "default": 8
+    },
+    { "type": "color", "id": "accent_color", "label": "Accent color", "default": "#7d1717" }
+  ],
+  "presets": [{ "name": "Product recommendations" }]
+}
+{% endschema %}

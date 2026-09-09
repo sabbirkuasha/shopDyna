@@ -3,7 +3,18 @@
     "main": {
       "type": "main-product",
       "settings": {}
+    },
+    "recommendations": {
+      "type": "product-recommendations",
+      "settings": {
+        "show_related": true,
+        "related_heading": "Related Products",
+        "show_also_like": true,
+        "also_like_heading": "You Might Also Like",
+        "products_to_show": 8,
+        "accent_color": "#7d1717"
+      }
     }
   },
-  "order": ["main"]
+  "order": ["main", "recommendations"]
 }
