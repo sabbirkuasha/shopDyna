@@ -1,49 +1,94 @@
 {% comment %}
-  Product card snippet
-  Accepts:
-  - product_card_product: {Object} Product Liquid object (required)
+  Deshal product card.
+  Accepts product_card_product: Product drop.
 {% endcomment %}
 
-<div class="card bg-base-100 hover:shadow-2xl transition-shadow duration-300 rounded-lg overflow-hidden max-w-72 border border-black/10">
-  <figure class="overflow-hidden">
-    <a
-      href="{{ product_card_product.url | within: collection }}"
-      aria-label="{{ product_card_product.title | escape }}"
-    >
-      {% if product_card_product.featured_image %}
-        <img
-          src="{{ product_card_product.featured_image | image_url: width: auto }}"
-          alt="{{ product_card_product.featured_image.alt | escape }}"
-          loading="lazy"
-          width="400"
-          height="{{ 400 | divided_by: product_card_product.featured_image.aspect_ratio | round }}"
-          class="w-full h-auto object-cover transform hover:scale-105 transition-transform duration-300"
+{% liquid
+  assign primary_image = product_card_product.featured_image
+  assign secondary_image = product_card_product.images[1]
+  assign product_url = product_card_product.url | within: collection
+  assign is_new = false
+  if product_card_product.tags contains 'New' or product_card_product.tags contains 'new'
+    assign is_new = true
+  endif
+%}
+
+<article class="group w-full overflow-hidden rounded-md bg-white shadow-sm transition-shadow hover:shadow-lg">
+  <a class="block" href="{{ product_url }}" aria-label="{{ product_card_product.title | escape }}">
+    <figure class="relative m-0 aspect-[4/5] overflow-hidden bg-gray-100">
+      {% if is_new -%}
+        <span class="absolute right-2 top-2 z-20 bg-red-700 px-3 py-2 text-xs font-medium uppercase text-white"
+          >New</span
         >
-      {% else %}
-        {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg w-full h-auto object-cover' }}
-      {% endif %}
-    </a>
-  </figure>
-  <div class="card-body p-4">
-    <h2 class="card-title text-lg font-semibold">
-      {{- product_card_product.title | link_to: product_card_product.url }}
-    </h2>
-    <p class="text-sm text-gray-600 mb-2">{{ product_card_product.vendor }}</p>
-    <div class="card-actions justify-between items-center">
-      <p class="text-base font-bold text-neutral">
-        {{ product_card_product.price | money }}
-        {% if product_card_product.compare_at_price > product_card_product.price %}
-          <span class="text-sm line-through text-gray-500 ml-2">
-            {{- product_card_product.compare_at_price | money -}}
-          </span>
+      {%- endif %}
+      {% unless product_card_product.available -%}
+        <span class="absolute left-2 top-2 z-20 bg-gray-800 px-3 py-2 text-xs font-medium uppercase text-white"
+          >Sold out</span
+        >
+      {%- endunless %}
+
+      {% if primary_image != blank %}
+        {{
+          primary_image
+          | image_url: width: 1200
+          | image_tag:
+            class: 'absolute inset-0 z-10 h-full w-full object-cover opacity-100 transition-opacity duration-300 ease-in group-hover:opacity-0',
+            widths: '320, 480, 640, 800, 1000, 1200',
+            sizes: '(min-width: 1024px) 25vw, (min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw',
+            loading: 'lazy',
+            alt: primary_image.alt
+        }}
+        {% if secondary_image != blank %}
+          {{
+            secondary_image
+            | image_url: width: 1200
+            | image_tag:
+              class: 'h-full w-full object-cover',
+              widths: '320, 480, 640, 800, 1000, 1200',
+              sizes: '(min-width: 1024px) 25vw, (min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw',
+              loading: 'lazy',
+              alt: secondary_image.alt
+          }}
+        {% else %}
+          {{
+            primary_image
+            | image_url: width: 1200
+            | image_tag:
+              class: 'h-full w-full object-cover',
+              widths: '320, 480, 640, 800, 1000, 1200',
+              sizes: '(min-width: 1024px) 25vw, (min-width: 768px) 33vw, (min-width: 640px) 50vw, 100vw',
+              loading: 'lazy',
+              alt: primary_image.alt
+          }}
         {% endif %}
-      </p>
-      <a href="{{ product_card_product.url | within: collection }}" class="btn btn-sm btn-outline btn-neutral">
-        View Product
-      </a>
+      {% else %}
+        {{ 'product-1' | placeholder_svg_tag: 'h-full w-full object-cover text-gray-300' }}
+      {% endif %}
+    </figure>
+
+    <div class="relative z-10 flex min-h-16 items-center justify-between gap-3 bg-white px-2 py-2">
+      <div class="min-w-0">
+        <h2 class="m-0 truncate text-sm font-bold text-black sm:text-base">
+          {{ product_card_product.title | escape }}
+        </h2>
+        <p class="m-0 mt-0.5 text-sm text-black sm:text-base">
+          {% if product_card_product.compare_at_price > product_card_product.price %}
+            <span>{{ product_card_product.price | money }}</span>
+            <span class="ml-1 text-red-700 line-through">{{ product_card_product.compare_at_price | money }}</span>
+          {% else %}
+            <span>{{ product_card_product.price | money }}</span>
+          {% endif %}
+        </p>
+      </div>
+      <span
+        class="grid size-9 shrink-0 place-items-center text-gray-800 transition-colors group-hover:text-[var(--collection-accent)]"
+        aria-hidden="true"
+      >
+        <svg class="size-7 fill-current" viewBox="0 0 16 16">
+          <path fill-rule="evenodd" d="M10.85 8.15a.5.5 0 0 1 0 .7l-3 3a.5.5 0 0 1-.7 0l-1.5-1.5a.5.5 0 0 1 .7-.7l1.15 1.14 2.65-2.64a.5.5 0 0 1 .7 0Z"/>
+          <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4H15v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V4h4.5v-.5A2.5 2.5 0 0 1 8 1Zm1.5 3v-.5a1.5 1.5 0 0 0-3 0V4h3ZM2 5v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V5H2Z"/>
+        </svg>
+      </span>
     </div>
-    {% if product_card_product.available == false %}
-      <div class="badge badge-error mt-2">Sold Out</div>
-    {% endif %}
-  </div>
-</div>
+  </a>
+</article>

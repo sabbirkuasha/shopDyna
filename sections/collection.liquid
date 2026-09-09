@@ -1,11 +1,31 @@
 {% liquid
   assign category_navigation = section.settings.category_menu
   assign category_links = blank
+  assign sibling_links = blank
+  assign parent_title = blank
+  assign parent_url = blank
+  assign grandparent_title = blank
+  assign grandparent_url = blank
   for parent_link in category_navigation.links
     if parent_link.type == 'collection_link' and parent_link.object.handle == collection.handle
       assign category_links = parent_link.links
-      break
     endif
+    for child_link in parent_link.links
+      if child_link.type == 'collection_link' and child_link.object.handle == collection.handle
+        assign sibling_links = parent_link.links
+        assign parent_title = parent_link.title
+        assign parent_url = parent_link.url
+      endif
+      for grandchild_link in child_link.links
+        if grandchild_link.type == 'collection_link' and grandchild_link.object.handle == collection.handle
+          assign sibling_links = child_link.links
+          assign parent_title = child_link.title
+          assign parent_url = child_link.url
+          assign grandparent_title = parent_link.title
+          assign grandparent_url = parent_link.url
+        endif
+      endfor
+    endfor
   endfor
 %}
 
@@ -70,22 +90,158 @@
       {% endfor %}
     </div>
   {% else %}
-    <header class="bg-gray-100 px-5 py-8 text-center">
-      <h1 class="m-0 text-3xl font-bold uppercase text-[var(--collection-accent)] md:text-5xl">
+    <header class="flex min-h-20 items-center justify-center bg-gray-200 px-5 py-5 uppercase md:min-h-24">
+      <h1 class="m-0 text-center text-4xl font-bold tracking-tight text-[var(--collection-accent)] md:text-6xl">
         {{ collection.title | escape }}
       </h1>
-      {% if section.settings.show_description and collection.description != blank %}
-        <div class="mx-auto mt-4 max-w-3xl leading-7 text-gray-600 [&_p]:m-0">{{ collection.description }}</div>
-      {% endif %}
     </header>
 
     {% paginate collection.products by section.settings.products_per_page %}
+      <div class="grid grid-cols-1 items-center gap-3 bg-white px-4 py-3 md:grid-cols-2 lg:grid-cols-4">
+        <nav class="min-w-0 overflow-hidden text-sm md:col-span-1" aria-label="Breadcrumb">
+          <ol class="flex list-none items-center gap-2 overflow-x-auto whitespace-nowrap p-0">
+            <li>
+              <a class="hover:text-[var(--collection-accent)] hover:underline" href="{{ routes.root_url }}">Home</a>
+            </li>
+            {% if grandparent_title != blank %}
+              <li aria-hidden="true">›</li>
+              <li>
+                <a class="hover:text-[var(--collection-accent)] hover:underline" href="{{ grandparent_url }}">
+                  {{- grandparent_title -}}
+                </a>
+              </li>
+            {% endif %}
+            {% if parent_title != blank %}
+              <li aria-hidden="true">›</li>
+              <li>
+                <a class="hover:text-[var(--collection-accent)] hover:underline" href="{{ parent_url }}">
+                  {{- parent_title -}}
+                </a>
+              </li>
+            {% endif %}
+            <li aria-hidden="true">›</li>
+            <li class="font-bold text-[var(--collection-accent)]" aria-current="page">{{ collection.title }}</li>
+          </ol>
+        </nav>
+
+        {% if sibling_links != blank %}
+          <nav class="hidden min-w-0 items-center justify-center lg:col-span-2 lg:flex" aria-label="Related categories">
+            <ul class="flex list-none flex-wrap items-center justify-center gap-y-1 p-0 text-sm">
+              <li>
+                <a class="pr-2 font-bold hover:text-[var(--collection-accent)] hover:underline" href="{{ parent_url }}"
+                  >All {{ parent_title -}}
+                </a>
+              </li>
+              {% for sibling_link in sibling_links %}
+                <li class="flex items-center">
+                  <span class="pr-2 text-gray-400" aria-hidden="true">|</span
+                  ><a
+                    class="pr-2 {% if sibling_link.current %}font-bold text-[var(--collection-accent)]{% else %}hover:text-[var(--collection-accent)] hover:underline{% endif %}"
+                    href="{{ sibling_link.url }}"
+                  >
+                    {{- sibling_link.title -}}
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          </nav>
+        {% else %}
+          <div class="hidden lg:col-span-2 lg:block"></div>
+        {% endif %}
+
+        <form class="flex justify-end md:col-start-2 lg:col-start-4" method="get">
+          <label class="sr-only" for="SortBy-{{ section.id }}">Sort products</label>
+          <select
+            class="h-10 w-full max-w-xs cursor-pointer rounded-none border border-gray-200 bg-white px-3 text-right text-sm uppercase outline-none focus:border-[var(--collection-accent)]"
+            id="SortBy-{{ section.id }}"
+            name="sort_by"
+            data-sort-select
+          >
+            {% assign sort_by = collection.sort_by | default: collection.default_sort_by %}
+            <option
+              value="{{ collection.default_sort_by }}"
+              {% if sort_by == collection.default_sort_by %}
+                selected
+              {% endif %}
+            >
+              Sort by
+            </option>
+            <option
+              value="created-descending"
+              {% if sort_by == 'created-descending' %}
+                selected
+              {% endif %}
+            >
+              Latest arrivals
+            </option>
+            <option
+              value="price-descending"
+              {% if sort_by == 'price-descending' %}
+                selected
+              {% endif %}
+            >
+              Price high to low
+            </option>
+            <option
+              value="price-ascending"
+              {% if sort_by == 'price-ascending' %}
+                selected
+              {% endif %}
+            >
+              Price low to high
+            </option>
+          </select>
+        </form>
+
+        {% if sibling_links != blank %}
+          <div class="md:col-span-2 lg:hidden">
+            <label class="sr-only" for="CategorySelect-{{ section.id }}">Related categories</label>
+            <select
+              class="h-11 w-full cursor-pointer rounded-none border border-gray-300 bg-white px-3 text-center text-sm uppercase outline-none focus:border-[var(--collection-accent)]"
+              id="CategorySelect-{{ section.id }}"
+              data-category-select
+            >
+              <option value="{{ parent_url }}">All {{ parent_title }}</option>
+              {% for sibling_link in sibling_links %}
+                <option
+                  value="{{ sibling_link.url }}"
+                  {% if sibling_link.current %}
+                    selected
+                  {% endif %}
+                >
+                  {{ sibling_link.title }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+        {% endif %}
+      </div>
+
+      {% if section.settings.show_description and collection.description != blank %}
+        <div class="mx-auto max-w-4xl px-5 py-5 text-center leading-7 text-gray-600 [&_p]:m-0">
+          {{ collection.description }}
+        </div>
+      {% endif %}
+
       {% if collection.products_count > 0 %}
-        <div class="grid grid-cols-2 gap-3 px-3 py-7 sm:gap-5 sm:px-5 lg:grid-cols-3 xl:grid-cols-4">
+        <div class="grid grid-cols-1 gap-4 bg-white p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {% for product in collection.products -%}
             {%- render 'product_single', product_card_product: product -%}
           {%- endfor %}
         </div>
+
+        <div class="px-5 pb-5 text-center">
+          <p class="m-0 inline-block border-b border-gray-800 py-2 text-sm">
+            Showing {{ paginate.current_offset | plus: 1 }}–
+            {%- if paginate.next -%}
+              {{- paginate.current_offset | plus: paginate.page_size -}}
+            {%- else -%}
+              {{- collection.products_count -}}
+            {%- endif %}
+            of {{ collection.products_count }} results
+          </p>
+        </div>
+
         {% if paginate.pages > 1 %}
           <nav class="flex items-center justify-center gap-2 px-5 pb-10" aria-label="Collection pagination">
             {% if paginate.previous -%}
@@ -106,11 +262,41 @@
           </nav>
         {% endif %}
       {% else %}
-        <div class="px-5 py-20 text-center text-gray-500">No products are available in this collection yet.</div>
+        <div class="px-5 py-16 text-center">
+          <div class="mx-auto inline-block border border-gray-300 p-7 text-gray-600">
+            <p class="m-0 uppercase">All products are sold!</p>
+            <img
+              class="mx-auto my-4 w-28 opacity-80"
+              src="{{ 'sold-out-grey.png' | asset_url }}"
+              alt="Sold out"
+              width="128"
+              height="128"
+              loading="lazy"
+            >
+            <h2 class="m-0 text-xl text-gray-700">Let's shop in other categories!</h2>
+            <a
+              class="mt-4 inline-flex min-h-11 items-center justify-center bg-[var(--collection-accent)] px-8 py-2 uppercase text-white"
+              href="{{ routes.root_url }}"
+              >Start shopping</a
+            >
+          </div>
+        </div>
       {% endif %}
     {% endpaginate %}
   {% endif %}
 </section>
+
+<script>
+  (() => {
+    const section = document.getElementById('shopify-section-{{ section.id }}');
+    if (!section || section.dataset.collectionReady === 'true') return;
+    section.dataset.collectionReady = 'true';
+    section.querySelector('[data-sort-select]')?.addEventListener('change', (event) => event.target.form.submit());
+    section.querySelector('[data-category-select]')?.addEventListener('change', (event) => {
+      window.location.href = event.target.value;
+    });
+  })();
+</script>
 
 {% schema %}
 {
