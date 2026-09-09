@@ -1,0 +1,176 @@
+<section
+  class="bg-white text-gray-800"
+  style="--contact-accent: {{ section.settings.accent_color }}; --contact-field: {{ section.settings.field_color }};"
+>
+  <div class="relative overflow-hidden bg-gray-800">
+    {% if section.settings.hero_image != blank %}
+      {{
+        section.settings.hero_image
+        | image_url: width: 2400
+        | image_tag:
+          class: 'block aspect-[1920/650] min-h-56 w-full object-cover sm:min-h-72',
+          widths: '640, 960, 1280, 1600, 1920, 2400',
+          sizes: '100vw',
+          loading: 'eager',
+          fetchpriority: 'high',
+          alt: section.settings.hero_image.alt
+      }}
+    {% else %}
+      <img
+        class="block aspect-[1920/650] min-h-56 w-full object-cover sm:min-h-72"
+        src="{{ 'contact-hero.jpg' | asset_url }}"
+        alt=""
+        width="1920"
+        height="650"
+        loading="eager"
+        fetchpriority="high"
+      >
+    {% endif %}
+    <div class="absolute inset-0 flex items-center justify-center bg-black/35 px-5">
+      <h1 class="m-0 text-center text-4xl font-bold uppercase tracking-tight text-white sm:text-5xl">
+        {{ section.settings.heading | escape }}
+      </h1>
+    </div>
+  </div>
+
+  <div class="mx-auto max-w-4xl px-5 py-12 sm:py-16 lg:py-20">
+    <div class="text-center">
+      {% if section.settings.support_email != blank %}
+        <div>
+          <h2 class="text-lg font-bold text-gray-500">Email</h2>
+          <p class="mt-3 text-sm">
+            For support:
+            <a
+              class="font-semibold text-gray-900 underline decoration-transparent underline-offset-4 transition hover:text-[var(--contact-accent)] hover:decoration-current"
+              href="mailto:{{ section.settings.support_email | escape }}"
+            >
+              {{ section.settings.support_email | escape }}
+            </a>
+          </p>
+        </div>
+      {% endif %}
+
+      {% if section.settings.support_phone != blank %}
+        <div class="mt-12 sm:mt-16">
+          <h2 class="text-lg font-bold text-gray-500">Call for support</h2>
+          <p class="mt-3 text-sm">
+            Outlet:
+            <a
+              class="font-semibold text-gray-900 underline decoration-transparent underline-offset-4 transition hover:text-[var(--contact-accent)] hover:decoration-current"
+              href="tel:{{ section.settings.support_phone | remove: ' ' | remove: '-' | remove: '(' | remove: ')' }}"
+            >
+              {{ section.settings.support_phone | escape }}
+            </a>
+          </p>
+        </div>
+      {% endif %}
+    </div>
+
+    {% form 'contact', class: 'mx-auto mt-12 max-w-xl space-y-5 sm:mt-16' %}
+      {% if form.posted_successfully? %}
+        <div class="border border-green-200 bg-green-50 px-5 py-4 text-center text-sm text-green-800" role="status">
+          Thanks for contacting us. We’ll get back to you as soon as possible.
+        </div>
+      {% endif %}
+
+      {% if form.errors %}
+        <div class="border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-800" role="alert">
+          <p class="font-semibold">Please correct the following:</p>
+          <div class="mt-2 [&_a]:underline [&_ul]:list-disc [&_ul]:pl-5">{{ form.errors | default_errors }}</div>
+        </div>
+      {% endif %}
+
+      <div>
+        <label class="mb-2 block text-sm font-medium" for="ContactForm-name-{{ section.id }}">Name</label>
+        <input
+          class="min-h-12 w-full border border-transparent bg-[var(--contact-field)] px-4 outline-none transition focus:border-[var(--contact-accent)] focus:ring-1 focus:ring-[var(--contact-accent)]"
+          id="ContactForm-name-{{ section.id }}"
+          name="contact[name]"
+          type="text"
+          autocomplete="name"
+          value="{% if form.name %}{{ form.name | escape }}{% elsif customer %}{{ customer.name | escape }}{% endif %}"
+          required
+        >
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium" for="ContactForm-email-{{ section.id }}">Email</label>
+        <input
+          class="min-h-12 w-full border bg-[var(--contact-field)] px-4 outline-none transition focus:border-[var(--contact-accent)] focus:ring-1 focus:ring-[var(--contact-accent)] {% if form.errors contains 'email' %}border-red-500{% else %}border-transparent{% endif %}"
+          id="ContactForm-email-{{ section.id }}"
+          name="contact[email]"
+          type="email"
+          autocomplete="email"
+          autocapitalize="off"
+          spellcheck="false"
+          value="{% if form.email %}{{ form.email | escape }}{% elsif customer %}{{ customer.email | escape }}{% endif %}"
+          aria-required="true"
+          {% if form.errors contains 'email' %}
+            aria-invalid="true"
+            aria-describedby="ContactForm-email-error-{{ section.id }}"
+          {% endif %}
+          required
+        >
+        {% if form.errors contains 'email' %}
+          <p class="mt-2 text-sm text-red-700" id="ContactForm-email-error-{{ section.id }}">
+            Please enter a valid email address.
+          </p>
+        {% endif %}
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium" for="ContactForm-phone-{{ section.id }}">Phone</label>
+        <input
+          class="min-h-12 w-full border border-transparent bg-[var(--contact-field)] px-4 outline-none transition focus:border-[var(--contact-accent)] focus:ring-1 focus:ring-[var(--contact-accent)]"
+          id="ContactForm-phone-{{ section.id }}"
+          name="contact[phone]"
+          type="tel"
+          autocomplete="tel"
+          inputmode="tel"
+          value="{% if form.phone %}{{ form.phone | escape }}{% elsif customer %}{{ customer.phone | escape }}{% endif %}"
+          required
+        >
+      </div>
+
+      <div>
+        <label class="mb-2 block text-sm font-medium" for="ContactForm-body-{{ section.id }}">Message</label>
+        <textarea
+          class="min-h-40 w-full resize-y border border-transparent bg-[var(--contact-field)] px-4 py-3 outline-none transition focus:border-[var(--contact-accent)] focus:ring-1 focus:ring-[var(--contact-accent)]"
+          id="ContactForm-body-{{ section.id }}"
+          name="contact[body]"
+          rows="7"
+          required
+        >{{ form.body | escape }}</textarea>
+      </div>
+
+      <button
+        class="mx-auto flex min-h-11 min-w-32 items-center justify-center bg-[var(--contact-accent)] px-6 py-3 font-semibold text-white transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-[var(--contact-accent)] focus:ring-offset-2"
+        type="submit"
+      >
+        Submit
+      </button>
+    {% endform %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Contact page",
+  "tag": "section",
+  "class": "section-contact",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Contact Us" },
+    { "type": "image_picker", "id": "hero_image", "label": "Hero image" },
+    {
+      "type": "text",
+      "id": "support_email",
+      "label": "Support email",
+      "default": "support@deshal.net"
+    },
+    { "type": "text", "id": "support_phone", "label": "Support phone", "default": "+8801318240411" },
+    { "type": "color", "id": "accent_color", "label": "Accent color", "default": "#7d1717" },
+    { "type": "color", "id": "field_color", "label": "Form field color", "default": "#f3f4f6" }
+  ],
+  "presets": [{ "name": "Contact page" }]
+}
+{% endschema %}

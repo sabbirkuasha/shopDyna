@@ -1,0 +1,16 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-contact",
+      "settings": {
+        "heading": "Contact Us",
+        "hero_image": "",
+        "support_email": "support@deshal.net",
+        "support_phone": "+8801318240411",
+        "accent_color": "#7d1717",
+        "field_color": "#f3f4f6"
+      }
+    }
+  },
+  "order": ["main"]
+}
