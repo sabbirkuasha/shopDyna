@@ -1,0 +1,26 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-outlets",
+      "blocks": {
+        "bashundhara": {
+          "type": "outlet",
+          "settings": {
+            "name": "Bashundhara Outlet",
+            "address": "Level 7, Block A, Bashundhara City Shopping Complex, Panthapath, Dhaka",
+            "phone": "01318 240411",
+            "map_embed_url": "",
+            "directions_url": "https://maps.google.com"
+          }
+        }
+      },
+      "block_order": ["bashundhara"],
+      "settings": {
+        "heading": "Outlets",
+        "introduction": "<p>Walk into our store to get up close and personal with the world of handcrafted goodness.</p><p>From appealing apparel to homey homeware; explore the world of DESHAL.</p>",
+        "accent_color": "#b91c1c"
+      }
+    }
+  },
+  "order": ["main"]
+}
