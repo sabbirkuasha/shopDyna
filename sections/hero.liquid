@@ -1,124 +1,52 @@
-<section>
-  <div class="w-full ">
-    <div class="carousel w-full">
-      <div id="slide1" class="relative carousel-item w-full">
-        <img
-          width="100%"
-          height="100%"
-          loading="lazy"
-          src="{{ 'Banner_1.jpg' | asset_url }}"
-          class="w-full"
-        >
-        <div class="absolute bottom-0 left-0 md:left-10 p-2 md:p-6 text-left text-white">
-          <h3 class="mb-1 text-2xl font-bold drop-shadow-lg bg-black/50 p-2 inline-block">Slide One Title</h3>
-          <p class="hidden max-w-md text-sm drop-shadow-lg md:block bg-black/50 p-2">
-            This is a short paragraph describing the first slide content. You can customize it as needed.
-          </p>
-        </div>
-        <div class="absolute top-1/2 right-5 left-5 flex -translate-y-1/2 transform justify-between">
-          <a href="#slide4" class="btn btn-circle">❮</a>
-          <a href="#slide2" class="btn btn-circle">❯</a>
-        </div>
-      </div>
-
-      <div id="slide2" class="relative carousel-item w-full">
-        <img
-          width="100%"
-          height="100%"
-          loading="lazy"
-          src="{{ 'Banner_5.jpg' | asset_url }}"
-          class="w-full"
-        >
-        <div class="absolute bottom-0 left-0 md:left-10 p-2 md:p-6 text-left text-white">
-          <h3 class="mb-1 text-2xl font-bold drop-shadow-lg bg-black/50 p-2 inline-block">Slide Two Title</h3>
-          <p class="hidden max-w-md text-sm drop-shadow-lg md:block bg-black/50 p-2">
-            This is a short paragraph describing the second slide content. You can customize it as needed.
-          </p>
-        </div>
-        <div class="absolute top-1/2 right-5 left-5 flex -translate-y-1/2 transform justify-between">
-          <a href="#slide1" class="btn btn-circle">❮</a>
-          <a href="#slide3" class="btn btn-circle">❯</a>
-        </div>
-      </div>
-
-      <div id="slide3" class="relative carousel-item w-full">
-        <img
-          width="100%"
-          height="100%"
-          loading="lazy"
-          src="{{ 'Banner_3.jpg' | asset_url }}"
-          class="w-full"
-        >
-        <div class="absolute bottom-0 left-0 md:left-10 p-2 md:p-6 text-left text-white">
-          <h3 class="mb-1 text-2xl font-bold drop-shadow-lg bg-black/50 p-2 inline-block">Slide Three Title</h3>
-          <p class="hidden max-w-md text-sm drop-shadow-lg md:block bg-black/50 p-2">
-            This is a short paragraph describing the third slide content. You can customize it as needed.
-          </p>
-        </div>
-        <div class="absolute top-1/2 right-5 left-5 flex -translate-y-1/2 transform justify-between">
-          <a href="#slide2" class="btn btn-circle">❮</a>
-          <a href="#slide4" class="btn btn-circle">❯</a>
-        </div>
-      </div>
-
-      <div id="slide4" class="relative carousel-item w-full">
-        <img
-          width="100%"
-          height="100%"
-          loading="lazy"
-          src="{{ 'Banner_4.jpg' | asset_url }}"
-          class="w-full"
-        >
-        <div class="absolute bottom-0 left-0 md:left-10 p-2 md:p-6 text-left text-white">
-          <h3 class="mb-1 text-2xl font-bold drop-shadow-lg bg-black/50 p-2 inline-block">Slide Four Title</h3>
-          <p class="hidden max-w-md text-sm drop-shadow-lg md:block bg-black/50 p-2">
-            This is a short paragraph describing the fourth slide content. You can customize it as needed.
-          </p>
-        </div>
-        <div class="absolute top-1/2 right-5 left-5 flex -translate-y-1/2 transform justify-between">
-          <a href="#slide3" class="btn btn-circle">❮</a>
-          <a href="#slide1" class="btn btn-circle">❯</a>
-        </div>
-      </div>
-    </div>
-  </div>
+<section class="w-full bg-white" aria-label="{{ section.settings.accessibility_label | escape }}">
+  {% if section.settings.link != blank %}<a class="block" href="{{ section.settings.link }}">{% endif %}
+  <picture>
+    {% if section.settings.mobile_image != blank %}
+      <source media="(max-width: 767px)" srcset="{{ section.settings.mobile_image | image_url: width: 1200 }}">
+    {% else %}
+      <source media="(max-width: 767px)" srcset="{{ 'home-eid-mobile.jpg' | asset_url }}">
+    {% endif %}
+    {% if section.settings.desktop_image != blank %}
+      {{
+        section.settings.desktop_image
+        | image_url: width: 2560
+        | image_tag:
+          class: 'block h-auto w-full object-cover',
+          widths: '960, 1280, 1600, 1920, 2560',
+          sizes: '100vw',
+          loading: 'eager',
+          fetchpriority: 'high',
+          alt: section.settings.accessibility_label
+      }}
+    {% else %}
+      <img
+        class="block h-auto w-full object-cover"
+        src="{{ 'home-eid-desktop.jpg' | asset_url }}"
+        alt="{{ section.settings.accessibility_label | escape }}"
+        width="1920"
+        height="850"
+        loading="eager"
+        fetchpriority="high"
+      >
+    {% endif %}
+  </picture>
+  {% if section.settings.link != blank %}</a>{% endif %}
 </section>
 
 {% schema %}
 {
-  "name": "Hero",
-  "max_blocks": 4,
-  "blocks": [
+  "name": "Home hero",
+  "settings": [
+    { "type": "image_picker", "id": "desktop_image", "label": "Desktop image", "info": "Recommended: 1920 × 850 px" },
+    { "type": "image_picker", "id": "mobile_image", "label": "Mobile image", "info": "Recommended: 855 × 654 px" },
+    { "type": "url", "id": "link", "label": "Campaign link" },
     {
-      "type": "slider",
-      "name": "Slider",
-      "settings": [
-        {
-          "type": "text",
-          "id": "title_text",
-          "label": "Title Text",
-          "default": "Welcome to Our Store (default)"
-        },
-        {
-          "type": "textarea",
-          "id": "description_text",
-          "label": "Description Text",
-          "default": "This is a short description of the store (default)"
-        },
-        {
-          "type": "image_picker",
-          "id": "image",
-          "label": "Image",
-          "info": "Upload an image for the hero section 1920px X 500px"
-        }
-      ]
+      "type": "text",
+      "id": "accessibility_label",
+      "label": "Image description",
+      "default": "Deshal seasonal collection"
     }
   ],
-  "presets": [
-    {
-      "name": "Hero",
-      "blocks": [{ "type": "slider" }, { "type": "slider" }, { "type": "slider" }, { "type": "slider" }]
-    }
-  ]
+  "presets": [{ "name": "Home hero" }]
 }
 {% endschema %}

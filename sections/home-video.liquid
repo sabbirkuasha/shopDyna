@@ -1,0 +1,38 @@
+{% liquid
+  assign video_id = section.settings.video.id | default: 'b88e5XRlcW8'
+%}
+{% if section.settings.show_video %}
+  <section class="w-full bg-black" aria-label="{{ section.settings.heading | escape }}">
+    {% if section.settings.heading != blank %}
+      <h2 class="sr-only">{{ section.settings.heading | escape }}</h2>
+    {% endif %}
+    <div class="aspect-video w-full md:max-h-[750px]">
+      <iframe
+        class="h-full w-full border-0"
+        src="https://www.youtube.com/embed/{{ video_id }}"
+        title="{{ section.settings.heading | escape }}"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen
+        loading="lazy"
+      ></iframe>
+    </div>
+  </section>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Home video",
+  "settings": [
+    { "type": "checkbox", "id": "show_video", "label": "Show video", "default": true },
+    { "type": "text", "id": "heading", "label": "Accessible video title", "default": "The story of Deshal" },
+    {
+      "type": "video_url",
+      "id": "video",
+      "label": "YouTube video",
+      "accept": ["youtube"],
+      "default": "https://www.youtube.com/watch?v=b88e5XRlcW8"
+    }
+  ],
+  "presets": [{ "name": "Home video" }]
+}
+{% endschema %}

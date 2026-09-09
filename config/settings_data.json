@@ -29,11 +29,21 @@
       "footer": {
         "type": "footer",
         "settings": {
-          "footer_menu": "footer",
-          "social_twitter_url": "",
-          "social_youtube_url": "",
-          "social_facebook_url": "",
-          "copyright_owner": "Zoetrone Studios"
+          "tagline": "Handcrafted ethnic luxury clothing inspired by Bengali nostalgia and mythology",
+          "accent_color": "#7d1717",
+          "about_heading": "About us",
+          "about_menu": "",
+          "policies_heading": "Policies",
+          "policies_menu": "",
+          "help_heading": "Policies",
+          "help_menu": "",
+          "social_heading": "Follow us for latest updates",
+          "social_facebook_url": "https://www.facebook.com/deshal.bd/",
+          "social_instagram_url": "https://www.instagram.com/deshal_bd/",
+          "social_youtube_url": "https://www.youtube.com/channel/UCG8cS7kaJQkmEethubu77zg?app=desktop",
+          "copyright_owner": "Deshal",
+          "developer_name": "Team Zoetrone",
+          "developer_url": "https://zoetrone.com/"
         }
       }
     },

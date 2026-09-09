@@ -1,0 +1,199 @@
+<section class="w-full bg-white" style="--home-accent: {{ section.settings.accent_color }};">
+  <div class="grid grid-cols-1 gap-2 py-2 md:grid-cols-3">
+    {% for block in section.blocks %}
+      {% if block.type == 'primary_category' %}
+        <article class="group relative overflow-hidden" {{ block.shopify_attributes }}>
+          <a class="block" href="{{ block.settings.link | default: routes.all_products_collection_url }}">
+            <picture>
+              {% if block.settings.mobile_image != blank %}
+                <source media="(max-width: 767px)" srcset="{{ block.settings.mobile_image | image_url: width: 1000 }}">
+              {% else %}
+                <source
+                  media="(max-width: 767px)"
+                  srcset="{{ block.settings.mobile_fallback | append: '.jpg' | asset_url }}"
+                >
+              {% endif %}
+              {% if block.settings.desktop_image != blank %}
+                {{
+                  block.settings.desktop_image
+                  | image_url: width: 1800
+                  | image_tag:
+                    class: 'block aspect-[173/205] w-full object-cover transition-transform duration-500 group-hover:scale-[1.025]',
+                    widths: '500, 800, 1200, 1800',
+                    sizes: '(min-width: 768px) 33vw, 100vw',
+                    loading: 'lazy',
+                    alt: block.settings.title
+                }}
+              {% else %}
+                <img
+                  class="block aspect-[173/205] w-full object-cover transition-transform duration-500 group-hover:scale-[1.025] max-md:aspect-[828/510]"
+                  src="{{ block.settings.desktop_fallback | append: '.jpg' | asset_url }}"
+                  alt="{{ block.settings.title | escape }}"
+                  width="1730"
+                  height="2050"
+                  loading="lazy"
+                >
+              {% endif %}
+            </picture>
+            <div class="absolute inset-x-0 bottom-0 z-10 flex flex-col items-center bg-gradient-to-t from-black/60 via-black/10 to-transparent px-5 pb-5 pt-20 text-center lg:pb-10">
+              <h2 class="m-0 text-2xl font-bold uppercase text-white drop-shadow-md md:text-3xl xl:text-4xl">
+                {{ block.settings.title | escape }}
+              </h2>
+              <span class="mt-2 inline-flex min-h-9 items-center justify-center bg-[var(--home-accent)] px-5 py-2 text-xs font-medium uppercase tracking-wide text-white shadow-md md:mt-4 md:min-h-11 md:px-9 md:text-sm">
+                {{- block.settings.button_label | escape -}}
+              </span>
+            </div>
+          </a>
+        </article>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  {% for block in section.blocks %}
+    {% if block.type == 'wide_category' %}
+      <article class="group relative mb-2 overflow-hidden" {{ block.shopify_attributes }}>
+        <a class="block" href="{{ block.settings.link | default: routes.all_products_collection_url }}">
+          {% if block.settings.image != blank %}
+            {{
+              block.settings.image
+              | image_url: width: 2400
+              | image_tag:
+                class: 'block aspect-[2/1] w-full object-cover transition-transform duration-500 group-hover:scale-[1.015] md:aspect-[1920/690]',
+                widths: '750, 1200, 1600, 2000, 2400',
+                sizes: '100vw',
+                loading: 'lazy',
+                alt: block.settings.title
+            }}
+          {% else %}
+            <img
+              class="block aspect-[2/1] w-full object-cover transition-transform duration-500 group-hover:scale-[1.015] md:aspect-[1920/690]"
+              src="{{ block.settings.fallback_asset | append: '.jpg' | asset_url }}"
+              alt="{{ block.settings.title | escape }}"
+              width="1920"
+              height="944"
+              loading="lazy"
+            >
+          {% endif %}
+          <div class="absolute inset-x-0 bottom-0 z-10 flex flex-col items-center bg-gradient-to-t from-black/60 via-black/10 to-transparent px-5 pb-5 pt-20 text-center lg:pb-10">
+            <h2 class="m-0 text-2xl font-bold uppercase text-white drop-shadow-md md:text-3xl xl:text-4xl">
+              {{ block.settings.title | escape }}
+            </h2>
+            <span class="mt-2 inline-flex min-h-9 items-center justify-center bg-[var(--home-accent)] px-5 py-2 text-xs font-medium uppercase tracking-wide text-white shadow-md md:mt-4 md:min-h-11 md:px-9 md:text-sm">
+              {{- block.settings.button_label | escape -}}
+            </span>
+          </div>
+        </a>
+      </article>
+    {% endif %}
+  {% endfor %}
+
+  {% if section.settings.show_noya %}
+    <article class="group relative overflow-hidden">
+      <a class="block" href="{{ section.settings.noya_link | default: routes.all_products_collection_url }}">
+        <picture>
+          {% if section.settings.noya_mobile_image != blank %}
+            <source
+              media="(max-width: 767px)"
+              srcset="{{ section.settings.noya_mobile_image | image_url: width: 1000 }}"
+            >
+          {% else %}
+            <source media="(max-width: 767px)" srcset="{{ 'home-noya-mobile.webp' | asset_url }}">
+          {% endif %}
+          {% if section.settings.noya_desktop_image != blank %}
+            {{
+              section.settings.noya_desktop_image
+              | image_url: width: 2400
+              | image_tag:
+                class: 'block h-auto w-full object-cover transition-transform duration-500 group-hover:scale-[1.015]',
+                widths: '750, 1200, 1600, 2000, 2400',
+                sizes: '100vw',
+                loading: 'lazy',
+                alt: section.settings.noya_title
+            }}
+          {% else %}
+            <img
+              class="block h-auto w-full object-cover transition-transform duration-500 group-hover:scale-[1.015]"
+              src="{{ 'home-noya-desktop.webp' | asset_url }}"
+              alt="{{ section.settings.noya_title | escape }}"
+              width="1920"
+              height="690"
+              loading="lazy"
+            >
+          {% endif %}
+        </picture>
+        <div class="absolute inset-x-0 bottom-0 z-10 flex flex-col items-center bg-gradient-to-t from-black/55 via-transparent to-transparent px-5 pb-5 pt-24 text-center lg:pb-10">
+          <h2 class="m-0 text-2xl font-bold uppercase text-white drop-shadow-md md:text-4xl">
+            {{ section.settings.noya_title | escape }}
+          </h2>
+          <span class="mt-3 inline-flex min-h-10 items-center justify-center bg-[var(--home-accent)] px-8 py-2 text-xs font-medium uppercase tracking-wide text-white shadow-md md:min-h-11 md:text-sm">
+            {{- section.settings.noya_button_label | escape -}}
+          </span>
+        </div>
+      </a>
+    </article>
+  {% endif %}
+</section>
+
+{% schema %}
+{
+  "name": "Home category showcase",
+  "settings": [
+    { "type": "color", "id": "accent_color", "label": "Button color", "default": "#7d1717" },
+    { "type": "header", "content": "NOYA feature" },
+    { "type": "checkbox", "id": "show_noya", "label": "Show NOYA feature", "default": true },
+    { "type": "text", "id": "noya_title", "label": "Title", "default": "NOYA" },
+    { "type": "text", "id": "noya_button_label", "label": "Button label", "default": "View products" },
+    { "type": "url", "id": "noya_link", "label": "Link" },
+    { "type": "image_picker", "id": "noya_desktop_image", "label": "Desktop image" },
+    { "type": "image_picker", "id": "noya_mobile_image", "label": "Mobile image" }
+  ],
+  "blocks": [
+    {
+      "type": "primary_category",
+      "name": "Primary category",
+      "limit": 3,
+      "settings": [
+        { "type": "text", "id": "title", "label": "Title", "default": "Women" },
+        { "type": "text", "id": "button_label", "label": "Button label", "default": "View products" },
+        { "type": "url", "id": "link", "label": "Link" },
+        { "type": "image_picker", "id": "desktop_image", "label": "Desktop image" },
+        { "type": "image_picker", "id": "mobile_image", "label": "Mobile image" },
+        {
+          "type": "text",
+          "id": "desktop_fallback",
+          "label": "Theme fallback asset",
+          "default": "home-women-desktop",
+          "info": "Used only when no desktop image is selected."
+        },
+        {
+          "type": "text",
+          "id": "mobile_fallback",
+          "label": "Mobile fallback asset",
+          "default": "home-women-mobile",
+          "info": "Used only when no mobile image is selected."
+        }
+      ]
+    },
+    {
+      "type": "wide_category",
+      "name": "Wide category",
+      "limit": 2,
+      "settings": [
+        { "type": "text", "id": "title", "label": "Title", "default": "Accessories" },
+        { "type": "text", "id": "button_label", "label": "Button label", "default": "View products" },
+        { "type": "url", "id": "link", "label": "Link" },
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        {
+          "type": "text",
+          "id": "fallback_asset",
+          "label": "Theme fallback asset",
+          "default": "home-accessories",
+          "info": "Used only when no image is selected."
+        }
+      ]
+    }
+  ],
+  "max_blocks": 5,
+  "presets": [{ "name": "Home category showcase" }]
+}
+{% endschema %}

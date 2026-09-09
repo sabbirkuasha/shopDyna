@@ -1,62 +1,81 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin theme editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "sections": {
     "hero": {
       "type": "hero",
+      "settings": {
+        "link": "/collections/all",
+        "accessibility_label": "Deshal seasonal collection"
+      }
+    },
+    "showcase": {
+      "type": "home-showcase",
       "blocks": {
-        "slider_ddq3TG": {
-          "type": "slider",
+        "women": {
+          "type": "primary_category",
           "settings": {
-            "title_text": "Welcome to Our Store (default)",
-            "description_text": "This is a short description of the store (default)"
+            "title": "Women",
+            "button_label": "View products",
+            "link": "/collections/women",
+            "desktop_fallback": "home-women-desktop",
+            "mobile_fallback": "home-women-mobile"
           }
         },
-        "slider_qeLmi3": {
-          "type": "slider",
+        "men": {
+          "type": "primary_category",
           "settings": {
-            "title_text": "Welcome to Our Store (default)",
-            "description_text": "This is a short description of the store (default)"
+            "title": "Men",
+            "button_label": "View products",
+            "link": "/collections/men",
+            "desktop_fallback": "home-men-desktop",
+            "mobile_fallback": "home-men-mobile"
           }
         },
-        "slider_LQgx83": {
-          "type": "slider",
+        "kids": {
+          "type": "primary_category",
           "settings": {
-            "title_text": "Welcome to Our Store (default)",
-            "description_text": "This is a short description of the store (default)"
+            "title": "Kids",
+            "button_label": "View products",
+            "link": "/collections/kids",
+            "desktop_fallback": "home-kids-desktop",
+            "mobile_fallback": "home-kids-mobile"
           }
         },
-        "slider_ThbgeN": {
-          "type": "slider",
+        "accessories": {
+          "type": "wide_category",
           "settings": {
-            "title_text": "Welcome to Our Store (default)",
-            "description_text": "This is a short description of the store (default)"
+            "title": "Accessories",
+            "button_label": "View products",
+            "link": "/collections/accessories",
+            "fallback_asset": "home-accessories"
+          }
+        },
+        "home_decor": {
+          "type": "wide_category",
+          "settings": {
+            "title": "Home Decor",
+            "button_label": "View products",
+            "link": "/collections/home-decor",
+            "fallback_asset": "home-decor"
           }
         }
       },
-      "block_order": [
-        "slider_ddq3TG",
-        "slider_qeLmi3",
-        "slider_LQgx83",
-        "slider_ThbgeN"
-      ],
-      "settings": {}
+      "block_order": ["women", "men", "kids", "accessories", "home_decor"],
+      "settings": {
+        "accent_color": "#7d1717",
+        "show_noya": true,
+        "noya_title": "NOYA",
+        "noya_button_label": "View products",
+        "noya_link": "/collections/noya"
+      }
     },
-    "grid": {
-      "type": "grid",
-      "settings": {}
-    },
-    "card": {
-      "type": "card",
-      "settings": {}
+    "video": {
+      "type": "home-video",
+      "settings": {
+        "show_video": true,
+        "heading": "The story of Deshal",
+        "video": "https://www.youtube.com/watch?v=b88e5XRlcW8"
+      }
     }
   },
-  "order": ["hero", "grid", "card"]
+  "order": ["hero", "showcase", "video"]
 }
