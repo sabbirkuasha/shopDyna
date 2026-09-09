@@ -1,0 +1,385 @@
+{% liquid
+  assign navigation = section.settings.main_menu
+  assign logo_alt = section.settings.logo.alt | default: shop.name | escape
+%}
+
+<header
+  id="DeshalHeader-{{ section.id }}"
+  class="sticky top-0 z-40 font-sans text-[var(--header-text)]"
+  style="--header-bg: {{ section.settings.navbar_bg_color }}; --header-text: {{ section.settings.navbar_text_color }}; --header-accent: {{ section.settings.accent_color }};"
+  data-header
+>
+  <div class="relative z-30 grid h-16 grid-cols-[1fr_auto_1fr] items-center border-b-2 border-gray-100 bg-[var(--header-bg)] px-2 shadow-lg sm:px-4 2xl:px-8">
+    <div class="flex min-w-0 items-center gap-0 sm:gap-2">
+      <button
+        class="grid size-8 shrink-0 cursor-pointer place-items-center rounded-full bg-transparent p-1 transition hover:scale-110 hover:bg-black/5 sm:size-9"
+        type="button"
+        aria-label="Open menu"
+        aria-controls="DeshalDrawer-{{ section.id }}"
+        aria-expanded="false"
+        data-drawer-open
+      >
+        <svg class="size-7 fill-none stroke-current stroke-2" aria-hidden="true" viewBox="0 0 24 24">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+
+      <a
+        class="grid size-8 shrink-0 place-items-center rounded-full p-1 transition hover:scale-110 hover:bg-black/5 sm:size-9"
+        href="{{ section.settings.outlet_url | default: routes.root_url }}"
+        aria-label="Our outlets"
+      >
+        <svg class="size-6 fill-none stroke-current stroke-2" aria-hidden="true" viewBox="0 0 24 24">
+          <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/>
+        </svg>
+      </a>
+
+      {% if section.settings.wishlist_url != blank %}
+        <a
+          class="grid size-8 shrink-0 place-items-center rounded-full p-1 transition hover:scale-110 hover:bg-black/5 sm:hidden"
+          href="{{ section.settings.wishlist_url }}"
+          aria-label="Wishlist"
+        >
+          <svg class="size-6 fill-none stroke-current stroke-2" aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.9-8.6a5.5 5.5 0 0 0-.1-7.8Z"/>
+          </svg>
+        </a>
+      {% endif %}
+    </div>
+
+    <a class="grid h-15 w-20 place-items-center xl:w-28" href="{{ routes.root_url }}" aria-label="{{ shop.name }} home">
+      {% if section.settings.logo != blank %}
+        {{
+          section.settings.logo
+          | image_url: width: 320
+          | image_tag:
+            class: 'max-h-14 w-auto max-w-full object-contain',
+            widths: '100, 160, 220, 320',
+            alt: logo_alt,
+            loading: 'eager'
+        }}
+      {% else %}
+        <img
+          class="max-h-14 w-auto max-w-full object-contain"
+          src="{{ 'DeshalMain.png' | asset_url }}"
+          alt="{{ shop.name | escape }}"
+          width="160"
+          height="64"
+          loading="eager"
+        >
+      {% endif %}
+    </a>
+
+    <div class="flex min-w-0 items-center justify-end gap-0 sm:gap-2">
+      <button
+        class="grid size-8 shrink-0 cursor-pointer place-items-center rounded-full bg-transparent p-1 transition hover:scale-110 hover:bg-black/5 sm:size-9"
+        type="button"
+        aria-label="Search"
+        aria-controls="DeshalSearch-{{ section.id }}"
+        aria-expanded="false"
+        data-search-toggle
+      >
+        <svg class="size-6 fill-none stroke-current stroke-2" aria-hidden="true" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>
+        </svg>
+      </button>
+
+      {% if section.settings.wishlist_url != blank %}
+        <a
+          class="hidden size-9 shrink-0 place-items-center rounded-full p-1 transition hover:scale-110 hover:bg-black/5 sm:grid"
+          href="{{ section.settings.wishlist_url }}"
+          aria-label="Wishlist"
+        >
+          <svg class="size-6 fill-none stroke-current stroke-2" aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.9-8.6a5.5 5.5 0 0 0-.1-7.8Z"/>
+          </svg>
+        </a>
+      {% endif %}
+
+      <a
+        class="relative grid size-8 shrink-0 place-items-center rounded-full p-1 transition hover:scale-110 hover:bg-black/5 sm:size-9"
+        href="{{ routes.cart_url }}"
+        aria-label="Cart with {{ cart.item_count }} items"
+      >
+        <svg class="size-6 fill-none stroke-current stroke-2" aria-hidden="true" viewBox="0 0 24 24">
+          <path d="M3 3h2l2.2 10.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.6L21 6H6"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/>
+        </svg>
+        {% if cart.item_count > 0 -%}
+          <span class="absolute -right-1 -top-1 grid h-4.5 min-w-4.5 place-items-center rounded-full bg-[var(--header-accent)] px-1 text-[11px] font-bold leading-none text-white">
+            {{- cart.item_count -}}
+          </span>
+        {%- endif %}
+      </a>
+
+      <a
+        class="grid size-8 shrink-0 place-items-center rounded-full p-1 transition hover:scale-110 hover:bg-black/5 sm:size-9"
+        href="{{ routes.account_url }}"
+        aria-label="{% if customer %}My account{% else %}Log in{% endif %}"
+      >
+        <svg class="size-6 fill-none stroke-current stroke-2" aria-hidden="true" viewBox="0 0 24 24">
+          <circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <div
+    id="DeshalSearch-{{ section.id }}"
+    class="absolute top-16 z-20 w-full border-b border-gray-300 bg-[var(--header-bg)] p-3 shadow-lg sm:px-5"
+    hidden
+    data-search-panel
+  >
+    <form
+      class="mx-auto flex h-11 max-w-3xl items-center overflow-hidden rounded-sm border border-gray-400 bg-white"
+      action="{{ routes.search_url }}"
+      method="get"
+      role="search"
+    >
+      <label class="sr-only" for="DeshalSearchInput-{{ section.id }}">Search the store</label>
+      <svg class="ml-3 size-5 shrink-0 fill-none stroke-gray-600 stroke-2" aria-hidden="true" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>
+      </svg>
+      <input
+        class="h-full min-w-0 flex-1 border-0 bg-white px-3 text-gray-900 outline-0"
+        id="DeshalSearchInput-{{ section.id }}"
+        type="search"
+        name="q"
+        value="{{ search.terms | escape }}"
+        placeholder="Search products"
+        autocomplete="off"
+      >
+      <button class="h-full cursor-pointer border-0 bg-[var(--header-accent)] px-5 text-white" type="submit">
+        Search
+      </button>
+    </form>
+  </div>
+
+  {% if navigation != blank %}
+    <nav
+      class="relative z-10 hidden min-h-13 bg-[var(--header-bg)] px-6 pb-3 pt-4 shadow-xl xl:block"
+      aria-label="Main navigation"
+    >
+      <ul class="mx-auto flex max-w-7xl list-none items-start justify-center gap-7 p-0" role="list">
+        {% for link in navigation.links %}
+          <li class="group static flex flex-wrap justify-center text-base capitalize">
+            <a
+              class="relative whitespace-nowrap after:absolute after:-bottom-1.5 after:inset-x-0 after:h-0.5 after:origin-center after:scale-x-0 after:bg-[var(--header-accent)] after:transition-transform group-hover:font-semibold group-hover:after:scale-x-100"
+              href="{{ link.url }}"
+              {% if link.current %}
+                aria-current="page"
+              {% endif %}
+            >
+              {{- link.title -}}
+            </a>
+            {% if link.links != blank %}
+              <span
+                class="h-2.5 w-full text-center text-xs leading-2.5 text-[var(--header-accent)] opacity-0 transition-opacity group-hover:opacity-100"
+                aria-hidden="true"
+                >▾</span
+              >
+              <div class="invisible absolute left-[10%] top-full max-h-0 w-4/5 -translate-y-1 overflow-auto border-t-2 border-[var(--header-accent)] bg-white text-gray-800 opacity-0 shadow-2xl transition-all group-hover:visible group-hover:max-h-[65vh] group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:max-h-[65vh] group-focus-within:translate-y-0 group-focus-within:opacity-100">
+                <ul
+                  class="grid list-none grid-cols-[repeat(auto-fit,minmax(190px,1fr))] gap-7 p-7 text-left"
+                  role="list"
+                >
+                  {% for child_link in link.links %}
+                    <li>
+                      <a class="mb-2.5 block text-lg font-bold text-[var(--header-accent)]" href="{{ child_link.url }}">
+                        {{- child_link.title -}}
+                      </a>
+                      {% if child_link.links != blank %}
+                        <ul class="grid list-none gap-2 p-0 text-[15px] text-gray-600" role="list">
+                          {% for grandchild_link in child_link.links %}
+                            <li>
+                              <a class="hover:text-[var(--header-accent)]" href="{{ grandchild_link.url }}">
+                                {{- grandchild_link.title -}}
+                              </a>
+                            </li>
+                          {% endfor %}
+                        </ul>
+                      {% endif %}
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </nav>
+  {% endif %}
+
+  <div class="invisible fixed inset-0 z-40 bg-black/45 opacity-0 transition-all" data-drawer-overlay></div>
+  <aside
+    id="DeshalDrawer-{{ section.id }}"
+    class="invisible fixed inset-y-0 left-0 z-50 w-[min(384px,86vw)] -translate-x-full overflow-y-auto bg-[var(--header-bg)] shadow-2xl transition-all"
+    aria-hidden="true"
+    aria-label="Mobile navigation"
+    data-drawer
+  >
+    <div class="flex h-19 items-center justify-between border-b border-gray-300 px-4.5 py-2.5">
+      <a href="{{ routes.root_url }}">
+        {%- if section.settings.logo != blank -%}
+          {{-
+            section.settings.logo
+            | image_url: width: 220
+            | image_tag: class: 'max-h-13 w-auto max-w-28 object-contain', width: 110, alt: logo_alt, loading: 'lazy'
+          -}}
+        {%- else -%}
+          <img
+            class="max-h-13 w-auto max-w-28 object-contain"
+            src="{{ 'DeshalMain.png' | asset_url }}"
+            alt="{{ shop.name | escape }}"
+            width="110"
+            height="44"
+            loading="lazy"
+          >
+        {%- endif -%}
+        ></a
+      >
+      <button
+        class="grid size-9 cursor-pointer place-items-center rounded-full border-0 bg-transparent p-1 transition hover:bg-black/5"
+        type="button"
+        aria-label="Close menu"
+        data-drawer-close
+      >
+        <svg class="size-6 fill-none stroke-current stroke-2" aria-hidden="true" viewBox="0 0 24 24">
+          <path d="m5 5 14 14M19 5 5 19"/>
+        </svg>
+      </button>
+    </div>
+
+    {% if navigation != blank %}
+      <nav aria-label="Mobile navigation">
+        <ul class="list-none px-5 pb-7 capitalize" role="list">
+          {% for link in navigation.links %}
+            <li class="border-b border-gray-300">
+              {% if link.links != blank %}
+                <details class="group/details">
+                  <summary class="flex min-h-13.5 cursor-pointer list-none items-center justify-between px-2 py-3">
+                    <span>{{ link.title }}</span
+                    ><span
+                      class="relative size-4 after:absolute after:left-0.5 after:top-[7px] after:h-0.5 after:w-3 after:bg-current after:transition-transform before:absolute before:left-0.5 before:top-[7px] before:h-0.5 before:w-3 before:bg-current after:rotate-90 group-open/details:after:rotate-0"
+                      aria-hidden="true"
+                    ></span>
+                  </summary>
+                  <a
+                    class="flex min-h-11 items-center px-2 py-2 font-semibold text-[var(--header-accent)]"
+                    href="{{ link.url }}"
+                    >Shop all {{ link.title -}}
+                  </a>
+                  <ul class="list-none pl-4 text-gray-600" role="list">
+                    {% for child_link in link.links %}
+                      <li>
+                        {% if child_link.links != blank %}
+                          <details class="group/child">
+                            <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between px-2 py-2">
+                              <span>{{ child_link.title }}</span
+                              ><span
+                                class="relative size-4 after:absolute after:left-0.5 after:top-[7px] after:h-0.5 after:w-3 after:bg-current after:transition-transform before:absolute before:left-0.5 before:top-[7px] before:h-0.5 before:w-3 before:bg-current after:rotate-90 group-open/child:after:rotate-0"
+                                aria-hidden="true"
+                              ></span>
+                            </summary>
+                            <a
+                              class="flex min-h-11 items-center px-2 py-2 font-semibold text-[var(--header-accent)]"
+                              href="{{ child_link.url }}"
+                              >Shop all {{ child_link.title -}}
+                            </a>
+                            <ul class="list-none pl-4" role="list">
+                              {% for grandchild_link in child_link.links %}
+                                <li>
+                                  <a class="flex min-h-11 items-center px-2 py-2" href="{{ grandchild_link.url }}">
+                                    {{- grandchild_link.title -}}
+                                  </a>
+                                </li>
+                              {% endfor %}
+                            </ul>
+                          </details>
+                        {% else -%}
+                          <a class="flex min-h-11 items-center px-2 py-2" href="{{ child_link.url }}">
+                            {{- child_link.title -}}
+                          </a>
+                        {%- endif %}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </details>
+              {% else %}
+                <a class="flex min-h-13.5 items-center px-2 py-3" href="{{ link.url }}">{{ link.title }}</a>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </nav>
+    {% endif %}
+  </aside>
+</header>
+
+<script>
+  (() => {
+    const header = document.getElementById('DeshalHeader-{{ section.id }}');
+    if (!header || header.dataset.initialized === 'true') return;
+    header.dataset.initialized = 'true';
+    const drawer = header.querySelector('[data-drawer]');
+    const overlay = header.querySelector('[data-drawer-overlay]');
+    const openButton = header.querySelector('[data-drawer-open]');
+    const closeButton = header.querySelector('[data-drawer-close]');
+    const searchButton = header.querySelector('[data-search-toggle]');
+    const searchPanel = header.querySelector('[data-search-panel]');
+    let lastFocused;
+
+    const closeDrawer = () => {
+      drawer.classList.add('invisible', '-translate-x-full');
+      overlay.classList.add('invisible', 'opacity-0');
+      drawer.setAttribute('aria-hidden', 'true');
+      openButton.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('overflow-hidden');
+      lastFocused?.focus();
+    };
+    const openDrawer = () => {
+      lastFocused = document.activeElement;
+      drawer.classList.remove('invisible', '-translate-x-full');
+      overlay.classList.remove('invisible', 'opacity-0');
+      drawer.setAttribute('aria-hidden', 'false');
+      openButton.setAttribute('aria-expanded', 'true');
+      document.body.classList.add('overflow-hidden');
+      closeButton.focus();
+    };
+
+    openButton.addEventListener('click', openDrawer);
+    closeButton.addEventListener('click', closeDrawer);
+    overlay.addEventListener('click', closeDrawer);
+    searchButton.addEventListener('click', () => {
+      const willOpen = searchPanel.hidden;
+      searchPanel.hidden = !willOpen;
+      searchButton.setAttribute('aria-expanded', String(willOpen));
+      if (willOpen) searchPanel.querySelector('input').focus();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape') return;
+      if (drawer.getAttribute('aria-hidden') === 'false') closeDrawer();
+      if (!searchPanel.hidden) {
+        searchPanel.hidden = true;
+        searchButton.setAttribute('aria-expanded', 'false');
+        searchButton.focus();
+      }
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Deshal header",
+  "settings": [
+    { "type": "image_picker", "id": "logo", "label": "Logo" },
+    { "type": "link_list", "id": "main_menu", "label": "Main menu", "default": "main-menu" },
+    { "type": "url", "id": "outlet_url", "label": "Outlets page" },
+    { "type": "url", "id": "wishlist_url", "label": "Wishlist page" },
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "navbar_bg_color", "label": "Background", "default": "#ffffff" },
+    { "type": "color", "id": "navbar_text_color", "label": "Text and icons", "default": "#1f2937" },
+    { "type": "color", "id": "accent_color", "label": "Accent", "default": "#7d1717" }
+  ],
+  "presets": [{ "name": "Deshal header", "category": "Header" }]
+}
+{% endschema %}
