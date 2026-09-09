@@ -12,6 +12,46 @@
     "main": {
       "type": "main-outlets",
       "blocks": {
+        "outlet_z68EX3": {
+          "type": "outlet",
+          "settings": {
+            "name": "Bashundhara Outlet",
+            "address": "Level 7, Block A, Bashundhara City Shopping Complex, Panthapath, Dhaka",
+            "phone": "01318 240411",
+            "map_embed_url": "",
+            "directions_url": ""
+          }
+        },
+        "outlet_Jw9Ycn": {
+          "type": "outlet",
+          "settings": {
+            "name": "Bashundhara Outlet",
+            "address": "Level 7, Block A, Bashundhara City Shopping Complex, Panthapath, Dhaka",
+            "phone": "01318 240411",
+            "map_embed_url": "",
+            "directions_url": ""
+          }
+        },
+        "outlet_rUDBat": {
+          "type": "outlet",
+          "settings": {
+            "name": "Bashundhara Outlet",
+            "address": "Level 7, Block A, Bashundhara City Shopping Complex, Panthapath, Dhaka",
+            "phone": "01318 240411",
+            "map_embed_url": "",
+            "directions_url": ""
+          }
+        },
+        "outlet_Lr6ehE": {
+          "type": "outlet",
+          "settings": {
+            "name": "Bashundhara Outlet",
+            "address": "Level 7, Block A, Bashundhara City Shopping Complex, Panthapath, Dhaka",
+            "phone": "01318 240411",
+            "map_embed_url": "",
+            "directions_url": ""
+          }
+        },
         "outlet_bhAN8j": {
           "type": "outlet",
           "settings": {
@@ -41,12 +81,27 @@
             "map_embed_url": "",
             "directions_url": "https://maps.google.com"
           }
+        },
+        "outlet_q4WBbc": {
+          "type": "outlet",
+          "settings": {
+            "name": "Bashundhara Outlet",
+            "address": "Level 7, Block A, Bashundhara City Shopping Complex, Panthapath, Dhaka",
+            "phone": "01318 240411",
+            "map_embed_url": "",
+            "directions_url": ""
+          }
         }
       },
       "block_order": [
+        "outlet_z68EX3",
+        "outlet_Jw9Ycn",
+        "outlet_rUDBat",
+        "outlet_Lr6ehE",
         "outlet_bhAN8j",
         "outlet_xEDnt7",
-        "bashundhara"
+        "bashundhara",
+        "outlet_q4WBbc"
       ],
       "settings": {
         "heading": "Outlets",
