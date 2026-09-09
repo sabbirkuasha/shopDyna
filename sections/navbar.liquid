@@ -148,9 +148,13 @@
         type="search"
         name="q"
         value="{{ search.terms | escape }}"
-        placeholder="Search products"
+        placeholder="Search products, articles, and pages"
         autocomplete="off"
+        enterkeyhint="search"
+        required
       >
+      <input type="hidden" name="type" value="product,article,page">
+      <input type="hidden" name="options[prefix]" value="last">
       <button class="h-full cursor-pointer border-0 bg-[var(--header-accent)] px-5 text-white" type="submit">
         Search
       </button>
