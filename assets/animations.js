@@ -59,6 +59,7 @@
     const curtain = document.querySelector("[data-page-transition]");
     if (!curtain || document.documentElement.dataset.transitionsReady) return;
     document.documentElement.dataset.transitionsReady = "true";
+    const supportsDocumentTransitions = "startViewTransition" in document;
     const isTransitionArrival = document.documentElement.classList.contains(
       "page-transition-active",
     );
@@ -122,7 +123,12 @@
         return;
       }
 
-      if (reduceMotion || window.Shopify?.designMode) return;
+      if (
+        reduceMotion ||
+        supportsDocumentTransitions ||
+        window.Shopify?.designMode
+      )
+        return;
       event.preventDefault();
       try {
         sessionStorage.setItem("deshal-page-transition", "pending");

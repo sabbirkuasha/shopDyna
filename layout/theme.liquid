@@ -12,12 +12,39 @@
       } catch (error) {}
     </script>
     <style>
+      @view-transition {
+        navigation: auto;
+      }
+      ::view-transition-old(root) {
+        animation: 260ms cubic-bezier(0.4, 0, 1, 1) both deshal-page-out;
+      }
+      ::view-transition-new(root) {
+        animation: 420ms cubic-bezier(0, 0, 0.2, 1) both deshal-page-in;
+      }
+      @keyframes deshal-page-out {
+        to {
+          opacity: 0.82;
+          transform: scale(0.995);
+        }
+      }
+      @keyframes deshal-page-in {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+      }
       .page-transition-active body {
         overflow: hidden;
       }
       .page-transition-active [data-page-transition] {
         opacity: 1 !important;
         transform: translateY(0) !important;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        ::view-transition-old(root),
+        ::view-transition-new(root) {
+          animation-duration: 0.001ms;
+        }
       }
     </style>
     <link rel="icon" href="{{ 'plannet.ico' | asset_url }}" type="image/x-icon">
@@ -27,10 +54,18 @@
   </head>
   <body class="template-{{ template.name | handle }}">
     <div
-      class="pointer-events-none fixed inset-0 z-[100] bg-[#f7f3ee] opacity-0"
+      class="pointer-events-none fixed inset-0 z-[100] grid place-items-center bg-gradient-to-br from-[#5e1010] via-[#7d1717] to-[#3d0909] opacity-0"
       aria-hidden="true"
       data-page-transition
-    ></div>
+    >
+      <img
+        class="w-28 brightness-0 invert sm:w-36"
+        src="{{ 'DeshalMain.png' | asset_url }}"
+        alt=""
+        width="160"
+        height="64"
+      >
+    </div>
     {% section 'banner' %}
     <div class="sticky top-0 z-40">
       {% section 'navbar' %}
