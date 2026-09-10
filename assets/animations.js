@@ -220,7 +220,13 @@
             overwrite: "auto",
           });
           if (content)
-            gsap.to(content, { y: -6, duration: 0.45, ease: "power3.out" });
+            gsap.to(content.children, {
+              y: -6,
+              duration: 0.45,
+              ease: "power3.out",
+              stagger: 0.025,
+              overwrite: "auto",
+            });
         });
         card.addEventListener("pointerleave", () => {
           gsap.to(media, {
@@ -230,7 +236,13 @@
             overwrite: "auto",
           });
           if (content)
-            gsap.to(content, { y: 0, duration: 0.5, ease: "power3.out" });
+            gsap.to(content.children, {
+              y: 0,
+              duration: 0.5,
+              ease: "power3.out",
+              stagger: 0.025,
+              overwrite: "auto",
+            });
         });
       });
     }
