@@ -1,5 +1,15 @@
-<section class="bg-gray-50 py-8 text-gray-900 sm:py-12" style="--cart-accent: {{ section.settings.accent_color }}">
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+<section
+  id="CartPageSection"
+  class="bg-gray-50 py-8 text-gray-900 sm:py-12"
+  style="--cart-accent: {{ section.settings.accent_color }}"
+  data-cart-page-section-id="{{ section.id }}"
+>
+  {%- liquid
+    assign vat_rate = section.settings.vat_rate | default: 10
+    assign vat_divisor = vat_rate | plus: 100.0
+    assign included_vat = cart.total_price | times: vat_rate | divided_by: vat_divisor | round
+  -%}
+  <div class="w-full px-4 sm:px-6 lg:px-10 xl:px-12">
     <div class="mb-8 text-center">
       <p class="text-sm uppercase tracking-[0.24em] text-gray-500">Your selection</p>
       <h1 class="mt-2 text-3xl font-bold uppercase text-[var(--cart-accent)] sm:text-5xl">Shopping Cart</h1>
@@ -26,7 +36,97 @@
               ><span class="text-right">Total</span><span></span>
             </div>
             {% for item in cart.items %}
-              <div class="grid gap-4 border-b border-gray-200 p-4 last:border-0 sm:grid-cols-[112px_minmax(0,1fr)] lg:grid-cols-[minmax(0,2fr)_1fr_150px_1fr_44px] lg:items-center lg:px-6">
+              {%- assign item_included_vat = item.final_line_price
+                | times: vat_rate
+                | divided_by: vat_divisor
+                | round
+              -%}
+              <article
+                class="grid grid-cols-[88px_minmax(0,1fr)] gap-4 border-b border-gray-200 p-4 last:border-0 lg:hidden"
+                data-cart-page-line
+              >
+                <a class="h-28 overflow-hidden bg-gray-100" href="{{ item.url }}">
+                  {%- if item.image -%}
+                    {{-
+                      item.image
+                      | image_url: width: 220
+                      | image_tag: class: 'h-full w-full object-cover', loading: 'lazy', alt: item.product.title
+                    -}}
+                  {%- else -%}
+                    {{- 'product-1' | placeholder_svg_tag: 'h-full w-full text-gray-300' -}}
+                  {%- endif -%}
+                </a>
+                <div class="min-w-0">
+                  <div class="flex items-start justify-between gap-3">
+                    <a class="font-semibold hover:text-[var(--cart-accent)]" href="{{ item.url }}">
+                      {{- item.product.title -}}
+                    </a>
+                    <a class="shrink-0 text-sm underline" href="{{ item.url_to_remove }}">Remove</a>
+                  </div>
+                  {%- unless item.product.has_only_default_variant %}
+                    <p class="mt-1 text-sm text-gray-500">{{ item.variant.title }}</p>
+                  {% endunless -%}
+                  {%- if item.sku != blank %}
+                    <p class="mt-1 text-xs text-gray-400">SKU: {{ item.sku }}</p>
+                  {% endif -%}
+                  <p class="mt-2 font-medium">{{ item.final_price | money }}</p>
+                  <p class="mt-1 text-xs text-gray-500">
+                    Included VAT ({{ vat_rate }}%): {{ item_included_vat | money }}
+                    {%- if item.quantity > 1 %} for {{ item.quantity }} items{% endif -%}
+                  </p>
+                  <div
+                    class="mt-3 flex h-10 w-32 items-center border border-gray-300 transition-colors focus-within:border-[var(--cart-accent)]"
+                    data-cart-page-quantity-control
+                  >
+                    <button
+                      class="size-9 cursor-pointer border-y-0 border-l-0 border-r border-gray-300 bg-gray-100 text-xl transition-colors hover:bg-gray-200 active:bg-[var(--cart-accent)] active:text-white disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-300"
+                      type="button"
+                      data-cart-page-change
+                      data-line="{{ forloop.index }}"
+                      data-quantity="{{ item.quantity | minus: 1 }}"
+                      aria-label="Decrease {{ item.product.title }} quantity"
+                      {% if item.quantity <= 1 %}disabled{% endif %}
+                    >
+                      −</button
+                    ><span class="relative h-full min-w-0 flex-1" aria-live="polite">
+                      <label class="sr-only" for="CartQuantityMobile-{{ forloop.index }}">Quantity</label>
+                      <input
+                        class="h-full w-full min-w-0 border-0 text-center outline-0"
+                        id="CartQuantityMobile-{{ forloop.index }}"
+                        value="{{ item.quantity }}"
+                        min="1"
+                        type="number"
+                        readonly
+                        data-cart-page-quantity
+                      >
+                      <span class="absolute inset-0 hidden items-center justify-center bg-white" data-cart-page-quantity-loading>
+                        <svg class="size-4 animate-spin" viewBox="0 0 24 24" aria-hidden="true">
+                          <circle class="fill-none stroke-gray-300 stroke-2" cx="12" cy="12" r="9"></circle>
+                          <path class="fill-none stroke-[var(--cart-accent)] stroke-2" d="M12 3a9 9 0 0 1 9 9"></path>
+                        </svg>
+                        <span class="sr-only">Updating quantity</span>
+                      </span>
+                    </span
+                    ><button
+                      class="size-9 cursor-pointer border-y-0 border-r-0 border-l border-gray-300 bg-gray-100 text-xl transition-colors hover:bg-gray-200 active:bg-[var(--cart-accent)] active:text-white disabled:cursor-wait disabled:bg-gray-50 disabled:text-gray-300"
+                      type="button"
+                      data-cart-page-change
+                      data-line="{{ forloop.index }}"
+                      data-quantity="{{ item.quantity | plus: 1 }}"
+                      aria-label="Increase {{ item.product.title }} quantity"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <p class="mt-2 hidden text-xs text-red-700" role="alert" data-cart-page-error>
+                    Couldn't update quantity. Please try again.
+                  </p>
+                </div>
+              </article>
+              <div
+                class="hidden gap-4 border-b border-gray-200 p-4 last:border-0 lg:grid lg:grid-cols-[minmax(0,2fr)_1fr_150px_1fr_44px] lg:items-center lg:px-6"
+                data-cart-page-line
+              >
                 <div class="flex gap-4 sm:col-span-2 lg:col-span-1">
                   <a class="h-32 w-24 shrink-0 overflow-hidden bg-gray-100" href="{{ item.url }}">
                     {%- if item.image -%}
@@ -64,26 +164,56 @@
                     <s class="ml-1 text-sm text-gray-400">{{ item.original_price | money }}</s>
                   {%- endif %}
                 </div>
-                <div class="flex h-11 w-36 items-center border border-gray-300">
-                  <button class="size-10 cursor-pointer border-0 bg-white text-xl" type="button" data-cart-page-minus>
+                <div
+                  class="flex h-11 w-36 items-center border border-gray-300 transition-colors focus-within:border-[var(--cart-accent)]"
+                  data-cart-page-quantity-control
+                >
+                  <button
+                    class="size-10 cursor-pointer border-y-0 border-l-0 border-r border-gray-300 bg-gray-100 text-xl transition-colors hover:bg-gray-200 active:bg-[var(--cart-accent)] active:text-white disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-300"
+                    type="button"
+                    data-cart-page-change
+                    data-line="{{ forloop.index }}"
+                    data-quantity="{{ item.quantity | minus: 1 }}"
+                    aria-label="Decrease {{ item.product.title }} quantity"
+                    {% if item.quantity <= 1 %}disabled{% endif %}
+                  >
                     −</button
-                  ><label class="sr-only" for="CartQuantity-{{ forloop.index }}">Quantity</label
-                  ><input
-                    class="h-full min-w-0 flex-1 border-x border-y-0 border-gray-300 text-center outline-0"
-                    id="CartQuantity-{{ forloop.index }}"
-                    name="updates[]"
-                    value="{{ item.quantity }}"
-                    min="0"
-                    type="number"
-                    data-cart-page-quantity
-
-                  ><button class="size-10 cursor-pointer border-0 bg-white text-xl" type="button" data-cart-page-plus>
+                  ><span class="relative h-full min-w-0 flex-1" aria-live="polite">
+                    <label class="sr-only" for="CartQuantityDesktop-{{ forloop.index }}">Quantity</label>
+                    <input
+                      class="h-full w-full min-w-0 border-0 text-center outline-0"
+                      id="CartQuantityDesktop-{{ forloop.index }}"
+                      name="updates[]"
+                      value="{{ item.quantity }}"
+                      min="1"
+                      type="number"
+                      data-cart-page-quantity
+                    >
+                    <span class="absolute inset-0 hidden items-center justify-center bg-white" data-cart-page-quantity-loading>
+                      <svg class="size-4 animate-spin" viewBox="0 0 24 24" aria-hidden="true">
+                        <circle class="fill-none stroke-gray-300 stroke-2" cx="12" cy="12" r="9"></circle>
+                        <path class="fill-none stroke-[var(--cart-accent)] stroke-2" d="M12 3a9 9 0 0 1 9 9"></path>
+                      </svg>
+                      <span class="sr-only">Updating quantity</span>
+                    </span>
+                  </span
+                  ><button
+                    class="size-10 cursor-pointer border-y-0 border-r-0 border-l border-gray-300 bg-gray-100 text-xl transition-colors hover:bg-gray-200 active:bg-[var(--cart-accent)] active:text-white disabled:cursor-wait disabled:bg-gray-50 disabled:text-gray-300"
+                    type="button"
+                    data-cart-page-change
+                    data-line="{{ forloop.index }}"
+                    data-quantity="{{ item.quantity | plus: 1 }}"
+                    aria-label="Increase {{ item.product.title }} quantity"
+                  >
                     +
                   </button>
                 </div>
                 <div class="font-semibold lg:text-right">
                   <span class="mr-2 text-xs font-normal uppercase text-gray-400 lg:hidden">Total</span>
                   {{- item.final_line_price | money }}
+                  <p class="mt-1 text-xs font-normal text-gray-500">
+                    Included VAT ({{ vat_rate }}%): {{ item_included_vat | money }}
+                  </p>
                 </div>
                 <a
                   class="grid size-10 place-items-center rounded-full text-gray-500 hover:bg-red-50 hover:text-red-700"
@@ -101,26 +231,47 @@
                     {% endfor %}
                   </ul>
                 {% endif %}
+                <p class="hidden text-sm text-red-700 sm:col-span-2 lg:col-span-5" role="alert" data-cart-page-error>
+                  Couldn't update quantity. Please try again.
+                </p>
               </div>
             {% endfor %}
           </div>
-          <aside class="h-fit rounded-md bg-white p-6 shadow-sm lg:sticky lg:top-36">
+          <aside class="h-fit rounded-md bg-white p-6 shadow-sm lg:sticky lg:top-36" data-cart-page-summary>
             <h2 class="text-xl font-bold uppercase">Order summary</h2>
-            <div class="mt-5 space-y-3 border-b border-gray-200 pb-5">
-              <div class="flex justify-between">
-                <span>Subtotal</span><strong>{{ cart.items_subtotal_price | money }}</strong>
-              </div>
-              {% for discount in cart.cart_level_discount_applications %}
-                <div class="flex justify-between text-green-700">
-                  <span>{{ discount.title }}</span><span>−{{ discount.total_allocated_amount | money }}</span>
+            <div class="relative" data-cart-page-summary-region>
+              <div data-cart-page-summary-values>
+                <div class="mt-5 space-y-3 border-b border-gray-200 pb-5">
+                  <div class="flex justify-between">
+                    <span>Subtotal</span><strong>{{ cart.items_subtotal_price | money }}</strong>
+                  </div>
+                  {% for discount in cart.cart_level_discount_applications %}
+                    <div class="flex justify-between text-green-700">
+                      <span>{{ discount.title }}</span><span>−{{ discount.total_allocated_amount | money }}</span>
+                    </div>
+                  {% endfor %}
+                  <div class="flex justify-between text-sm text-gray-600">
+                    <span>Included VAT ({{ vat_rate }}%)</span><span>{{ included_vat | money }}</span>
+                  </div>
+                  <p class="text-sm text-gray-500">Shipping and discounts are calculated at checkout.</p>
                 </div>
-              {% endfor %}
-              <p class="text-sm text-gray-500">Shipping, taxes and discounts are calculated at checkout.</p>
+                <div class="flex justify-between py-5 text-xl">
+                  <strong>Total (VAT included)</strong><strong class="text-[var(--cart-accent)]">{{ cart.total_price | money }}</strong>
+                </div>
+              </div>
+              <div
+                class="absolute inset-0 hidden items-center justify-center gap-2 bg-white/70 text-sm font-medium text-gray-700"
+                role="status"
+                data-cart-page-summary-loading
+              >
+                <svg class="size-4 animate-spin" viewBox="0 0 24 24" aria-hidden="true">
+                  <circle class="fill-none stroke-gray-300 stroke-2" cx="12" cy="12" r="9"></circle>
+                  <path class="fill-none stroke-[var(--cart-accent)] stroke-2" d="M12 3a9 9 0 0 1 9 9"></path>
+                </svg>
+                <span>Updating totals…</span>
+              </div>
             </div>
-            <div class="flex justify-between py-5 text-xl">
-              <strong>Total</strong><strong class="text-[var(--cart-accent)]">{{ cart.total_price | money }}</strong>
-            </div>
-            <label class="mb-2 block text-sm font-medium" for="CartNote">Order note</label>><textarea
+            <label class="mb-2 block text-sm font-medium" for="CartNote">Order note</label><textarea
               class="min-h-24 w-full resize-y border border-gray-300 p-3 outline-none focus:border-[var(--cart-accent)]"
               id="CartNote"
               name="note"
@@ -151,16 +302,99 @@
   </div>
 </section>
 <script>
-  document.querySelectorAll('[data-cart-page-minus],[data-cart-page-plus]').forEach((button) =>
-    button.addEventListener('click', () => {
-      const input = button.parentElement.querySelector('[data-cart-page-quantity]');
-      input.value = Math.max(0, Number(input.value || 0) + (button.hasAttribute('data-cart-page-plus') ? 1 : -1));
-    }),
-  );
+  if (!window.cartPageQuantityControlsReady) {
+    window.cartPageQuantityControlsReady = true;
+    document.addEventListener('click', async (event) => {
+      const button = event.target.closest('[data-cart-page-change]');
+      if (!button || button.disabled) return;
+
+      const requestedQuantity = Number(button.dataset.quantity);
+      if (requestedQuantity < 1) return;
+
+      const cartSection = document.getElementById('CartPageSection');
+      const cartLine = button.closest('[data-cart-page-line]');
+      const quantityControl = button.closest('[data-cart-page-quantity-control]');
+      const quantityInput = quantityControl?.querySelector('[data-cart-page-quantity]');
+      const quantityLoading = quantityControl?.querySelector('[data-cart-page-quantity-loading]');
+      const quantityButtons = quantityControl?.querySelectorAll('[data-cart-page-change]');
+      const quantityError = cartLine?.querySelector('[data-cart-page-error]');
+      const summary = document.querySelector('[data-cart-page-summary]');
+      const summaryValues = summary?.querySelector('[data-cart-page-summary-values]');
+      const summaryLoading = summary?.querySelector('[data-cart-page-summary-loading]');
+
+      quantityError?.classList.add('hidden');
+      quantityButtons?.forEach((control) => (control.disabled = true));
+      cartLine?.setAttribute('aria-busy', 'true');
+      quantityInput?.classList.add('invisible');
+      quantityLoading?.classList.remove('hidden');
+      quantityLoading?.classList.add('flex');
+      summary?.setAttribute('aria-busy', 'true');
+      summaryValues?.classList.add('animate-pulse', 'opacity-50');
+      summaryLoading?.classList.remove('hidden');
+      summaryLoading?.classList.add('flex');
+
+      try {
+        const response = await fetch(`${window.Shopify.routes.root}cart/change.js`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            line: Number(button.dataset.line),
+            quantity: requestedQuantity,
+          }),
+        });
+        if (!response.ok) throw new Error('Unable to update quantity');
+        const updatedCart = await response.json();
+        const sectionId = cartSection.dataset.cartPageSectionId;
+        const sectionResponse = await fetch(`${window.location.pathname}?section_id=${encodeURIComponent(sectionId)}`);
+        if (!sectionResponse.ok) throw new Error('Unable to refresh cart');
+        const html = await sectionResponse.text();
+        const nextSection = new DOMParser()
+          .parseFromString(html, 'text/html')
+          .querySelector('#CartPageSection');
+        if (!nextSection) throw new Error('Unable to render updated cart');
+        cartSection.replaceWith(nextSection);
+        document.querySelectorAll('[data-cart-count]').forEach((count) => {
+          count.textContent = updatedCart.item_count;
+          count.classList.toggle('hidden', updatedCart.item_count === 0);
+        });
+      } catch (error) {
+        console.error(error);
+        cartLine?.removeAttribute('aria-busy');
+        quantityInput?.classList.remove('invisible');
+        quantityLoading?.classList.add('hidden');
+        quantityLoading?.classList.remove('flex');
+        summary?.removeAttribute('aria-busy');
+        summaryValues?.classList.remove('animate-pulse', 'opacity-50');
+        summaryLoading?.classList.add('hidden');
+        summaryLoading?.classList.remove('flex');
+        quantityError?.classList.remove('hidden');
+        quantityButtons?.forEach((control) => {
+          control.disabled = Number(control.dataset.quantity) < 1;
+        });
+      }
+    });
+  }
 </script>
 {% schema %}
 {
   "name": "Cart page",
-  "settings": [{ "type": "color", "id": "accent_color", "label": "Accent color", "default": "#7d1717" }]
+  "settings": [
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#7d1717"
+    },
+    {
+      "type": "range",
+      "id": "vat_rate",
+      "label": "Included VAT rate",
+      "min": 0,
+      "max": 30,
+      "step": 0.5,
+      "unit": "%",
+      "default": 10
+    }
+  ]
 }
 {% endschema %}
