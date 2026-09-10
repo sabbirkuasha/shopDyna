@@ -42,6 +42,11 @@
         </div>
       </div>
     {% else %}
+      {%- liquid
+        assign vat_rate = section.settings.vat_rate | default: 10
+        assign vat_divisor = vat_rate | plus: 100.0
+        assign included_vat = cart.total_price | times: vat_rate | divided_by: vat_divisor | round
+      -%}
       <div class="flex-1 overflow-y-auto p-5">
         <div class="space-y-5">
           {% for item in cart.items %}
@@ -102,7 +107,13 @@
         <div class="mb-2 flex justify-between text-lg">
           <strong>Subtotal</strong><strong>{{ cart.total_price | money }}</strong>
         </div>
-        <p class="mb-4 text-sm text-gray-500">Shipping and taxes calculated at checkout.</p>
+        <div class="mb-2 flex justify-between text-sm text-gray-600">
+          <span>Included VAT ({{ vat_rate }}%)</span><span>{{ included_vat | money }}</span>
+        </div>
+        <div class="mb-3 flex justify-between border-t border-gray-200 pt-3 text-lg">
+          <strong>Total (VAT included)</strong><strong class="text-[var(--cart-drawer-accent)]">{{ cart.total_price | money }}</strong>
+        </div>
+        <p class="mb-4 text-sm text-gray-500">Shipping and discounts are calculated at checkout.</p>
         <a
           class="flex h-12 items-center justify-center bg-[var(--cart-drawer-accent)] font-semibold uppercase text-white"
           href="{{ routes.cart_url }}"
@@ -124,6 +135,23 @@
 {% schema %}
 {
   "name": "Cart drawer",
-  "settings": [{ "type": "color", "id": "accent_color", "label": "Accent color", "default": "#7d1717" }]
+  "settings": [
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#7d1717"
+    },
+    {
+      "type": "range",
+      "id": "vat_rate",
+      "label": "Included VAT rate",
+      "min": 0,
+      "max": 30,
+      "step": 0.5,
+      "unit": "%",
+      "default": 10
+    }
+  ]
 }
 {% endschema %}
