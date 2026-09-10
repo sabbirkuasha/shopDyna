@@ -1,0 +1,164 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-sw-by-deshal",
+      "blocks": {
+        "expert_faruque": {
+          "type": "expert",
+          "settings": {
+            "image": "",
+            "fallback_asset": "sw-expert-faruque",
+            "name": "Prof. Dr. Golam Mohiuddin Faruque",
+            "role": "Cancer Specialist & Joint Secretary\nBangladesh Cancer Society",
+            "quote": "<p>“I assessed the products myself. To reconfirm and double-check, I also consulted a plastic surgeon. With the cumulative positive observations, I was certain these products could be safely used by mastectomy patients.”</p>",
+            "video_url": "https://www.youtube.com/watch?v=zwTEzhoUXRU"
+          }
+        },
+        "expert_narita": {
+          "type": "expert",
+          "settings": {
+            "image": "",
+            "fallback_asset": "sw-expert-narita",
+            "name": "Dr. Narita Khurshid",
+            "role": "Oncologist, Cancer Care Centre\nEvercare Hospital Dhaka",
+            "quote": "<p>“These products will definitely be beneficial for all the breast cancer survivors who have had mastectomy.”</p>",
+            "video_url": "https://www.youtube.com/watch?v=D0xec84Lmkc"
+          }
+        },
+        "user_umaira": {
+          "type": "testimonial",
+          "settings": {
+            "image": "",
+            "fallback_asset": "sw-user-umaira",
+            "name": "Umaira Islam Binti",
+            "role": "Breast Cancer Survivor",
+            "quote": "<p>“Deshal introduced thoughtfully developed products for breast cancer survivors and mastectomy patients. The work needed to develop the products and deliver them to us has been executed in a well-planned way.”</p>"
+          }
+        },
+        "user_natasha": {
+          "type": "testimonial",
+          "settings": {
+            "image": "",
+            "fallback_asset": "sw-user-natasha",
+            "name": "Dr. NK Natasha",
+            "role": "Public Health Specialist & Breast Cancer Survivor",
+            "quote": "<p>“The products are affordable, lightweight, and easy to use for mastectomy patients. Hats off to Deshal for combining a prosthetic filler with garments we regularly wear.”</p>"
+          }
+        },
+        "blouse_hand": {
+          "type": "washing",
+          "settings": {
+            "group": "blouse",
+            "icon": "",
+            "fallback_asset": "sw-wash-hand",
+            "title": "Hand wash"
+          }
+        },
+        "blouse_shade": {
+          "type": "washing",
+          "settings": {
+            "group": "blouse",
+            "icon": "",
+            "fallback_asset": "sw-wash-shade",
+            "title": "Dry in shade"
+          }
+        },
+        "blouse_iron": {
+          "type": "washing",
+          "settings": {
+            "group": "blouse",
+            "icon": "",
+            "fallback_asset": "sw-wash-iron-medium",
+            "title": "Iron medium"
+          }
+        },
+        "blouse_bleach": {
+          "type": "washing",
+          "settings": {
+            "group": "blouse",
+            "icon": "",
+            "fallback_asset": "sw-wash-no-bleach",
+            "title": "Do not bleach"
+          }
+        },
+        "filler_hand": {
+          "type": "washing",
+          "settings": {
+            "group": "filler",
+            "icon": "",
+            "fallback_asset": "sw-wash-hand",
+            "title": "Hand wash"
+          }
+        },
+        "filler_sun": {
+          "type": "washing",
+          "settings": {
+            "group": "filler",
+            "icon": "",
+            "fallback_asset": "sw-wash-sun",
+            "title": "Dry in sunlight"
+          }
+        },
+        "filler_iron": {
+          "type": "washing",
+          "settings": {
+            "group": "filler",
+            "icon": "",
+            "fallback_asset": "sw-wash-no-iron",
+            "title": "Do not iron"
+          }
+        },
+        "filler_wring": {
+          "type": "washing",
+          "settings": {
+            "group": "filler",
+            "icon": "",
+            "fallback_asset": "sw-wash-no-wring",
+            "title": "Do not wring"
+          }
+        },
+        "filler_bleach": {
+          "type": "washing",
+          "settings": {
+            "group": "filler",
+            "icon": "",
+            "fallback_asset": "sw-wash-no-bleach",
+            "title": "Do not bleach"
+          }
+        }
+      },
+      "block_order": [
+        "expert_faruque",
+        "expert_narita",
+        "user_umaira",
+        "user_natasha",
+        "blouse_hand",
+        "blouse_shade",
+        "blouse_iron",
+        "blouse_bleach",
+        "filler_hand",
+        "filler_sun",
+        "filler_iron",
+        "filler_wring",
+        "filler_bleach"
+      ],
+      "settings": {
+        "accent_color": "#b91c1c",
+        "product_heading": "Mastectomy Products",
+        "products_per_page": 8,
+        "expert_heading": "The expert take — what they have to say",
+        "user_heading": "What the users say about us",
+        "tutorial_heading": "Prosthetic filler making tutorial",
+        "tutorial_video": "https://www.youtube.com/watch?v=xtyYpbxVELs",
+        "notes_heading": "Important notes about the products",
+        "usage_note": "Our product is only for patients who have completed their radiotherapy sessions.",
+        "delivery_note": "Products will be delivered within 15 days.",
+        "blouse_heading": "Washing instruction for blouse and tank top",
+        "blouse_note": "We recommend washing your blouse and tank top after every use.",
+        "filler_heading": "Washing instruction for prosthetic filler",
+        "filler_note": "Follow every care instruction to preserve the prosthetic filler."
+      }
+    }
+  },
+  "order": ["main"]
+}

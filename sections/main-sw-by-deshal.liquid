@@ -1,0 +1,403 @@
+<section
+  class="bg-white text-gray-800"
+  style="--sw-accent: {{ section.settings.accent_color }}; --collection-accent: {{ section.settings.accent_color }};"
+>
+  <header class="flex min-h-20 items-center justify-center bg-gray-200 px-5 py-5 uppercase md:min-h-24">
+    <h1 class="m-0 text-center text-3xl font-bold tracking-tight text-[var(--sw-accent)] md:text-5xl">
+      {{ section.settings.product_heading | default: collection.title | escape }}
+    </h1>
+  </header>
+
+  {% paginate collection.products by section.settings.products_per_page %}
+    {% if collection.products_count > 0 %}
+      <div class="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:px-10">
+        {% for product in collection.products %}
+          {% render 'product_single', product_card_product: product %}
+        {% endfor %}
+      </div>
+
+      {% if paginate.pages > 1 %}
+        <nav class="flex items-center justify-center gap-3 px-5 pb-12 pt-6" aria-label="Collection pagination">
+          {% if paginate.previous %}
+            <a
+              class="border border-gray-300 px-4 py-2 hover:border-[var(--sw-accent)] hover:text-[var(--sw-accent)]"
+              href="{{ paginate.previous.url }}"
+              >Previous</a
+            >
+          {% endif %}
+          <span class="text-sm text-gray-600">Page {{ paginate.current_page }} of {{ paginate.pages }}</span>
+          {% if paginate.next %}
+            <a
+              class="border border-gray-300 px-4 py-2 hover:border-[var(--sw-accent)] hover:text-[var(--sw-accent)]"
+              href="{{ paginate.next.url }}"
+              >Next</a
+            >
+          {% endif %}
+        </nav>
+      {% endif %}
+    {% else %}
+      <div class="px-5 py-16 text-center">
+        <h2 class="text-2xl font-semibold">Products coming soon</h2>
+        <p class="mt-3 text-gray-600">Add products to this collection in Shopify Admin.</p>
+      </div>
+    {% endif %}
+  {% endpaginate %}
+
+  <section class="bg-[#ffedfa] px-5 py-14 sm:py-20" aria-labelledby="SwExperts-{{ section.id }}">
+    <h2
+      id="SwExperts-{{ section.id }}"
+      class="text-center text-2xl font-bold capitalize text-[var(--sw-accent)] sm:text-4xl"
+    >
+      {{ section.settings.expert_heading | escape }}
+    </h2>
+    <div class="mx-auto mt-9 grid max-w-7xl gap-6 lg:grid-cols-2">
+      {% for block in section.blocks %}
+        {% if block.type == 'expert' %}
+          <article
+            class="overflow-hidden bg-white shadow-lg sm:grid sm:grid-cols-[minmax(190px,42%)_1fr]"
+            {{ block.shopify_attributes }}
+          >
+            <div class="group relative min-h-72 overflow-hidden bg-gray-200">
+              {% if block.settings.image != blank %}
+                {{
+                  block.settings.image
+                  | image_url: width: 900
+                  | image_tag:
+                    class: 'h-full w-full object-cover transition-transform duration-500 group-hover:scale-105',
+                    widths: '360, 540, 720, 900',
+                    sizes: '(min-width: 1024px) 21vw, 100vw',
+                    loading: 'lazy',
+                    alt: block.settings.name
+                }}
+              {% else %}
+                <img
+                  class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  src="{{ block.settings.fallback_asset | append: '.jpg' | asset_url }}"
+                  alt="{{ block.settings.name | escape }}"
+                  width="408"
+                  height="510"
+                  loading="lazy"
+                >
+              {% endif %}
+              {% if block.settings.video_url != blank %}
+                <a
+                  class="absolute inset-0 grid place-items-center bg-black/10 transition hover:bg-black/25"
+                  href="{{ block.settings.video_url }}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Watch {{ block.settings.name | escape }} on YouTube"
+                >
+                  <span
+                    class="grid size-16 place-items-center rounded-full bg-white/95 text-[var(--sw-accent)] shadow-xl transition-transform hover:scale-110"
+                    aria-hidden="true"
+                  >
+                    <svg class="ml-1 size-7 fill-current" viewBox="0 0 24 24">
+                      <path d="m8 5 11 7-11 7V5Z"/>
+                    </svg>
+                  </span>
+                </a>
+              {% endif %}
+            </div>
+            <div class="flex flex-col p-6 sm:p-7">
+              <h3 class="text-xl font-bold text-gray-900">{{ block.settings.name | escape }}</h3>
+              <p class="mt-2 text-sm font-semibold leading-5 text-gray-400">
+                {{ block.settings.role | newline_to_br }}
+              </p>
+              <div class="mt-6 text-sm leading-6 text-gray-700">{{ block.settings.quote }}</div>
+            </div>
+          </article>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="bg-slate-50 px-5 py-14 sm:py-20" aria-labelledby="SwUsers-{{ section.id }}">
+    <h2
+      id="SwUsers-{{ section.id }}"
+      class="text-center text-2xl font-bold capitalize text-[var(--sw-accent)] sm:text-4xl"
+    >
+      {{ section.settings.user_heading | escape }}
+    </h2>
+    <div class="mx-auto mt-9 grid max-w-7xl gap-6 lg:grid-cols-2">
+      {% for block in section.blocks %}
+        {% if block.type == 'testimonial' %}
+          <article
+            class="overflow-hidden bg-white shadow-lg sm:grid sm:grid-cols-[minmax(190px,42%)_1fr]"
+            {{ block.shopify_attributes }}
+          >
+            <div class="group min-h-72 overflow-hidden bg-gray-200">
+              {% if block.settings.image != blank %}
+                {{
+                  block.settings.image
+                  | image_url: width: 900
+                  | image_tag:
+                    class: 'h-full w-full object-cover transition-transform duration-500 group-hover:scale-105',
+                    widths: '360, 540, 720, 900',
+                    sizes: '(min-width: 1024px) 21vw, 100vw',
+                    loading: 'lazy',
+                    alt: block.settings.name
+                }}
+              {% else %}
+                <img
+                  class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  src="{{ block.settings.fallback_asset | append: '.jpg' | asset_url }}"
+                  alt="{{ block.settings.name | escape }}"
+                  width="408"
+                  height="510"
+                  loading="lazy"
+                >
+              {% endif %}
+            </div>
+            <div class="flex flex-col p-6 sm:p-7">
+              <h3 class="text-xl font-bold text-gray-900">{{ block.settings.name | escape }}</h3>
+              <p class="mt-2 text-sm font-semibold leading-5 text-gray-400">
+                {{ block.settings.role | newline_to_br }}
+              </p>
+              <div class="mt-6 text-sm leading-6 text-gray-700">{{ block.settings.quote }}</div>
+            </div>
+          </article>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </section>
+
+  {% if section.settings.tutorial_video != blank %}
+    <section class="bg-[#efefef] px-5 py-14 sm:py-20" aria-labelledby="SwTutorial-{{ section.id }}">
+      <h2
+        id="SwTutorial-{{ section.id }}"
+        class="text-center text-2xl font-bold capitalize text-[var(--sw-accent)] sm:text-4xl"
+      >
+        {{ section.settings.tutorial_heading | escape }}
+      </h2>
+      <div class="mx-auto mt-8 aspect-video max-w-4xl overflow-hidden rounded-3xl bg-black shadow-lg">
+        <iframe
+          class="h-full w-full border-0"
+          src="https://www.youtube.com/embed/{{ section.settings.tutorial_video.id }}"
+          title="{{ section.settings.tutorial_heading | escape }}"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+          loading="lazy"
+        ></iframe>
+      </div>
+    </section>
+  {% endif %}
+
+  <section class="px-5 py-14 sm:py-20" aria-labelledby="SwNotes-{{ section.id }}">
+    <h2
+      id="SwNotes-{{ section.id }}"
+      class="text-center text-2xl font-bold capitalize text-[var(--sw-accent)] sm:text-4xl"
+    >
+      {{ section.settings.notes_heading | escape }}
+    </h2>
+    <div class="mx-auto mt-9 grid max-w-4xl gap-4">
+      <article class="grid overflow-hidden border border-[var(--sw-accent)] sm:grid-cols-[150px_1fr]">
+        <div class="grid place-items-center border-b border-[var(--sw-accent)] p-5 sm:border-b-0 sm:border-r">
+          <img
+            class="size-20 object-contain"
+            src="{{ 'sw-using-instructions.png' | asset_url }}"
+            alt=""
+            width="80"
+            height="80"
+            loading="lazy"
+          >
+        </div>
+        <div class="p-5">
+          <h3 class="text-xl font-bold capitalize text-gray-600">Using instructions</h3>
+          <p class="mt-2 leading-7">{{ section.settings.usage_note | escape }}</p>
+        </div>
+      </article>
+      <article class="grid overflow-hidden border border-[var(--sw-accent)] sm:grid-cols-[150px_1fr]">
+        <div class="grid place-items-center border-b border-[var(--sw-accent)] p-5 sm:border-b-0 sm:border-r">
+          <img
+            class="size-20 object-contain"
+            src="{{ 'sw-delivery-condition.png' | asset_url }}"
+            alt=""
+            width="80"
+            height="80"
+            loading="lazy"
+          >
+        </div>
+        <div class="p-5">
+          <h3 class="text-xl font-bold capitalize text-gray-600">Delivery condition</h3>
+          <p class="mt-2 leading-7">{{ section.settings.delivery_note | escape }}</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  {% assign washing_groups = 'blouse|filler' | split: '|' %}
+  {% for group in washing_groups %}
+    <section class="border-t border-gray-100 px-5 py-12 sm:py-16">
+      <h2 class="text-center text-2xl font-bold capitalize text-[var(--sw-accent)] sm:text-4xl">
+        {% if group == 'blouse' -%}
+          {{- section.settings.blouse_heading | escape -}}
+        {%- else -%}
+          {{- section.settings.filler_heading | escape -}}
+        {%- endif %}
+      </h2>
+      <div class="mx-auto mt-9 flex max-w-5xl flex-wrap items-start justify-center gap-8 sm:gap-12">
+        {% for block in section.blocks %}
+          {% if block.type == 'washing' and block.settings.group == group %}
+            <div class="flex w-32 flex-col items-center text-center" {{ block.shopify_attributes }}>
+              <div class="grid size-28 place-items-center rounded-full border border-[var(--sw-accent)] p-6 sm:size-32">
+                {% if block.settings.icon != blank %}
+                  {{
+                    block.settings.icon
+                    | image_url: width: 180
+                    | image_tag: class: 'size-full object-contain', loading: 'lazy', alt: ''
+                  }}
+                {% else %}
+                  <img
+                    class="size-full object-contain"
+                    src="{{ block.settings.fallback_asset | append: '.png' | asset_url }}"
+                    alt=""
+                    width="80"
+                    height="80"
+                    loading="lazy"
+                  >
+                {% endif %}
+              </div>
+              <p class="mt-3 font-bold capitalize text-gray-600">{{ block.settings.title | escape }}</p>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <p class="mx-auto mt-9 max-w-4xl text-center text-lg font-bold text-gray-500">
+        {% if group == 'blouse' -%}
+          {{- section.settings.blouse_note | escape -}}
+        {%- else -%}
+          {{- section.settings.filler_note | escape -}}
+        {%- endif %}
+      </p>
+    </section>
+  {% endfor %}
+</section>
+
+{% schema %}
+{
+  "name": "স্ব By Deshal",
+  "tag": "section",
+  "class": "section-sw-by-deshal",
+  "settings": [
+    { "type": "color", "id": "accent_color", "label": "Accent color", "default": "#b91c1c" },
+    { "type": "text", "id": "product_heading", "label": "Product heading", "default": "Mastectomy Products" },
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "label": "Products per page",
+      "min": 4,
+      "max": 24,
+      "step": 4,
+      "default": 8
+    },
+    {
+      "type": "text",
+      "id": "expert_heading",
+      "label": "Expert section heading",
+      "default": "The expert take — what they have to say"
+    },
+    { "type": "text", "id": "user_heading", "label": "User section heading", "default": "What the users say about us" },
+    {
+      "type": "text",
+      "id": "tutorial_heading",
+      "label": "Tutorial heading",
+      "default": "Prosthetic filler making tutorial"
+    },
+    {
+      "type": "video_url",
+      "id": "tutorial_video",
+      "label": "Tutorial video",
+      "accept": ["youtube"],
+      "default": "https://www.youtube.com/watch?v=xtyYpbxVELs"
+    },
+    {
+      "type": "text",
+      "id": "notes_heading",
+      "label": "Notes heading",
+      "default": "Important notes about the products"
+    },
+    {
+      "type": "textarea",
+      "id": "usage_note",
+      "label": "Usage note",
+      "default": "Our product is only for patients who have completed their radiotherapy sessions."
+    },
+    {
+      "type": "textarea",
+      "id": "delivery_note",
+      "label": "Delivery note",
+      "default": "Products will be delivered within 15 days."
+    },
+    {
+      "type": "text",
+      "id": "blouse_heading",
+      "label": "Blouse washing heading",
+      "default": "Washing instruction for blouse and tank top"
+    },
+    {
+      "type": "text",
+      "id": "blouse_note",
+      "label": "Blouse washing note",
+      "default": "We recommend washing your blouse and tank top after every use."
+    },
+    {
+      "type": "text",
+      "id": "filler_heading",
+      "label": "Filler washing heading",
+      "default": "Washing instruction for prosthetic filler"
+    },
+    {
+      "type": "text",
+      "id": "filler_note",
+      "label": "Filler washing note",
+      "default": "Follow every care instruction to preserve the prosthetic filler."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "expert",
+      "name": "Expert opinion",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Photo" },
+        { "type": "text", "id": "fallback_asset", "label": "Fallback asset name" },
+        { "type": "text", "id": "name", "label": "Name" },
+        { "type": "textarea", "id": "role", "label": "Role" },
+        { "type": "richtext", "id": "quote", "label": "Quote" },
+        { "type": "video_url", "id": "video_url", "label": "YouTube video", "accept": ["youtube"] }
+      ]
+    },
+    {
+      "type": "testimonial",
+      "name": "User testimonial",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Photo" },
+        { "type": "text", "id": "fallback_asset", "label": "Fallback asset name" },
+        { "type": "text", "id": "name", "label": "Name" },
+        { "type": "textarea", "id": "role", "label": "Role" },
+        { "type": "richtext", "id": "quote", "label": "Quote" }
+      ]
+    },
+    {
+      "type": "washing",
+      "name": "Washing instruction",
+      "settings": [
+        {
+          "type": "select",
+          "id": "group",
+          "label": "Instruction group",
+          "options": [
+            { "value": "blouse", "label": "Blouse and tank top" },
+            { "value": "filler", "label": "Prosthetic filler" }
+          ],
+          "default": "blouse"
+        },
+        { "type": "image_picker", "id": "icon", "label": "Icon" },
+        { "type": "text", "id": "fallback_asset", "label": "Fallback asset name" },
+        { "type": "text", "id": "title", "label": "Instruction" }
+      ]
+    }
+  ],
+  "max_blocks": 20,
+  "presets": [{ "name": "স্ব By Deshal" }]
+}
+{% endschema %}
