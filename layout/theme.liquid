@@ -3,6 +3,23 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+      try {
+        if (sessionStorage.getItem('deshal-page-transition') === 'pending') {
+          document.documentElement.classList.add('page-transition-active');
+          window.setTimeout(() => document.documentElement.classList.remove('page-transition-active'), 2500);
+        }
+      } catch (error) {}
+    </script>
+    <style>
+      .page-transition-active body {
+        overflow: hidden;
+      }
+      .page-transition-active [data-page-transition] {
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+      }
+    </style>
     <link rel="icon" href="{{ 'plannet.ico' | asset_url }}" type="image/x-icon">
     {{ content_for_header }}
     {{ 'tailwind.output.css' | asset_url | stylesheet_tag: preload: true, media: 'all' }}

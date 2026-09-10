@@ -59,19 +59,41 @@
     const curtain = document.querySelector("[data-page-transition]");
     if (!curtain || document.documentElement.dataset.transitionsReady) return;
     document.documentElement.dataset.transitionsReady = "true";
+    const isTransitionArrival = document.documentElement.classList.contains(
+      "page-transition-active",
+    );
 
-    if (!reduceMotion) {
+    if (!reduceMotion && isTransitionArrival) {
       gsap.set(curtain, { autoAlpha: 1, yPercent: 0 });
+      document.documentElement.classList.remove("page-transition-active");
+      try {
+        sessionStorage.removeItem("deshal-page-transition");
+      } catch (error) {}
       gsap.to(curtain, {
         yPercent: -100,
-        duration: 0.78,
+        duration: 0.72,
         ease: "power4.inOut",
-        delay: 0.05,
+        delay: 0.04,
       });
-      gsap.from("#main", {
-        autoAlpha: 0.82,
-        duration: 0.55,
-        ease: "power2.out",
+      gsap.fromTo(
+        "#main",
+        { autoAlpha: 0.9, y: 8 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.62,
+          ease: "power2.out",
+          clearProps: "transform,opacity,visibility",
+        },
+      );
+    } else {
+      document.documentElement.classList.remove("page-transition-active");
+      try {
+        sessionStorage.removeItem("deshal-page-transition");
+      } catch (error) {}
+      gsap.set(curtain, {
+        autoAlpha: reduceMotion ? 0 : 1,
+        yPercent: reduceMotion ? 0 : -100,
       });
     }
 
@@ -102,6 +124,9 @@
 
       if (reduceMotion || window.Shopify?.designMode) return;
       event.preventDefault();
+      try {
+        sessionStorage.setItem("deshal-page-transition", "pending");
+      } catch (error) {}
       curtain.style.pointerEvents = "auto";
       gsap.killTweensOf(curtain);
       gsap.fromTo(
@@ -116,9 +141,10 @@
       );
     });
 
-    window.addEventListener("pageshow", () => {
+    window.addEventListener("pageshow", (event) => {
       curtain.style.pointerEvents = "none";
-      if (!reduceMotion) gsap.set(curtain, { yPercent: -100, autoAlpha: 1 });
+      if (event.persisted && !reduceMotion)
+        gsap.set(curtain, { yPercent: -100, autoAlpha: 1 });
     });
   };
 
