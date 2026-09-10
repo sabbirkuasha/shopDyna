@@ -212,31 +212,22 @@
         const media = card.querySelector("[data-home-card-media]");
         const content = card.querySelector("[data-home-card-content]");
         if (!media) return;
-        const moveX = gsap.quickTo(media, "x", {
-          duration: 0.65,
-          ease: "power3.out",
-        });
-        const moveY = gsap.quickTo(media, "y", {
-          duration: 0.65,
-          ease: "power3.out",
-        });
         card.addEventListener("pointerenter", () => {
-          gsap.to(media, { scale: 1.045, duration: 0.7, ease: "power3.out" });
+          gsap.to(media, {
+            scale: 1.045,
+            duration: 0.7,
+            ease: "power3.out",
+            overwrite: "auto",
+          });
           if (content)
             gsap.to(content, { y: -6, duration: 0.45, ease: "power3.out" });
         });
-        card.addEventListener("pointermove", (event) => {
-          const bounds = card.getBoundingClientRect();
-          moveX(((event.clientX - bounds.left) / bounds.width - 0.5) * 8);
-          moveY(((event.clientY - bounds.top) / bounds.height - 0.5) * 8);
-        });
         card.addEventListener("pointerleave", () => {
           gsap.to(media, {
-            x: 0,
-            y: 0,
             scale: 1,
             duration: 0.8,
             ease: "power3.out",
+            overwrite: "auto",
           });
           if (content)
             gsap.to(content, { y: 0, duration: 0.5, ease: "power3.out" });

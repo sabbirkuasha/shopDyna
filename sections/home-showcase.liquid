@@ -8,7 +8,7 @@
       {% if block.type == 'primary_category' %}
         <article class="group relative overflow-hidden" data-home-reveal data-home-card {{ block.shopify_attributes }}>
           <a class="block" href="{{ block.settings.link | default: routes.all_products_collection_url }}">
-            <picture data-home-card-media>
+            <picture class="block" data-home-card-media>
               {% if block.settings.mobile_image != blank %}
                 <source media="(max-width: 767px)" srcset="{{ block.settings.mobile_image | image_url: width: 1000 }}">
               {% else %}
@@ -107,7 +107,7 @@
   {% if section.settings.show_noya %}
     <article class="group relative overflow-hidden" data-home-reveal data-home-card>
       <a class="block" href="{{ section.settings.noya_link | default: routes.all_products_collection_url }}">
-        <picture data-home-card-media>
+        <picture class="block" data-home-card-media>
           {% if section.settings.noya_mobile_image != blank %}
             <source
               media="(max-width: 767px)"

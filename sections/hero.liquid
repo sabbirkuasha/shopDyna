@@ -4,7 +4,7 @@
   data-home-hero
 >
   {% if section.settings.link != blank %}<a class="block" href="{{ section.settings.link }}">{% endif %}
-  <picture data-home-hero-media>
+  <picture class="block" data-home-hero-media>
     {% if section.settings.mobile_image != blank %}
       <source media="(max-width: 767px)" srcset="{{ section.settings.mobile_image | image_url: width: 1200 }}">
     {% else %}
