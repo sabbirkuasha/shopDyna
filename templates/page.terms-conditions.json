@@ -1,0 +1,17 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "settings": {
+        "heading": "Terms & Conditions",
+        "eyebrow": "Store policies",
+        "show_hero": false,
+        "hero_image": "",
+        "show_content_heading": false,
+        "fallback_content": "",
+        "accent_color": "#7d1717"
+      }
+    }
+  },
+  "order": ["main"]
+}

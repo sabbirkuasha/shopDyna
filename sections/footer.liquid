@@ -1,8 +1,8 @@
 {% liquid
-  assign privacy_url = shop.privacy_policy.url | default: '/policies/privacy-policy'
-  assign terms_url = shop.terms_of_service.url | default: '/policies/terms-of-service'
-  assign shipping_url = shop.shipping_policy.url | default: '/policies/shipping-policy'
-  assign refund_url = shop.refund_policy.url | default: '/policies/refund-policy'
+  assign privacy_url = section.settings.privacy_url | default: shop.privacy_policy.url | default: '/pages/privacy-policy'
+  assign terms_url = section.settings.terms_url | default: shop.terms_of_service.url | default: '/pages/terms-conditions'
+  assign shipping_url = section.settings.shipping_url | default: shop.shipping_policy.url | default: '/pages/shipping-policy'
+  assign refund_url = section.settings.return_url | default: shop.refund_policy.url | default: '/pages/return-policy'
   assign brand_profile_url = section.settings.brand_profile_url | default: '/pages/brand-profile'
   assign about_us_url = section.settings.about_us_url | default: '/pages/about-us'
   assign outlets_url = section.settings.outlets_url | default: '/pages/outlets'
@@ -197,8 +197,12 @@
     { "type": "url", "id": "contact_url", "label": "Contact page" },
     { "type": "text", "id": "policies_heading", "label": "Second column heading", "default": "Policies" },
     { "type": "link_list", "id": "policies_menu", "label": "Second column menu" },
+    { "type": "url", "id": "privacy_url", "label": "Privacy policy page" },
+    { "type": "url", "id": "terms_url", "label": "Terms and conditions page" },
     { "type": "text", "id": "help_heading", "label": "Third column heading", "default": "Policies" },
     { "type": "link_list", "id": "help_menu", "label": "Third column menu" },
+    { "type": "url", "id": "shipping_url", "label": "Shipping policy page" },
+    { "type": "url", "id": "return_url", "label": "Exchange policy page" },
     { "type": "header", "content": "Social media" },
     { "type": "text", "id": "social_heading", "label": "Social heading", "default": "Follow us for latest updates" },
     { "type": "url", "id": "social_facebook_url", "label": "Facebook URL" },
