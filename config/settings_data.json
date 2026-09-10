@@ -35,10 +35,18 @@
           "accent_color": "#7d1717",
           "about_heading": "About us",
           "about_menu": "",
-          "policies_heading": "Policies",
+          "brand_profile_url": "",
+          "about_us_url": "",
+          "outlets_url": "",
+          "contact_url": "",
+          "policies_heading": "Terms & Conditions",
           "policies_menu": "",
+          "privacy_url": "",
+          "terms_url": "",
           "help_heading": "Policies",
           "help_menu": "",
+          "shipping_url": "",
+          "return_url": "",
           "social_heading": "Follow us for latest updates",
           "social_facebook_url": "https://www.facebook.com/deshal.bd/",
           "social_instagram_url": "https://www.instagram.com/deshal_bd/",
@@ -46,6 +54,12 @@
           "copyright_owner": "Deshal",
           "developer_name": "Team Zoetrone",
           "developer_url": "https://zoetrone.com/"
+        }
+      },
+      "cart-drawer": {
+        "type": "cart-drawer",
+        "settings": {
+          "accent_color": "#7d1717"
         }
       }
     },
