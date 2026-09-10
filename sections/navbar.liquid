@@ -114,15 +114,18 @@
         </span>
       </button>
 
-      <a
-        class="grid size-8 shrink-0 place-items-center rounded-full p-1 transition hover:scale-110 hover:bg-black/5 sm:size-9"
-        href="{{ routes.account_url }}"
-        aria-label="{% if customer %}My account{% else %}Log in{% endif %}"
-      >
-        <svg class="size-6 fill-none stroke-current stroke-2" aria-hidden="true" viewBox="0 0 24 24">
-          <circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/>
-        </svg>
-      </a>
+      {%- if shop.customer_accounts_enabled -%}
+        <a
+          class="grid size-8 shrink-0 place-items-center rounded-full p-1 transition hover:scale-110 hover:bg-black/5 sm:size-9"
+          href="{% if customer %}{{ routes.account_url }}{% else %}{{ routes.account_login_url }}{% endif %}"
+          rel="nofollow"
+          aria-label="{% if customer %}My account{% else %}Log in{% endif %}"
+        >
+          <svg class="size-6 fill-none stroke-current stroke-2" aria-hidden="true" viewBox="0 0 24 24">
+            <circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/>
+          </svg>
+        </a>
+      {%- endif -%}
     </div>
   </div>
 
