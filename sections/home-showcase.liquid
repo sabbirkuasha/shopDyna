@@ -71,7 +71,7 @@
                 block.settings.image
                 | image_url: width: 2400
                 | image_tag:
-                  class: 'block aspect-[2/1] w-full object-cover transition-transform duration-500 group-hover:scale-[1.015] md:aspect-[1920/690]',
+                  class: 'block aspect-[2/1] w-full object-cover transition-transform duration-500 group-hover:scale-[1.5] md:aspect-[1920/690]',
                   widths: '750, 1200, 1600, 2000, 2400',
                   sizes: '100vw',
                   loading: 'lazy',
@@ -79,7 +79,7 @@
               }}
             {% else %}
               <img
-                class="block aspect-[2/1] w-full object-cover transition-transform duration-500 group-hover:scale-[1.015] md:aspect-[1920/690]"
+                class="block aspect-[2/1] w-full object-cover transition-transform duration-500 group-hover:scale-[1.5] md:aspect-[1920/690]"
                 src="{{ block.settings.fallback_asset | append: '.jpg' | asset_url }}"
                 alt="{{ block.settings.title | escape }}"
                 width="1920"
@@ -121,7 +121,7 @@
               section.settings.noya_desktop_image
               | image_url: width: 2400
               | image_tag:
-                class: 'block h-auto w-full object-cover transition-transform duration-500 group-hover:scale-[1.015]',
+                class: 'block h-auto w-full object-cover transition-transform duration-500 group-hover:scale-[1.5]',
                 widths: '750, 1200, 1600, 2000, 2400',
                 sizes: '100vw',
                 loading: 'lazy',
@@ -129,7 +129,7 @@
             }}
           {% else %}
             <img
-              class="block h-auto w-full object-cover transition-transform duration-500 group-hover:scale-[1.015]"
+              class="block h-auto w-full object-cover transition-transform duration-500 group-hover:scale-[1.5]"
               src="{{ 'home-noya-desktop.webp' | asset_url }}"
               alt="{{ section.settings.noya_title | escape }}"
               width="1920"
