@@ -93,7 +93,7 @@
                   data-cart-quantity-control
                 >
                   <button
-                    class="size-9 cursor-pointer border-0 bg-white text-xl transition-colors hover:bg-gray-100 active:bg-gray-200 disabled:cursor-not-allowed disabled:text-gray-300"
+                    class="size-9 cursor-pointer border-y-0 border-l-0 border-r border-gray-300 bg-gray-100 text-xl transition-colors hover:bg-gray-200 active:bg-[var(--cart-drawer-accent)] active:text-white disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-300"
                     type="button"
                     data-cart-change
                     data-line="{{ forloop.index }}"
@@ -113,7 +113,7 @@
                     </span>
                   </span
                   ><button
-                    class="size-9 cursor-pointer border-0 bg-white text-xl transition-colors hover:bg-gray-100 active:bg-gray-200 disabled:cursor-wait disabled:text-gray-300"
+                    class="size-9 cursor-pointer border-y-0 border-r-0 border-l border-gray-300 bg-gray-100 text-xl transition-colors hover:bg-gray-200 active:bg-[var(--cart-drawer-accent)] active:text-white disabled:cursor-wait disabled:bg-gray-50 disabled:text-gray-300"
                     type="button"
                     data-cart-change
                     data-line="{{ forloop.index }}"
@@ -131,15 +131,24 @@
           {% endfor %}
         </div>
       </div>
-      <div class="border-t bg-gray-50 p-5">
-        <div class="mb-2 flex justify-between text-lg">
-          <strong>Subtotal</strong><strong>{{ cart.total_price | money }}</strong>
+      <div class="border-t bg-gray-50 p-5" data-cart-summary>
+        <div data-cart-summary-values>
+          <div class="mb-2 flex justify-between text-lg">
+            <strong>Subtotal</strong><strong>{{ cart.total_price | money }}</strong>
+          </div>
+          <div class="mb-2 flex justify-between text-sm text-gray-600">
+            <span>Included VAT ({{ vat_rate }}%)</span><span>{{ included_vat | money }}</span>
+          </div>
+          <div class="mb-3 flex justify-between border-t border-gray-200 pt-3 text-lg">
+            <strong>Total (VAT included)</strong><strong class="text-[var(--cart-drawer-accent)]">{{ cart.total_price | money }}</strong>
+          </div>
         </div>
-        <div class="mb-2 flex justify-between text-sm text-gray-600">
-          <span>Included VAT ({{ vat_rate }}%)</span><span>{{ included_vat | money }}</span>
-        </div>
-        <div class="mb-3 flex justify-between border-t border-gray-200 pt-3 text-lg">
-          <strong>Total (VAT included)</strong><strong class="text-[var(--cart-drawer-accent)]">{{ cart.total_price | money }}</strong>
+        <div class="mb-3 hidden items-center justify-end gap-2 text-sm text-gray-600" role="status" data-cart-summary-loading>
+          <svg class="size-4 animate-spin" viewBox="0 0 24 24" aria-hidden="true">
+            <circle class="fill-none stroke-gray-300 stroke-2" cx="12" cy="12" r="9"></circle>
+            <path class="fill-none stroke-[var(--cart-drawer-accent)] stroke-2" d="M12 3a9 9 0 0 1 9 9"></path>
+          </svg>
+          <span>Updating totals…</span>
         </div>
         <p class="mb-4 text-sm text-gray-500">Shipping and discounts are calculated at checkout.</p>
         <a

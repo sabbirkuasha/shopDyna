@@ -60,6 +60,13 @@
       const quantityError = cartLine?.querySelector(
         "[data-cart-quantity-error]",
       );
+      const cartSummary = document.querySelector("[data-cart-summary]");
+      const summaryValues = cartSummary?.querySelector(
+        "[data-cart-summary-values]",
+      );
+      const summaryLoading = cartSummary?.querySelector(
+        "[data-cart-summary-loading]",
+      );
       quantityError?.classList.add("hidden");
       quantityButtons?.forEach((button) => {
         button.disabled = true;
@@ -68,6 +75,10 @@
       quantityValue?.classList.add("invisible");
       quantityLoading?.classList.remove("hidden");
       quantityLoading?.classList.add("flex");
+      cartSummary?.setAttribute("aria-busy", "true");
+      summaryValues?.classList.add("animate-pulse", "opacity-50");
+      summaryLoading?.classList.remove("hidden");
+      summaryLoading?.classList.add("flex");
       try {
         const response = await fetch(`${window.Shopify.routes.root}cart/change.js`, {
           method: "POST",
@@ -85,6 +96,10 @@
         quantityValue?.classList.remove("invisible");
         quantityLoading?.classList.add("hidden");
         quantityLoading?.classList.remove("flex");
+        cartSummary?.removeAttribute("aria-busy");
+        summaryValues?.classList.remove("animate-pulse", "opacity-50");
+        summaryLoading?.classList.add("hidden");
+        summaryLoading?.classList.remove("flex");
         quantityError?.classList.remove("hidden");
         quantityButtons?.forEach((button) => {
           button.disabled = Number(button.dataset.quantity) < 1;
