@@ -1,3 +1,12 @@
+{% liquid
+  assign last_wide_block_id = blank
+  for block in section.blocks
+    if block.type == 'wide_category'
+      assign last_wide_block_id = block.id
+    endif
+  endfor
+%}
+
 <section
   class="w-full bg-white"
   style="--home-accent: {{ section.settings.accent_color }};"
@@ -59,7 +68,7 @@
   {% for block in section.blocks %}
     {% if block.type == 'wide_category' %}
       <article
-        class="group relative mb-2 overflow-hidden"
+        class="group relative overflow-hidden{% unless block.id == last_wide_block_id and section.settings.show_noya %} mb-2{% endunless %}"
         data-home-reveal
         data-home-card
         {{ block.shopify_attributes }}
@@ -105,6 +114,7 @@
   {% endfor %}
 
   {% if section.settings.show_noya %}
+    <div class="h-2 bg-gray-100" aria-hidden="true"></div>
     <article class="group relative overflow-hidden" data-home-reveal data-home-card>
       <a class="block" href="{{ section.settings.noya_link | default: routes.all_products_collection_url }}">
         <picture class="block" data-home-card-media>
@@ -151,6 +161,7 @@
         </div>
       </a>
     </article>
+    <div class="h-2 bg-gray-100" aria-hidden="true"></div>
   {% endif %}
 </section>
 
