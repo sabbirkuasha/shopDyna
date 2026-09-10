@@ -216,10 +216,10 @@
     </nav>
   {% endif %}
 
-  <div class="invisible fixed inset-0 z-[60] bg-black/45 opacity-0 transition-all" data-drawer-overlay></div>
+  <div class="invisible fixed inset-0 z-[60] bg-black/45 opacity-0 [will-change:opacity]" data-drawer-overlay></div>
   <aside
     id="DeshalDrawer-{{ section.id }}"
-    class="invisible fixed inset-y-0 left-0 z-[70] w-[min(384px,86vw)] -translate-x-full overflow-y-auto bg-[var(--header-bg)] shadow-2xl transition-all"
+    class="invisible fixed inset-y-0 left-0 z-[70] w-[min(384px,86vw)] -translate-x-full overflow-y-auto bg-[var(--header-bg)] shadow-2xl [backface-visibility:hidden] [will-change:transform]"
     aria-hidden="true"
     aria-label="Mobile navigation"
     data-drawer
@@ -348,12 +348,15 @@
     };
     const openDrawer = () => {
       lastFocused = document.activeElement;
-      drawer.classList.remove('invisible', '-translate-x-full');
-      overlay.classList.remove('invisible', 'opacity-0');
       drawer.setAttribute('aria-hidden', 'false');
       openButton.setAttribute('aria-expanded', 'true');
       document.body.classList.add('overflow-hidden');
-      window.DeshalMotion?.openMenu?.(drawer, overlay);
+      if (window.DeshalMotion?.openMenu) {
+        window.DeshalMotion.openMenu(drawer, overlay);
+      } else {
+        drawer.classList.remove('invisible', '-translate-x-full');
+        overlay.classList.remove('invisible', 'opacity-0');
+      }
       closeButton.focus();
     };
 

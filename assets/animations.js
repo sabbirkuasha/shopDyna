@@ -10,14 +10,26 @@
 
   window.DeshalMotion = {
     openMenu(drawer, overlay) {
-      if (reduceMotion) return;
+      drawer.classList.remove("-translate-x-full");
+      overlay.classList.remove("opacity-0");
+      if (reduceMotion) {
+        drawer.classList.remove("invisible");
+        overlay.classList.remove("invisible");
+        return;
+      }
       gsap.killTweensOf([drawer, overlay]);
-      gsap.set(drawer, { xPercent: -100 });
+      gsap.set(drawer, { xPercent: -100, force3D: true });
       gsap.set(overlay, { opacity: 0 });
+      drawer.classList.remove("invisible");
+      overlay.classList.remove("invisible");
       gsap
         .timeline({ defaults: { overwrite: true } })
-        .to(overlay, { opacity: 1, duration: 0.28, ease: "power2.out" }, 0)
-        .to(drawer, { xPercent: 0, duration: 0.62, ease: "power4.out" }, 0)
+        .to(overlay, { opacity: 1, duration: 0.38, ease: "power2.out" }, 0)
+        .to(
+          drawer,
+          { xPercent: 0, duration: 0.56, ease: "power3.out", force3D: true },
+          0,
+        )
         .fromTo(
           drawer.querySelectorAll("nav > ul > li"),
           { autoAlpha: 0, x: -18 },
@@ -50,8 +62,21 @@
             onComplete?.();
           },
         })
-        .to(drawer, { xPercent: -100, duration: 0.42, ease: "power3.in" }, 0)
-        .to(overlay, { opacity: 0, duration: 0.3, ease: "power2.in" }, 0.08);
+        .to(
+          drawer,
+          {
+            xPercent: -100,
+            duration: 0.46,
+            ease: "power3.inOut",
+            force3D: true,
+          },
+          0,
+        )
+        .to(
+          overlay,
+          { opacity: 0, duration: 0.34, ease: "power2.inOut" },
+          0.04,
+        );
     },
   };
 
