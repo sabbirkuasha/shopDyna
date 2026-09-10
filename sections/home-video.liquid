@@ -2,7 +2,11 @@
   assign video_id = section.settings.video.id | default: 'b88e5XRlcW8'
 %}
 {% if section.settings.show_video %}
-  <section class="w-full bg-black" aria-label="{{ section.settings.heading | escape }}">
+  <section
+    class="w-full overflow-hidden bg-black"
+    aria-label="{{ section.settings.heading | escape }}"
+    data-home-reveal
+  >
     {% if section.settings.heading != blank %}
       <h2 class="sr-only">{{ section.settings.heading | escape }}</h2>
     {% endif %}

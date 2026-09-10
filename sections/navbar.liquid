@@ -335,12 +335,16 @@
     let lastFocused;
 
     const closeDrawer = () => {
-      drawer.classList.add('invisible', '-translate-x-full');
-      overlay.classList.add('invisible', 'opacity-0');
       drawer.setAttribute('aria-hidden', 'true');
       openButton.setAttribute('aria-expanded', 'false');
       document.body.classList.remove('overflow-hidden');
-      lastFocused?.focus();
+      if (window.DeshalMotion?.closeMenu) {
+        window.DeshalMotion.closeMenu(drawer, overlay, () => lastFocused?.focus());
+      } else {
+        drawer.classList.add('invisible', '-translate-x-full');
+        overlay.classList.add('invisible', 'opacity-0');
+        lastFocused?.focus();
+      }
     };
     const openDrawer = () => {
       lastFocused = document.activeElement;
@@ -349,6 +353,7 @@
       drawer.setAttribute('aria-hidden', 'false');
       openButton.setAttribute('aria-expanded', 'true');
       document.body.classList.add('overflow-hidden');
+      window.DeshalMotion?.openMenu?.(drawer, overlay);
       closeButton.focus();
     };
 

@@ -1,10 +1,14 @@
-<section class="w-full bg-white" style="--home-accent: {{ section.settings.accent_color }};">
+<section
+  class="w-full bg-white"
+  style="--home-accent: {{ section.settings.accent_color }};"
+  data-home-showcase
+>
   <div class="grid grid-cols-1 gap-2 py-2 md:grid-cols-3">
     {% for block in section.blocks %}
       {% if block.type == 'primary_category' %}
-        <article class="group relative overflow-hidden" {{ block.shopify_attributes }}>
+        <article class="group relative overflow-hidden" data-home-reveal data-home-card {{ block.shopify_attributes }}>
           <a class="block" href="{{ block.settings.link | default: routes.all_products_collection_url }}">
-            <picture>
+            <picture data-home-card-media>
               {% if block.settings.mobile_image != blank %}
                 <source media="(max-width: 767px)" srcset="{{ block.settings.mobile_image | image_url: width: 1000 }}">
               {% else %}
@@ -35,7 +39,10 @@
                 >
               {% endif %}
             </picture>
-            <div class="absolute inset-x-0 bottom-0 z-10 flex flex-col items-center bg-gradient-to-t from-black/60 via-black/10 to-transparent px-5 pb-5 pt-20 text-center lg:pb-10">
+            <div
+              class="absolute inset-x-0 bottom-0 z-10 flex flex-col items-center bg-gradient-to-t from-black/60 via-black/10 to-transparent px-5 pb-5 pt-20 text-center lg:pb-10"
+              data-home-card-content
+            >
               <h2 class="m-0 text-2xl font-bold uppercase text-white drop-shadow-md md:text-3xl xl:text-4xl">
                 {{ block.settings.title | escape }}
               </h2>
@@ -51,30 +58,40 @@
 
   {% for block in section.blocks %}
     {% if block.type == 'wide_category' %}
-      <article class="group relative mb-2 overflow-hidden" {{ block.shopify_attributes }}>
+      <article
+        class="group relative mb-2 overflow-hidden"
+        data-home-reveal
+        data-home-card
+        {{ block.shopify_attributes }}
+      >
         <a class="block" href="{{ block.settings.link | default: routes.all_products_collection_url }}">
-          {% if block.settings.image != blank %}
-            {{
-              block.settings.image
-              | image_url: width: 2400
-              | image_tag:
-                class: 'block aspect-[2/1] w-full object-cover transition-transform duration-500 group-hover:scale-[1.015] md:aspect-[1920/690]',
-                widths: '750, 1200, 1600, 2000, 2400',
-                sizes: '100vw',
-                loading: 'lazy',
-                alt: block.settings.title
-            }}
-          {% else %}
-            <img
-              class="block aspect-[2/1] w-full object-cover transition-transform duration-500 group-hover:scale-[1.015] md:aspect-[1920/690]"
-              src="{{ block.settings.fallback_asset | append: '.jpg' | asset_url }}"
-              alt="{{ block.settings.title | escape }}"
-              width="1920"
-              height="944"
-              loading="lazy"
-            >
-          {% endif %}
-          <div class="absolute inset-x-0 bottom-0 z-10 flex flex-col items-center bg-gradient-to-t from-black/60 via-black/10 to-transparent px-5 pb-5 pt-20 text-center lg:pb-10">
+          <div data-home-card-media>
+            {% if block.settings.image != blank %}
+              {{
+                block.settings.image
+                | image_url: width: 2400
+                | image_tag:
+                  class: 'block aspect-[2/1] w-full object-cover transition-transform duration-500 group-hover:scale-[1.015] md:aspect-[1920/690]',
+                  widths: '750, 1200, 1600, 2000, 2400',
+                  sizes: '100vw',
+                  loading: 'lazy',
+                  alt: block.settings.title
+              }}
+            {% else %}
+              <img
+                class="block aspect-[2/1] w-full object-cover transition-transform duration-500 group-hover:scale-[1.015] md:aspect-[1920/690]"
+                src="{{ block.settings.fallback_asset | append: '.jpg' | asset_url }}"
+                alt="{{ block.settings.title | escape }}"
+                width="1920"
+                height="944"
+                loading="lazy"
+              >
+            {% endif %}
+          </div>
+          <div
+            class="absolute inset-x-0 bottom-0 z-10 flex flex-col items-center bg-gradient-to-t from-black/60 via-black/10 to-transparent px-5 pb-5 pt-20 text-center lg:pb-10"
+            data-home-card-content
+          >
             <h2 class="m-0 text-2xl font-bold uppercase text-white drop-shadow-md md:text-3xl xl:text-4xl">
               {{ block.settings.title | escape }}
             </h2>
@@ -88,9 +105,9 @@
   {% endfor %}
 
   {% if section.settings.show_noya %}
-    <article class="group relative overflow-hidden">
+    <article class="group relative overflow-hidden" data-home-reveal data-home-card>
       <a class="block" href="{{ section.settings.noya_link | default: routes.all_products_collection_url }}">
-        <picture>
+        <picture data-home-card-media>
           {% if section.settings.noya_mobile_image != blank %}
             <source
               media="(max-width: 767px)"
@@ -121,7 +138,10 @@
             >
           {% endif %}
         </picture>
-        <div class="absolute inset-x-0 bottom-0 z-10 flex flex-col items-center bg-gradient-to-t from-black/55 via-transparent to-transparent px-5 pb-5 pt-24 text-center lg:pb-10">
+        <div
+          class="absolute inset-x-0 bottom-0 z-10 flex flex-col items-center bg-gradient-to-t from-black/55 via-transparent to-transparent px-5 pb-5 pt-24 text-center lg:pb-10"
+          data-home-card-content
+        >
           <h2 class="m-0 text-2xl font-bold uppercase text-white drop-shadow-md md:text-4xl">
             {{ section.settings.noya_title | escape }}
           </h2>

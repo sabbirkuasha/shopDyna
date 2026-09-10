@@ -1,4 +1,4 @@
-<section class="min-h-[60vh] bg-white text-gray-800" style="--policy-accent: {{ section.settings.accent_color }};">
+<section class="min-h-[60vh] bg-white text-gray-800" style="--policy-accent: #7d1717;">
   <header class="flex min-h-20 items-center justify-center bg-gray-200 px-5 py-5 uppercase md:min-h-24">
     <h1 class="m-0 text-center text-4xl font-bold tracking-tight text-[var(--policy-accent)] md:text-6xl">
       {{ policy.title | escape }}
@@ -17,12 +17,3 @@
     {% endif %}
   </div>
 </section>
-
-{% schema %}
-{
-  "name": "Policy content",
-  "tag": "section",
-  "class": "section-main-policy",
-  "settings": [{ "type": "color", "id": "accent_color", "label": "Accent color", "default": "#7d1717" }]
-}
-{% endschema %}

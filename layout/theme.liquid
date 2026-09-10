@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="scroll-smooth motion-reduce:scroll-auto">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +8,12 @@
     {{ 'tailwind.output.css' | asset_url | stylesheet_tag: preload: true, media: 'all' }}
     <title>{{ page_title }}</title>
   </head>
-  <body>
+  <body class="template-{{ template.name | handle }}">
+    <div
+      class="pointer-events-none fixed inset-0 z-[100] bg-[#f7f3ee] opacity-0"
+      aria-hidden="true"
+      data-page-transition
+    ></div>
     {% section 'banner' %}
     <div class="sticky top-0 z-40">
       {% section 'navbar' %}
@@ -18,6 +23,9 @@
     </main>
     {% section 'cart-drawer' %}
     {% section 'footer' %}
+    <script src="{{ 'gsap.min.js' | asset_url }}" defer></script>
+    <script src="{{ 'ScrollTrigger.min.js' | asset_url }}" defer></script>
+    <script src="{{ 'animations.js' | asset_url }}" defer></script>
     <script src="{{ 'storefront.js' | asset_url }}" defer></script>
   </body>
 </html>
