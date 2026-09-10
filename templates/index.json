@@ -11,9 +11,29 @@
   "sections": {
     "hero": {
       "type": "hero",
+      "blocks": {
+        "default_slide": {
+          "type": "slide",
+          "settings": {
+            "show_caption": false,
+            "heading": "A new Deshal story",
+            "caption": "<p>Discover the latest collection.</p>",
+            "show_button": false,
+            "button_label": "View products",
+            "button_link": "/collections/all",
+            "content_position": "middle_center",
+            "text_alignment": "center",
+            "overlay_opacity": 20
+          }
+        }
+      },
+      "block_order": ["default_slide"],
       "settings": {
-        "link": "/collections/all",
-        "accessibility_label": "Deshal seasonal collection"
+        "accessibility_label": "Deshal seasonal collection",
+        "autoplay": true,
+        "duration": 6,
+        "transition": "fade",
+        "pause_on_hover": true
       }
     },
     "showcase": {

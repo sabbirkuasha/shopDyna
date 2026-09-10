@@ -1,56 +1,122 @@
+{% liquid
+  assign slide_count = section.blocks.size
+  assign show_controls = false
+  if slide_count > 1
+    assign show_controls = true
+  endif
+%}
+
 <section
-  class="w-full overflow-hidden bg-white"
+  id="Hero-{{ section.id }}"
+  class="relative w-full overflow-hidden bg-black text-white"
+  aria-roledescription="carousel"
   aria-label="{{ section.settings.accessibility_label | escape }}"
   data-home-hero
+  data-hero-slider
+  data-autoplay="{{ section.settings.autoplay }}"
+  data-duration="{{ section.settings.duration | times: 1000 }}"
+  data-transition="{{ section.settings.transition }}"
+  data-pause-hover="{{ section.settings.pause_on_hover }}"
 >
-  {% if section.settings.link != blank %}<a class="block" href="{{ section.settings.link }}">{% endif %}
-  <picture class="block" data-home-hero-media>
-    {% if section.settings.mobile_image != blank %}
-      <source media="(max-width: 767px)" srcset="{{ section.settings.mobile_image | image_url: width: 1200 }}">
+  <div class="relative aspect-[855/654] w-full overflow-hidden md:aspect-[1920/850]" data-hero-viewport aria-live="off">
+    {% if slide_count > 0 %}
+      {% for block in section.blocks %}
+        {% liquid
+          assign loading = 'lazy'
+          assign fetchpriority = 'auto'
+          if forloop.first
+            assign loading = 'eager'
+            assign fetchpriority = 'high'
+          endif
+          assign slide_alt = block.settings.image.alt | default: block.settings.heading | default: section.settings.accessibility_label
+        %}
+        <article class="absolute inset-0 {% unless forloop.first %}invisible{% endunless %}" data-hero-slide data-slide-index="{{ forloop.index0 }}" aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}" {{ block.shopify_attributes }}>
+          <picture class="block h-full w-full" data-home-hero-media data-hero-media>
+            {% if block.settings.mobile_image != blank %}
+              <source media="(max-width: 767px)" srcset="{{ block.settings.mobile_image | image_url: width: 1200 }}" width="{{ block.settings.mobile_image.width }}" height="{{ block.settings.mobile_image.height }}">
+            {% elsif block.settings.image == blank %}
+              <source media="(max-width: 767px)" srcset="{{ 'home-eid-mobile.jpg' | asset_url }}">
+            {% endif %}
+            {% if block.settings.image != blank %}
+              {{ block.settings.image | image_url: width: 2560 | image_tag: class: 'block h-full w-full object-cover', widths: '960, 1280, 1600, 1920, 2560', sizes: '100vw', loading: loading, fetchpriority: fetchpriority, alt: slide_alt }}
+            {% else %}
+              <img class="block h-full w-full object-cover" src="{{ 'home-eid-desktop.jpg' | asset_url }}" alt="{{ slide_alt | escape }}" width="1920" height="850" loading="{{ loading }}" fetchpriority="{{ fetchpriority }}">
+            {% endif %}
+          </picture>
+
+          {% if block.settings.show_caption or block.settings.show_button %}
+            <div class="absolute inset-0 flex p-6 md:p-12 lg:p-20 {% case block.settings.content_position %}{% when 'top_left' %}items-start justify-start{% when 'top_center' %}items-start justify-center{% when 'top_right' %}items-start justify-end{% when 'middle_left' %}items-center justify-start{% when 'middle_right' %}items-center justify-end{% when 'bottom_left' %}items-end justify-start{% when 'bottom_center' %}items-end justify-center{% when 'bottom_right' %}items-end justify-end{% else %}items-center justify-center{% endcase %}" style="background: rgba(0, 0, 0, {{ block.settings.overlay_opacity | divided_by: 100.0 }});">
+              <div class="max-w-2xl {% if block.settings.text_alignment == 'left' %}text-left{% elsif block.settings.text_alignment == 'right' %}text-right{% else %}text-center{% endif %}" data-hero-content>
+                {% if block.settings.show_caption %}
+                  {% if block.settings.heading != blank %}<h2 class="text-3xl font-semibold tracking-tight drop-shadow md:text-5xl lg:text-6xl">{{ block.settings.heading | escape }}</h2>{% endif %}
+                  {% if block.settings.caption != blank %}<div class="mt-3 text-base drop-shadow md:text-xl">{{ block.settings.caption }}</div>{% endif %}
+                {% endif %}
+                {% if block.settings.show_button and block.settings.button_label != blank and block.settings.button_link != blank %}
+                  <a class="mt-6 inline-flex min-h-12 items-center justify-center bg-[#8f1717] px-7 py-3 text-sm font-semibold uppercase tracking-wide text-white transition duration-300 hover:bg-white hover:text-[#8f1717] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white md:text-base" href="{{ block.settings.button_link }}">{{ block.settings.button_label | escape }}</a>
+                {% endif %}
+              </div>
+            </div>
+          {% endif %}
+        </article>
+      {% endfor %}
     {% else %}
-      <source media="(max-width: 767px)" srcset="{{ 'home-eid-mobile.jpg' | asset_url }}">
+      <article class="absolute inset-0" data-hero-slide data-slide-index="0" aria-hidden="false">
+        <picture class="block h-full w-full" data-home-hero-media data-hero-media>
+          <source media="(max-width: 767px)" srcset="{{ 'home-eid-mobile.jpg' | asset_url }}">
+          <img class="block h-full w-full object-cover" src="{{ 'home-eid-desktop.jpg' | asset_url }}" alt="{{ section.settings.accessibility_label | escape }}" width="1920" height="850" loading="eager" fetchpriority="high">
+        </picture>
+      </article>
     {% endif %}
-    {% if section.settings.desktop_image != blank %}
-      {{
-        section.settings.desktop_image
-        | image_url: width: 2560
-        | image_tag:
-          class: 'block h-auto w-full object-cover',
-          widths: '960, 1280, 1600, 1920, 2560',
-          sizes: '100vw',
-          loading: 'eager',
-          fetchpriority: 'high',
-          alt: section.settings.accessibility_label
-      }}
-    {% else %}
-      <img
-        class="block h-auto w-full object-cover"
-        src="{{ 'home-eid-desktop.jpg' | asset_url }}"
-        alt="{{ section.settings.accessibility_label | escape }}"
-        width="1920"
-        height="850"
-        loading="eager"
-        fetchpriority="high"
-      >
-    {% endif %}
-  </picture>
-  {% if section.settings.link != blank %}</a>{% endif %}
+  </div>
+
+  {% if show_controls %}
+    <button class="absolute left-3 top-1/2 z-10 flex size-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-sm transition hover:scale-105 hover:bg-black/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:left-6 md:size-12" type="button" aria-label="Previous slide" data-hero-previous><span aria-hidden="true">&#10094;</span></button>
+    <button class="absolute right-3 top-1/2 z-10 flex size-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-sm transition hover:scale-105 hover:bg-black/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white md:right-6 md:size-12" type="button" aria-label="Next slide" data-hero-next><span aria-hidden="true">&#10095;</span></button>
+    <div class="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full bg-black/40 px-3 py-2 backdrop-blur-sm md:bottom-6">
+      <div class="flex items-center gap-2" data-hero-dots>
+        {% for block in section.blocks %}
+          <button class="size-2.5 rounded-full border border-white bg-white transition-all aria-[current=true]:w-7 aria-[current=true]:bg-[#8f1717]" type="button" aria-label="Go to slide {{ forloop.index }}" aria-current="{% if forloop.first %}true{% else %}false{% endif %}" data-hero-dot="{{ forloop.index0 }}"></button>
+        {% endfor %}
+      </div>
+      {% if section.settings.autoplay %}
+        <button class="ml-1 flex size-6 items-center justify-center" type="button" aria-label="Pause slideshow" data-hero-toggle><span data-hero-pause aria-hidden="true">&#10074;&#10074;</span><span class="hidden" data-hero-play aria-hidden="true">&#9654;</span></button>
+      {% endif %}
+    </div>
+  {% endif %}
 </section>
+
+<script src="{{ 'hero-slider.js' | asset_url }}" defer="defer"></script>
 
 {% schema %}
 {
-  "name": "Home hero",
+  "name": "Home slideshow",
+  "max_blocks": 4,
   "settings": [
-    { "type": "image_picker", "id": "desktop_image", "label": "Desktop image", "info": "Recommended: 1920 × 850 px" },
-    { "type": "image_picker", "id": "mobile_image", "label": "Mobile image", "info": "Recommended: 855 × 654 px" },
-    { "type": "url", "id": "link", "label": "Campaign link" },
+    { "type": "text", "id": "accessibility_label", "label": "Slideshow description", "default": "Featured Deshal collections" },
+    { "type": "checkbox", "id": "autoplay", "label": "Automatically change slides", "default": true },
+    { "type": "range", "id": "duration", "min": 3, "max": 12, "step": 1, "unit": "s", "label": "Time on each slide", "default": 6 },
+    { "type": "select", "id": "transition", "label": "Transition style", "default": "fade", "options": [{ "value": "fade", "label": "Fade" }, { "value": "slide", "label": "Slide" }, { "value": "zoom", "label": "Soft zoom" }] },
+    { "type": "checkbox", "id": "pause_on_hover", "label": "Pause when hovered", "default": true }
+  ],
+  "blocks": [
     {
-      "type": "text",
-      "id": "accessibility_label",
-      "label": "Image description",
-      "default": "Deshal seasonal collection"
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Desktop image", "info": "Recommended: 1920 × 850 px" },
+        { "type": "image_picker", "id": "mobile_image", "label": "Mobile image", "info": "Recommended: 855 × 654 px" },
+        { "type": "checkbox", "id": "show_caption", "label": "Show caption", "default": true },
+        { "type": "text", "id": "heading", "label": "Heading", "default": "A new Deshal story" },
+        { "type": "richtext", "id": "caption", "label": "Caption", "default": "<p>Discover the latest collection.</p>" },
+        { "type": "checkbox", "id": "show_button", "label": "Show button", "default": true },
+        { "type": "text", "id": "button_label", "label": "Button label", "default": "View products" },
+        { "type": "url", "id": "button_link", "label": "Button link" },
+        { "type": "select", "id": "content_position", "label": "Content position", "default": "middle_center", "options": [{ "value": "top_left", "label": "Top left" }, { "value": "top_center", "label": "Top center" }, { "value": "top_right", "label": "Top right" }, { "value": "middle_left", "label": "Middle left" }, { "value": "middle_center", "label": "Middle center" }, { "value": "middle_right", "label": "Middle right" }, { "value": "bottom_left", "label": "Bottom left" }, { "value": "bottom_center", "label": "Bottom center" }, { "value": "bottom_right", "label": "Bottom right" }] },
+        { "type": "select", "id": "text_alignment", "label": "Text alignment", "default": "center", "options": [{ "value": "left", "label": "Left" }, { "value": "center", "label": "Center" }, { "value": "right", "label": "Right" }] },
+        { "type": "range", "id": "overlay_opacity", "min": 0, "max": 70, "step": 5, "unit": "%", "label": "Image overlay", "default": 20 }
+      ]
     }
   ],
-  "presets": [{ "name": "Home hero" }]
+  "presets": [{ "name": "Home slideshow", "blocks": [{ "type": "slide" }] }]
 }
 {% endschema %}
