@@ -43,20 +43,52 @@
       setDrawer(false);
     const change = event.target.closest("[data-cart-change]");
     if (change) {
-      change.disabled = true;
+      const requestedQuantity = Number(change.dataset.quantity);
+      const isRemove = change.hasAttribute("data-cart-remove");
+      if (change.disabled || (!isRemove && requestedQuantity < 1)) return;
+      const cartLine = change.closest("[data-cart-line]");
+      const quantityControl = change.closest("[data-cart-quantity-control]");
+      const quantityValue = quantityControl?.querySelector(
+        "[data-cart-quantity-value]",
+      );
+      const quantityLoading = quantityControl?.querySelector(
+        "[data-cart-quantity-loading]",
+      );
+      const quantityButtons = quantityControl?.querySelectorAll(
+        "[data-cart-change]",
+      );
+      const quantityError = cartLine?.querySelector(
+        "[data-cart-quantity-error]",
+      );
+      quantityError?.classList.add("hidden");
+      quantityButtons?.forEach((button) => {
+        button.disabled = true;
+      });
+      cartLine?.setAttribute("aria-busy", "true");
+      quantityValue?.classList.add("invisible");
+      quantityLoading?.classList.remove("hidden");
+      quantityLoading?.classList.add("flex");
       try {
-        await fetch(`${window.Shopify.routes.root}cart/change.js`, {
+        const response = await fetch(`${window.Shopify.routes.root}cart/change.js`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             line: Number(change.dataset.line),
-            quantity: Number(change.dataset.quantity),
+            quantity: requestedQuantity,
           }),
         });
+        if (!response.ok) throw new Error("Unable to update quantity");
         await refreshDrawer();
       } catch (error) {
         console.error(error);
-        change.disabled = false;
+        cartLine?.removeAttribute("aria-busy");
+        quantityValue?.classList.remove("invisible");
+        quantityLoading?.classList.add("hidden");
+        quantityLoading?.classList.remove("flex");
+        quantityError?.classList.remove("hidden");
+        quantityButtons?.forEach((button) => {
+          button.disabled = Number(button.dataset.quantity) < 1;
+        });
       }
     }
     const favorite = event.target.closest("[data-favorite-toggle]");
