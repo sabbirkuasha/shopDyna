@@ -50,6 +50,11 @@
       <div class="flex-1 overflow-y-auto p-5">
         <div class="space-y-5">
           {% for item in cart.items %}
+            {%- assign item_included_vat = item.final_line_price
+              | times: vat_rate
+              | divided_by: vat_divisor
+              | round
+            -%}
             <article class="grid grid-cols-[88px_1fr] gap-4 border-b border-gray-200 pb-5">
               <a class="h-28 overflow-hidden bg-gray-100" href="{{ item.url }}">
                 {%- if item.image -%}
@@ -78,6 +83,10 @@
                   <p class="mt-1 text-sm text-gray-500">{{ item.variant.title }}</p>
                 {% endunless %}
                 <p class="mt-1 font-medium">{{ item.final_price | money }}</p>
+                <p class="mt-1 text-xs text-gray-500">
+                  Included VAT ({{ vat_rate }}%): {{ item_included_vat | money }}
+                  {%- if item.quantity > 1 %} for {{ item.quantity }} items{% endif -%}
+                </p>
                 <div class="mt-3 flex h-10 w-32 items-center border border-gray-300">
                   <button
                     class="size-9 border-0 bg-white text-xl"
