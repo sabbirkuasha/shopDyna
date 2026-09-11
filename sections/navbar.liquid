@@ -5,9 +5,12 @@
 
 <header
   id="DeshalHeader-{{ section.id }}"
-  class="relative font-sans text-[var(--header-text)]"
-  style="--header-bg: {{ section.settings.navbar_bg_color }}; --header-text: {{ section.settings.navbar_text_color }}; --header-accent: {{ section.settings.accent_color }};"
+  class="sticky top-0 z-50 font-sans text-[var(--header-text)]"
+  style="--header-bg: {{ section.settings.navbar_bg_color }}; --header-text: {{ section.settings.navbar_text_color }}; --header-accent: {{ section.settings.accent_color }}; --secondary-nav-duration: {{ section.settings.secondary_nav_animation_duration }}ms;"
   data-header
+  data-secondary-nav-fold="{{ section.settings.enable_secondary_nav_fold }}"
+  data-secondary-nav-up-count="{{ section.settings.secondary_nav_scroll_up_count }}"
+  data-secondary-nav-duration="{{ section.settings.secondary_nav_animation_duration }}"
 >
   <div class="relative z-30 grid h-16 grid-cols-[1fr_auto_1fr] items-center border-b-2 border-gray-100 bg-[var(--header-bg)] px-2 shadow-lg sm:px-4 2xl:px-8">
     <div class="flex min-w-0 items-center gap-0 sm:gap-2">
@@ -166,8 +169,9 @@
 
   {% if navigation != blank %}
     <nav
-      class="relative z-10 hidden min-h-13 bg-[var(--header-bg)] px-6 pb-3 pt-4 shadow-xl xl:block"
+      class="relative z-10 hidden min-h-13 overflow-visible bg-[var(--header-bg)] px-6 pb-3 pt-4 opacity-100 shadow-xl transition-[max-height,opacity,transform,padding] duration-[var(--secondary-nav-duration)] ease-out [will-change:max-height,opacity,transform] xl:block xl:max-h-24"
       aria-label="Main navigation"
+      data-secondary-nav
     >
       <ul class="mx-auto flex max-w-7xl list-none items-start justify-center gap-7 p-0" role="list">
         {% for link in navigation.links %}
@@ -335,7 +339,101 @@
     const closeButton = header.querySelector('[data-drawer-close]');
     const searchButton = header.querySelector('[data-search-toggle]');
     const searchPanel = header.querySelector('[data-search-panel]');
+    const secondaryNav = header.querySelector('[data-secondary-nav]');
     let lastFocused;
+
+    if (secondaryNav && header.dataset.secondaryNavFold === 'true') {
+      const desktopQuery = window.matchMedia('(min-width: 1280px)');
+      const requiredUpScrolls = Math.max(1, Number(header.dataset.secondaryNavUpCount) || 2);
+      const animationDuration = Math.max(0, Number(header.dataset.secondaryNavDuration) || 300);
+      let lastScrollY = window.scrollY;
+      let upwardScrolls = 0;
+      let lastWheelAt = 0;
+      let ignoreScrollUntil = 0;
+      let secondaryNavOpen = true;
+      let transitionTimer;
+
+      const setSecondaryNavOpen = (open) => {
+        if (secondaryNavOpen === open) return;
+        secondaryNavOpen = open;
+        ignoreScrollUntil = performance.now() + animationDuration + 100;
+        window.clearTimeout(transitionTimer);
+        secondaryNav.classList.toggle('xl:min-h-13', open);
+        secondaryNav.classList.toggle('xl:min-h-0', !open);
+        secondaryNav.classList.toggle('xl:max-h-24', open);
+        secondaryNav.classList.toggle('xl:max-h-0', !open);
+        secondaryNav.classList.toggle('xl:pb-3', open);
+        secondaryNav.classList.toggle('xl:pt-4', open);
+        secondaryNav.classList.toggle('xl:py-0', !open);
+        secondaryNav.classList.toggle('xl:opacity-100', open);
+        secondaryNav.classList.toggle('xl:opacity-0', !open);
+        secondaryNav.classList.toggle('xl:-translate-y-2', !open);
+        secondaryNav.classList.toggle('xl:overflow-visible', open);
+        secondaryNav.classList.toggle('xl:overflow-hidden', !open);
+        secondaryNav.inert = !open;
+        secondaryNav.setAttribute('aria-hidden', String(!open));
+        transitionTimer = window.setTimeout(() => {
+          lastScrollY = window.scrollY;
+        }, animationDuration + 100);
+      };
+
+      const registerUpScroll = () => {
+        upwardScrolls += 1;
+        if (upwardScrolls >= requiredUpScrolls) {
+          upwardScrolls = 0;
+          setSecondaryNavOpen(true);
+        }
+      };
+
+      window.addEventListener(
+        'wheel',
+        (event) => {
+          if (!desktopQuery.matches || event.deltaY === 0) return;
+          lastWheelAt = performance.now();
+          if (event.deltaY > 0) {
+            upwardScrolls = 0;
+            setSecondaryNavOpen(false);
+          } else {
+            registerUpScroll();
+          }
+        },
+        { passive: true },
+      );
+
+      window.addEventListener(
+        'scroll',
+        () => {
+          if (!desktopQuery.matches) {
+            setSecondaryNavOpen(true);
+            lastScrollY = window.scrollY;
+            return;
+          }
+
+          const currentScrollY = window.scrollY;
+          if (performance.now() < ignoreScrollUntil) {
+            lastScrollY = currentScrollY;
+            return;
+          }
+
+          if (currentScrollY <= 0) {
+            upwardScrolls = 0;
+            setSecondaryNavOpen(true);
+          } else if (currentScrollY > lastScrollY) {
+            upwardScrolls = 0;
+            setSecondaryNavOpen(false);
+          } else if (currentScrollY < lastScrollY && performance.now() - lastWheelAt > 600) {
+            registerUpScroll();
+          }
+          lastScrollY = currentScrollY;
+        },
+        { passive: true },
+      );
+
+      desktopQuery.addEventListener('change', () => {
+        upwardScrolls = 0;
+        setSecondaryNavOpen(true);
+      });
+    }
 
     const closeDrawer = () => {
       drawer.setAttribute('aria-hidden', 'true');
@@ -392,6 +490,32 @@
     { "type": "link_list", "id": "main_menu", "label": "Main menu", "default": "main-menu" },
     { "type": "url", "id": "outlet_url", "label": "Outlets page" },
     { "type": "url", "id": "wishlist_url", "label": "Wishlist page" },
+    { "type": "header", "content": "Desktop second-level navigation" },
+    {
+      "type": "checkbox",
+      "id": "enable_secondary_nav_fold",
+      "label": "Activate fold and unfold",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "secondary_nav_scroll_up_count",
+      "label": "Scroll ups required to unfold",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "secondary_nav_animation_duration",
+      "label": "Fold/unfold animation duration",
+      "min": 100,
+      "max": 1000,
+      "step": 50,
+      "unit": "ms",
+      "default": 300
+    },
     { "type": "header", "content": "Colors" },
     { "type": "color", "id": "navbar_bg_color", "label": "Background", "default": "#ffffff" },
     { "type": "color", "id": "navbar_text_color", "label": "Text and icons", "default": "#1f2937" },
