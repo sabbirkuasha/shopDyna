@@ -1,13 +1,15 @@
 <section
-  class="bg-gray-50 py-10 sm:py-14"
+  class="w-full bg-white text-gray-900"
   style="--favorite-accent: {{ section.settings.accent_color }}"
   data-favourites-page
 >
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <div class="mb-9 text-center">
-      <p class="text-sm uppercase tracking-[0.24em] text-gray-500">Saved for later</p>
-      <h1 class="mt-2 text-3xl font-bold uppercase text-[var(--favorite-accent)] sm:text-5xl">Favourites</h1>
-    </div>
+  <header class="flex min-h-20 items-center justify-center bg-gray-200 px-5 py-5 uppercase md:min-h-24">
+    <h1 class="m-0 text-center text-4xl font-bold tracking-tight text-[var(--favorite-accent)] md:text-6xl">
+      {{ page.title | default: 'Favourites' | escape }}
+    </h1>
+  </header>
+
+  <div class="w-full px-4 py-6">
     <div class="hidden min-h-72 place-items-center text-center" data-favourites-empty>
       <div>
         <svg class="mx-auto size-20 fill-none stroke-gray-300 stroke-1" viewBox="0 0 24 24">
@@ -22,7 +24,7 @@
         >
       </div>
     </div>
-    <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 lg:gap-7" data-favourites-grid></div>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4" data-favourites-grid></div>
   </div>
 </section>
 <script>
