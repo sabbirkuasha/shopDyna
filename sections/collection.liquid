@@ -1,7 +1,9 @@
 {% liquid
   assign category_navigation = section.settings.category_menu
   assign category_links = blank
-  assign sibling_links = blank
+  assign related_links = blank
+  assign related_title = blank
+  assign related_url = blank
   assign parent_title = blank
   assign parent_url = blank
   assign grandparent_title = blank
@@ -12,13 +14,17 @@
     endif
     for child_link in parent_link.links
       if child_link.type == 'collection_link' and child_link.object.handle == collection.handle
-        assign sibling_links = parent_link.links
+        assign related_links = child_link.links
+        assign related_title = child_link.title
+        assign related_url = child_link.url
         assign parent_title = parent_link.title
         assign parent_url = parent_link.url
       endif
       for grandchild_link in child_link.links
         if grandchild_link.type == 'collection_link' and grandchild_link.object.handle == collection.handle
-          assign sibling_links = child_link.links
+          assign related_links = child_link.links
+          assign related_title = child_link.title
+          assign related_url = child_link.url
           assign parent_title = child_link.title
           assign parent_url = child_link.url
           assign grandparent_title = parent_link.title
@@ -98,7 +104,7 @@
 
     {% paginate collection.products by section.settings.products_per_page %}
       <div class="grid grid-cols-1 items-center gap-3 bg-white px-4 py-3 md:grid-cols-2 lg:grid-cols-4">
-        <nav class="min-w-0 overflow-hidden text-sm md:col-span-1" aria-label="Breadcrumb">
+        <nav class="min-w-0 overflow-hidden text-base md:col-span-1" aria-label="Breadcrumb">
           <ol class="flex list-none items-center gap-2 overflow-x-auto whitespace-nowrap p-0">
             <li>
               <a class="hover:text-[var(--collection-accent)] hover:underline" href="{{ routes.root_url }}">Home</a>
@@ -124,19 +130,19 @@
           </ol>
         </nav>
 
-        {% if sibling_links != blank %}
+        {% if related_links != blank %}
           <nav class="hidden min-w-0 items-center justify-center lg:col-span-2 lg:flex" aria-label="Related categories">
-            <ul class="flex list-none flex-wrap items-center justify-center gap-y-1 p-0 text-sm">
+            <ul class="flex list-none flex-wrap items-center justify-center gap-y-2 p-0 text-base">
               <li>
-                <a class="pr-2 font-bold hover:text-[var(--collection-accent)] hover:underline" href="{{ parent_url }}"
-                  >All {{ parent_title -}}
+                <a class="pr-3 font-bold hover:text-[var(--collection-accent)] hover:underline" href="{{ related_url }}"
+                  >All {{ related_title -}}
                 </a>
               </li>
-              {% for sibling_link in sibling_links %}
+              {% for sibling_link in related_links %}
                 <li class="flex items-center">
-                  <span class="pr-2 text-gray-400" aria-hidden="true">|</span
+                  <span class="pr-3 text-gray-400" aria-hidden="true">|</span
                   ><a
-                    class="pr-2 {% if sibling_link.current %}font-bold text-[var(--collection-accent)]{% else %}hover:text-[var(--collection-accent)] hover:underline{% endif %}"
+                    class="pr-3 {% if sibling_link.current %}font-bold text-[var(--collection-accent)]{% else %}hover:text-[var(--collection-accent)] hover:underline{% endif %}"
                     href="{{ sibling_link.url }}"
                   >
                     {{- sibling_link.title -}}
@@ -152,7 +158,7 @@
         <form class="flex justify-end md:col-start-2 lg:col-start-4" method="get">
           <label class="sr-only" for="SortBy-{{ section.id }}">Sort products</label>
           <select
-            class="h-10 w-full max-w-xs cursor-pointer rounded-none border border-gray-200 bg-white px-3 text-right text-sm uppercase outline-none focus:border-[var(--collection-accent)]"
+            class="h-11 w-44 cursor-pointer border-0 bg-transparent px-3 text-base uppercase outline-none focus-visible:ring-2 focus-visible:ring-[var(--collection-accent)]"
             id="SortBy-{{ section.id }}"
             name="sort_by"
             data-sort-select
@@ -193,16 +199,16 @@
           </select>
         </form>
 
-        {% if sibling_links != blank %}
+        {% if related_links != blank %}
           <div class="md:col-span-2 lg:hidden">
             <label class="sr-only" for="CategorySelect-{{ section.id }}">Related categories</label>
             <select
-              class="h-11 w-full cursor-pointer rounded-none border border-gray-300 bg-white px-3 text-center text-sm uppercase outline-none focus:border-[var(--collection-accent)]"
+              class="h-11 w-full cursor-pointer rounded-none border border-gray-300 bg-white px-3 text-center text-base uppercase outline-none focus:border-[var(--collection-accent)]"
               id="CategorySelect-{{ section.id }}"
               data-category-select
             >
-              <option value="{{ parent_url }}">All {{ parent_title }}</option>
-              {% for sibling_link in sibling_links %}
+              <option value="{{ related_url }}">All {{ related_title }}</option>
+              {% for sibling_link in related_links %}
                 <option
                   value="{{ sibling_link.url }}"
                   {% if sibling_link.current %}
