@@ -275,16 +275,131 @@
     window.ScrollTrigger?.refresh();
   };
 
+  /*
+   * Product page motion.
+   *
+   * Entrance motion is deliberately limited to opacity and transform so it can
+   * never delay or block the purchase controls: the form is interactive from
+   * the first paint, and every tween here is decorative.
+   */
+  const setupProductMotion = (scope = document) => {
+    if (reduceMotion || !document.body.classList.contains("template-product"))
+      return;
+
+    const gallery = scope.querySelector?.("[data-product-gallery]");
+    if (gallery && !gallery.dataset.motionReady) {
+      gallery.dataset.motionReady = "true";
+      /* Opacity rather than autoAlpha, so the lightbox openers stay clickable. */
+      gsap.fromTo(
+        gallery,
+        { opacity: 0, y: 24 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: "power3.out",
+          clearProps: "transform",
+        },
+      );
+
+      const thumbnails = gallery.querySelectorAll("[data-gallery-thumb]");
+      if (thumbnails.length) {
+        gsap.fromTo(
+          thumbnails,
+          { opacity: 0, x: -14 },
+          {
+            opacity: 1,
+            x: 0,
+            duration: 0.45,
+            stagger: 0.06,
+            ease: "power2.out",
+            clearProps: "transform",
+          },
+        );
+      }
+    }
+
+    const form = scope.querySelector?.("[data-product-form]");
+    if (form && !form.dataset.motionReady) {
+      form.dataset.motionReady = "true";
+      /*
+       * `opacity`, not `autoAlpha`: autoAlpha also sets visibility:hidden at 0,
+       * which would make Add to cart and Buy now briefly unclickable. Fading
+       * opacity alone keeps every control hit-testable from the first paint.
+       */
+      gsap.fromTo(
+        form.children,
+        { opacity: 0, y: 18 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.55,
+          stagger: 0.05,
+          ease: "power2.out",
+          clearProps: "transform",
+        },
+      );
+    }
+
+    if (window.ScrollTrigger) {
+      scope.querySelectorAll?.("[data-product-reveal]").forEach((element) => {
+        if (element.dataset.motionReady) return;
+        element.dataset.motionReady = "true";
+        gsap.fromTo(
+          element,
+          { autoAlpha: 0, y: 32 },
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.7,
+            ease: "power3.out",
+            clearProps: "transform",
+            scrollTrigger: { trigger: element, start: "top 88%", once: true },
+          },
+        );
+      });
+    }
+
+    if (canHover.matches) {
+      scope.querySelectorAll?.("[data-gallery-thumb]").forEach((thumb) => {
+        if (thumb.dataset.hoverReady) return;
+        thumb.dataset.hoverReady = "true";
+        const image = thumb.querySelector("img");
+        if (!image) return;
+        thumb.addEventListener("pointerenter", () =>
+          gsap.to(image, {
+            scale: 1.08,
+            duration: 0.35,
+            ease: "power2.out",
+            overwrite: "auto",
+          }),
+        );
+        thumb.addEventListener("pointerleave", () =>
+          gsap.to(image, {
+            scale: 1,
+            duration: 0.35,
+            ease: "power2.out",
+            overwrite: "auto",
+          }),
+        );
+      });
+    }
+
+    window.ScrollTrigger?.refresh();
+  };
+
   const initialize = () => {
     setupPageTransitions();
     setupHomepageMotion();
+    setupProductMotion();
   };
 
   if (document.readyState === "loading")
     document.addEventListener("DOMContentLoaded", initialize, { once: true });
   else initialize();
 
-  document.addEventListener("shopify:section:load", (event) =>
-    setupHomepageMotion(event.target),
-  );
+  document.addEventListener("shopify:section:load", (event) => {
+    setupHomepageMotion(event.target);
+    setupProductMotion(event.target);
+  });
 })();

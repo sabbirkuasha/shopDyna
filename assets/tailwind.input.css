@@ -55,6 +55,25 @@
     pointer-events: none;
     visibility: hidden;
   }
+
+  /*
+   * The product gallery and thumbnail rail scroll by swipe, arrow, and
+   * thumbnail click, so the native scrollbar is redundant chrome. Tailwind has
+   * no equivalent utility.
+   */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Lightbox image while the viewer is panning a zoomed image. */
+  .is-grabbing {
+    cursor: grabbing;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

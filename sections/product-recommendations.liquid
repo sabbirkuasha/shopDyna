@@ -33,7 +33,7 @@
   data-performed="{{ recommendations.performed }}"
 >
   {% if section.settings.show_related and related_count > 0 %}
-    <div class="mb-8">
+    <div class="mb-8" data-product-reveal>
       <h2 class="m-0 px-5 text-2xl font-medium sm:px-10">{{ section.settings.related_heading | escape }}</h2>
       <div class="{{ card_classes }}">
         {% for related_product in related_products limit: products_to_show %}
@@ -46,7 +46,7 @@
   {% endif %}
 
   {% if section.settings.show_also_like and also_like_collection.products_count > 1 %}
-    <div>
+    <div data-product-reveal>
       <h2 class="m-0 px-5 text-2xl font-medium sm:px-10">{{ section.settings.also_like_heading | escape }}</h2>
       <div class="{{ card_classes }}">
         {% for suggested_product in also_like_collection.products limit: products_to_show offset: 4 %}

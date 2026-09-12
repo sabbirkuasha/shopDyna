@@ -49,14 +49,18 @@
       {% if product.media.size > 0 %}
         <div class="flex h-full flex-col gap-3 lg:flex-row">
           {% if product.media.size > 1 %}
-            <div class="order-2 flex gap-2 overflow-x-auto lg:order-1 lg:max-h-[var(--gallery-max-h)] lg:w-20 lg:shrink-0 lg:flex-col lg:overflow-y-auto">
+            <div
+              class="no-scrollbar order-2 flex gap-2 overflow-x-auto lg:order-1 lg:max-h-[var(--gallery-max-h)] lg:w-20 lg:shrink-0 lg:flex-col lg:overflow-y-auto"
+              data-gallery-thumbs
+            >
               {% for media in product.media -%}
                 <button
-                  class="shrink-0 cursor-pointer overflow-hidden border-2 {% if forloop.first %}border-[var(--product-accent)]{% else %}border-transparent{% endif %} bg-gray-100 p-0"
+                  class="shrink-0 cursor-pointer overflow-hidden border-2 {% if forloop.first %}border-[var(--product-accent)]{% else %}border-transparent{% endif %} bg-gray-100 p-0 transition-[border-color,opacity] hover:border-[var(--product-accent)]"
                   type="button"
-                  aria-label="View media {{ forloop.index }}"
+                  aria-label="Show image {{ forloop.index }} of {{ product.media.size }}"
                   aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"
-                  data-media-thumb="{{ media.id }}"
+                  data-gallery-thumb="{{ forloop.index0 }}"
+                  data-media-id="{{ media.id }}"
                 >
                   {{
                     media.preview_image
@@ -72,69 +76,121 @@
             height, so it rarely fills the column width — a background here
             would show as empty panels either side of the image.
           {%- endcomment -%}
-          <div class="order-1 min-w-0 flex-1 lg:order-2 lg:flex lg:items-start lg:justify-start">
-            {% for media in product.media %}
-              <div class="w-full{% unless forloop.first %} hidden{% endunless %}" data-media-panel="{{ media.id }}">
-                {% case media.media_type -%}
-                  {%- when 'image' -%}
-                    <button
-                      class="block w-full cursor-zoom-in border-0 bg-transparent p-0"
-                      type="button"
-                      data-zoom-open="ProductZoom-{{ section.id }}-{{ media.id }}"
-                    >
-                      {%- comment -%}
-                        Mobile sizes the image by width, which fits a portrait
-                        shot comfortably on a phone. Desktop sizes it by height
-                        instead, so a tall product image is visible in one
-                        screen without scrolling; the width then follows the
-                        image's own aspect ratio.
-                      {%- endcomment -%}
-                      {{
-                        media
-                        | image_url: width: 1800
-                        | image_tag:
-                          class: 'mx-auto block h-auto w-full lg:mx-0 lg:max-h-[var(--gallery-max-h)] lg:w-auto lg:max-w-full',
-                          widths: '600,900,1200,1500,1800',
-                          sizes: '(min-width:1024px) 45vw,100vw',
-                          loading: 'eager',
-                          alt: media.alt
-                      }}
-                    </button>
-                    <dialog
-                      id="ProductZoom-{{ section.id }}-{{ media.id }}"
-                      class="m-auto max-h-[94vh] max-w-[94vw] bg-transparent p-0 backdrop:bg-black/80"
-                    >
-                      <div class="relative">
-                        <button
-                          class="absolute right-3 top-3 z-10 grid size-11 cursor-pointer place-items-center rounded-full bg-white text-2xl shadow-lg"
-                          type="button"
-                          aria-label="Close enlarged image"
-                          data-zoom-close
-                        >
-                          ×
-                        </button>
-                        {{-
+          <div class="relative order-1 min-w-0 flex-1 lg:order-2" data-gallery-main>
+            {%- comment -%}
+              A CSS scroll-snap track rather than a JavaScript carousel: swipe,
+              momentum, and snapping are native and stay usable if the script
+              never runs. The script adds thumbnail syncing, arrows, dots, and
+              keyboard control on top.
+            {%- endcomment -%}
+            <div
+              class="no-scrollbar flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain scroll-smooth motion-reduce:scroll-auto"
+              tabindex="0"
+              role="group"
+              aria-roledescription="carousel"
+              aria-label="Product media"
+              data-gallery-viewport
+            >
+              {% for media in product.media %}
+                {%- liquid
+                  # Only the first slide is above the fold; the rest load lazily.
+                  assign media_loading = 'lazy'
+                  assign media_priority = 'auto'
+                  if forloop.first
+                    assign media_loading = 'eager'
+                    assign media_priority = 'high'
+                  endif
+                -%}
+                <div
+                  class="w-full shrink-0 snap-center"
+                  role="group"
+                  aria-roledescription="slide"
+                  aria-label="{{ forloop.index }} of {{ product.media.size }}"
+                  data-gallery-slide="{{ forloop.index0 }}"
+                  data-media-id="{{ media.id }}"
+                >
+                  {% case media.media_type -%}
+                    {%- when 'image' -%}
+                      <button
+                        class="block w-full cursor-zoom-in border-0 bg-transparent p-0"
+                        type="button"
+                        aria-label="Enlarge image {{ forloop.index }} of {{ product.media.size }}"
+                        data-lightbox-open="{{ forloop.index0 }}"
+                      >
+                        {%- comment -%}
+                          Mobile sizes the image by width, which fits a portrait
+                          shot comfortably on a phone. Desktop sizes it by height
+                          instead, so a tall product image is visible in one
+                          screen without scrolling; the width then follows the
+                          image's own aspect ratio.
+                        {%- endcomment -%}
+                        {{
                           media
-                          | image_url: width: 2400
+                          | image_url: width: 1800
                           | image_tag:
-                            class: 'max-h-[94vh] max-w-[94vw] object-contain',
-                            loading: 'lazy',
+                            class: 'mx-auto block h-auto w-full lg:max-h-[var(--gallery-max-h)] lg:w-auto lg:max-w-full',
+                            widths: '600,900,1200,1500,1800',
+                            sizes: '(min-width:1024px) 45vw,100vw',
+                            loading: media_loading,
+                            fetchpriority: media_priority,
                             alt: media.alt
                         }}
-                      </div>
-                    </dialog>
-                  {% when 'external_video' %}
-                    <div class="aspect-video">{{ media | external_video_tag: class: 'h-full w-full' }}</div>
-                  {% when 'video' -%}
-                    {{- media | media_tag: controls: true, class: 'h-auto w-full' -}}
-                  {%- when 'model' -%}
-                    {{-
-                      media
-                      | model_viewer_tag: reveal: 'interaction', toggleable: true, class: 'aspect-square w-full'
-                    -}}
-                {%- endcase %}
+                      </button>
+                    {% when 'external_video' %}
+                      <div class="aspect-video w-full">{{ media | external_video_tag: class: 'h-full w-full' }}</div>
+                    {% when 'video' -%}
+                      {{- media | media_tag: controls: true, class: 'h-auto w-full' -}}
+                    {%- when 'model' -%}
+                      {{-
+                        media
+                        | model_viewer_tag: reveal: 'interaction', toggleable: true, class: 'aspect-square w-full'
+                      -}}
+                  {%- endcase %}
+                </div>
+              {% endfor %}
+            </div>
+
+            {%- comment -%}
+              Arrows and dots are for touch and small screens only. On desktop
+              the thumbnail rail is the navigation, matching the production
+              storefront.
+            {%- endcomment -%}
+            {% if product.media.size > 1 %}
+              <button
+                class="absolute left-2 top-1/2 grid size-11 -translate-y-1/2 cursor-pointer place-items-center rounded-full border-0 bg-white/85 text-gray-900 shadow-md backdrop-blur transition hover:bg-white disabled:pointer-events-none disabled:opacity-0 lg:hidden"
+                type="button"
+                aria-label="Previous image"
+                data-gallery-prev
+              >
+                <svg class="size-6 fill-none stroke-current stroke-2" aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="m15 6-6 6 6 6"/>
+                </svg>
+              </button>
+              <button
+                class="absolute right-2 top-1/2 grid size-11 -translate-y-1/2 cursor-pointer place-items-center rounded-full border-0 bg-white/85 text-gray-900 shadow-md backdrop-blur transition hover:bg-white disabled:pointer-events-none disabled:opacity-0 lg:hidden"
+                type="button"
+                aria-label="Next image"
+                data-gallery-next
+              >
+                <svg class="size-6 fill-none stroke-current stroke-2" aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="m9 6 6 6-6 6"/>
+                </svg>
+              </button>
+
+              <div class="mt-3 flex justify-center gap-2 lg:hidden" data-gallery-dots>
+                {% for media in product.media %}
+                  <button
+                    class="size-2.5 cursor-pointer rounded-full border-0 p-0 transition-colors {% if forloop.first %}bg-[var(--product-accent)]{% else %}bg-gray-300{% endif %}"
+                    type="button"
+                    aria-label="Go to image {{ forloop.index }} of {{ product.media.size }}"
+                    aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}"
+                    data-gallery-dot="{{ forloop.index0 }}"
+                  ></button>
+                {% endfor %}
               </div>
-            {% endfor %}
+            {% endif %}
+
+            <p class="sr-only" role="status" aria-live="polite" data-gallery-status></p>
           </div>
         </div>
       {% else -%}
@@ -370,7 +426,7 @@
         </div>
         <p class="my-3 text-center text-xs">{{ section.settings.color_notice | escape }}</p>
 
-        <div class="border-t border-gray-200 pt-5 text-sm leading-6">
+        <div class="border-t border-gray-200 pt-5 text-sm leading-6" data-product-reveal>
           <h2 class="m-0 mb-3 text-xl font-bold text-[var(--product-accent)] md:text-2xl">Product details</h2>
           <dl class="m-0 grid grid-cols-[auto_1fr] gap-x-2 gap-y-1">
             <dt>Product name:</dt>
@@ -394,7 +450,7 @@
             </div>
           {% endif %}
         </div>
-        <div class="mt-5 border-t border-gray-200 pt-5 text-center uppercase">
+        <div class="mt-5 border-t border-gray-200 pt-5 text-center uppercase" data-product-reveal>
           <p class="m-0">Share with friends</p>
           <div class="mt-3 flex justify-center gap-3">
             <a
@@ -443,7 +499,100 @@
       <div class="max-h-[calc(88vh-82px)] overflow-y-auto p-5" data-outlet-results></div>
     </dialog>
   {% endif %}
+
+  {%- comment -%}
+    Lightbox. One dialog serves every image, and the full-resolution source is
+    only requested when the viewer opens it — the previous markup rendered a
+    separate dialog per image, each preloading a 2400px file.
+  {%- endcomment -%}
+  {%- assign image_media = product.media | where: 'media_type', 'image' -%}
+  {%- if image_media.size > 0 -%}
+    <script type="application/json" data-lightbox-data>
+      [
+        {%- for media in image_media -%}
+          {
+            "id": {{ media.id | json }},
+            "src": {{ media | image_url: width: 2400 | json }},
+            "srcset": {{ media | image_url: width: 2400 | append: ' 2400w' | json }},
+            "width": {{ media.preview_image.width | json }},
+            "height": {{ media.preview_image.height | json }},
+            "alt": {{ media.alt | default: product.title | json }}
+          }{% unless forloop.last %},{% endunless %}
+        {%- endfor -%}
+      ]
+    </script>
+
+    <dialog
+      class="m-0 h-full max-h-none w-full max-w-none bg-transparent p-0 text-white backdrop:bg-black/90"
+      aria-label="Product image viewer"
+      data-lightbox
+    >
+      <div class="relative flex h-full w-full flex-col">
+        <div class="flex shrink-0 items-center justify-between p-4">
+          <p class="m-0 text-sm font-medium tabular-nums" data-lightbox-counter></p>
+          <button
+            class="grid size-11 cursor-pointer place-items-center rounded-full border-0 bg-white/15 text-2xl text-white transition hover:bg-white/30"
+            type="button"
+            aria-label="Close image viewer"
+            data-lightbox-close
+          >
+            ×
+          </button>
+        </div>
+
+        <div class="relative min-h-0 flex-1 overflow-hidden" data-lightbox-stage>
+          {%- comment -%}
+            Seeded with the first image's dimensions so the element has a real
+            aspect ratio before the script swaps in the chosen image.
+          {%- endcomment -%}
+          <img
+            class="absolute inset-0 m-auto max-h-full max-w-full touch-none object-contain"
+            alt=""
+            width="{{ image_media.first.preview_image.width }}"
+            height="{{ image_media.first.preview_image.height }}"
+            data-lightbox-image
+          >
+        </div>
+
+        <div class="flex shrink-0 items-center justify-center gap-3 p-4">
+          <button
+            class="grid size-12 cursor-pointer place-items-center rounded-full border-0 bg-white/15 text-white transition hover:bg-white/30 disabled:opacity-30"
+            type="button"
+            aria-label="Previous image"
+            data-lightbox-prev
+          >
+            <svg class="size-6 fill-none stroke-current stroke-2" aria-hidden="true" viewBox="0 0 24 24">
+              <path d="m15 6-6 6 6 6"/>
+            </svg>
+          </button>
+          <button
+            class="grid size-12 cursor-pointer place-items-center rounded-full border-0 bg-white/15 text-white transition hover:bg-white/30"
+            type="button"
+            aria-label="Zoom image"
+            aria-pressed="false"
+            data-lightbox-zoom
+          >
+            <svg class="size-6 fill-none stroke-current stroke-2" aria-hidden="true" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="7"/><path d="m20 20-4-4M8 11h6M11 8v6"/>
+            </svg>
+          </button>
+          <button
+            class="grid size-12 cursor-pointer place-items-center rounded-full border-0 bg-white/15 text-white transition hover:bg-white/30 disabled:opacity-30"
+            type="button"
+            aria-label="Next image"
+            data-lightbox-next
+          >
+            <svg class="size-6 fill-none stroke-current stroke-2" aria-hidden="true" viewBox="0 0 24 24">
+              <path d="m9 6 6 6-6 6"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </dialog>
+  {%- endif -%}
 </section>
+
+<script src="{{ 'product-gallery.js' | asset_url }}" defer></script>
 
 <script>
   (() => {
@@ -466,17 +615,13 @@
       outletDialog = s.querySelector('[data-outlet-dialog]'),
       outletResults = s.querySelector('[data-outlet-results]'),
       outletSelection = s.querySelector('[data-outlet-selection]');
+    /*
+     * The gallery owns slide state now (assets/product-gallery.js). Ask it to
+     * show the variant's media rather than toggling panels here.
+     */
     const media = (id) => {
       if (!id) return;
-      s.querySelectorAll('[data-media-panel]').forEach((x) =>
-        x.classList.toggle('hidden', x.dataset.mediaPanel !== id),
-      );
-      s.querySelectorAll('[data-media-thumb]').forEach((x) => {
-        const active = x.dataset.mediaThumb === id;
-        x.classList.toggle('border-[var(--product-accent)]', active);
-        x.classList.toggle('border-transparent', !active);
-        x.setAttribute('aria-pressed', String(active));
-      });
+      document.dispatchEvent(new CustomEvent('product:show-media', { detail: { mediaId: String(id) } }));
     };
     const update = () => {
       const values = groups.map((g) => g.querySelector('input:checked')?.value),
@@ -506,15 +651,6 @@
       history.replaceState({}, '', `${location.pathname}?variant=${o.value}`);
     };
     groups.forEach((g) => g.addEventListener('change', update));
-    s.querySelectorAll('[data-media-thumb]').forEach((x) =>
-      x.addEventListener('click', () => media(x.dataset.mediaThumb)),
-    );
-    s.querySelectorAll('[data-zoom-open]').forEach((x) =>
-      x.addEventListener('click', () => document.getElementById(x.dataset.zoomOpen)?.showModal()),
-    );
-    s.querySelectorAll('[data-zoom-close]').forEach((x) =>
-      x.addEventListener('click', () => x.closest('dialog')?.close()),
-    );
     s.querySelectorAll('dialog').forEach((x) =>
       x.addEventListener('click', (e) => {
         if (e.target === x) x.close();
