@@ -86,11 +86,17 @@
         </svg>
       </button>
 
-      <button
+      {%- comment -%}
+        A link rather than a button so the cart is still reachable when
+        JavaScript is unavailable. storefront.js intercepts the click and opens
+        the drawer instead.
+      {%- endcomment -%}
+      <a
         class="relative grid size-8 shrink-0 place-items-center rounded-full p-1 transition hover:scale-110 hover:bg-black/5 sm:size-9"
-        type="button"
-        aria-label="Cart with {{ cart.item_count }} items"
+        href="{{ routes.cart_url }}"
+        aria-label="Cart with {{ cart.item_count }} {% if cart.item_count == 1 %}item{% else %}items{% endif %}"
         aria-controls="CartDrawerSection"
+        aria-expanded="false"
         data-cart-drawer-open
       >
         <svg class="size-6 fill-none stroke-current stroke-2" aria-hidden="true" viewBox="0 0 24 24">
@@ -102,7 +108,7 @@
         >
           {{- cart.item_count -}}
         </span>
-      </button>
+      </a>
 
       {%- if shop.customer_accounts_enabled -%}
         <a
@@ -145,6 +151,13 @@
         autocomplete="off"
         enterkeyhint="search"
         required
+        {%- if section.settings.enable_predictive_search %}
+          role="combobox"
+          aria-expanded="false"
+          aria-controls="PredictiveSearchResults"
+          aria-autocomplete="list"
+          data-predictive-input
+        {%- endif %}
       >
       <input type="hidden" name="type" value="product,article,page">
       <input type="hidden" name="options[prefix]" value="last">
@@ -152,6 +165,20 @@
         Search
       </button>
     </form>
+
+    {%- if section.settings.enable_predictive_search -%}
+      {%- comment -%}
+        Filled in by the predictive-search section. The form above still submits
+        normally, so search works with JavaScript unavailable.
+      {%- endcomment -%}
+      <div
+        class="mx-auto mt-2 hidden max-w-3xl overflow-hidden rounded-sm border border-gray-300 bg-white shadow-xl"
+        data-predictive-panel
+      >
+        <div data-predictive-slot></div>
+      </div>
+      <div class="sr-only" role="status" aria-live="polite" data-predictive-status></div>
+    {%- endif -%}
   </div>
 
   {% if navigation != blank %}
@@ -214,6 +241,8 @@
   <aside
     id="DeshalDrawer-{{ section.id }}"
     class="invisible fixed inset-y-0 left-0 z-[70] w-[min(384px,86vw)] -translate-x-full overflow-y-auto bg-[var(--header-bg)] shadow-2xl [backface-visibility:hidden] [will-change:transform]"
+    role="dialog"
+    aria-modal="true"
     aria-hidden="true"
     aria-label="Mobile navigation"
     data-drawer
@@ -422,8 +451,37 @@
       });
     }
 
+    /*
+     * Keep Tab and Shift+Tab inside the drawer while it is open, so keyboard
+     * users cannot reach the page behind it.
+     */
+    const focusableSelector =
+      "a[href], button:not([disabled]), input:not([disabled]):not([type='hidden']), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex='-1'])";
+
+    const onDrawerKeydown = (event) => {
+      if (event.key !== 'Tab') return;
+      const focusable = Array.from(drawer.querySelectorAll(focusableSelector)).filter(
+        (element) => element.offsetParent !== null || element === document.activeElement,
+      );
+      if (!focusable.length) {
+        event.preventDefault();
+        return;
+      }
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
     const closeDrawer = () => {
       drawer.setAttribute('aria-hidden', 'true');
+      drawer.inert = true;
+      drawer.removeEventListener('keydown', onDrawerKeydown);
       openButton.setAttribute('aria-expanded', 'false');
       document.body.classList.remove('overflow-hidden');
       if (window.DeshalMotion?.closeMenu) {
@@ -437,6 +495,7 @@
     const openDrawer = () => {
       lastFocused = document.activeElement;
       drawer.setAttribute('aria-hidden', 'false');
+      drawer.inert = false;
       openButton.setAttribute('aria-expanded', 'true');
       document.body.classList.add('overflow-hidden');
       if (window.DeshalMotion?.openMenu) {
@@ -445,8 +504,12 @@
         drawer.classList.remove('invisible', '-translate-x-full');
         overlay.classList.remove('invisible', 'opacity-0');
       }
+      drawer.addEventListener('keydown', onDrawerKeydown);
       closeButton.focus();
     };
+
+    /* The drawer starts closed, so keep its links out of the tab order. */
+    drawer.inert = true;
 
     openButton.addEventListener('click', openDrawer);
     closeButton.addEventListener('click', closeDrawer);
@@ -456,7 +519,111 @@
       searchPanel.hidden = !willOpen;
       searchButton.setAttribute('aria-expanded', String(willOpen));
       if (willOpen) searchPanel.querySelector('input').focus();
+      else closePredictive?.();
     });
+
+    /*
+     * Predictive search. The results markup comes from sections/predictive-search.liquid
+     * so prices, titles, and URLs stay Shopify-rendered rather than built here.
+     */
+    const predictiveInput = header.querySelector('[data-predictive-input]');
+    const predictivePanel = header.querySelector('[data-predictive-panel]');
+    const predictiveSlot = header.querySelector('[data-predictive-slot]');
+    const predictiveStatus = header.querySelector('[data-predictive-status]');
+    let closePredictive;
+
+    if (predictiveInput && predictivePanel && predictiveSlot) {
+      let activeIndex = -1;
+      let requestToken = 0;
+
+      const options = () => [...predictiveSlot.querySelectorAll('[role="option"] > a')];
+
+      const setActive = (index) => {
+        const items = options();
+        items.forEach((item, position) => {
+          const active = position === index;
+          item.setAttribute('aria-current', String(active));
+          item.parentElement.setAttribute('aria-selected', String(active));
+        });
+        activeIndex = index;
+        if (index >= 0 && items[index]) {
+          predictiveInput.setAttribute('aria-activedescendant', items[index].parentElement.id);
+          items[index].scrollIntoView({ block: 'nearest' });
+        } else {
+          predictiveInput.removeAttribute('aria-activedescendant');
+        }
+      };
+
+      closePredictive = () => {
+        predictivePanel.classList.add('hidden');
+        predictiveInput.setAttribute('aria-expanded', 'false');
+        setActive(-1);
+      };
+
+      const search = async (terms) => {
+        const token = ++requestToken;
+        const url = new URL(`${window.Shopify.routes.root}search/suggest`, window.location.origin);
+        url.searchParams.set('q', terms);
+        url.searchParams.set('section_id', 'predictive-search');
+        url.searchParams.set('resources[type]', 'product,page,article');
+        url.searchParams.set('resources[limit]', '6');
+
+        try {
+          const response = await fetch(url);
+          if (!response.ok || token !== requestToken) return;
+          const markup = await response.text();
+          const results = new DOMParser()
+            .parseFromString(markup, 'text/html')
+            .querySelector('[data-predictive-results]');
+          if (!results) return;
+
+          predictiveSlot.replaceChildren(results);
+          predictivePanel.classList.remove('hidden');
+          predictiveInput.setAttribute('aria-expanded', 'true');
+          setActive(-1);
+
+          const count = Number(results.dataset.count || 0);
+          if (predictiveStatus) {
+            predictiveStatus.textContent = count
+              ? `${count} ${count === 1 ? 'suggestion' : 'suggestions'} available.`
+              : 'No suggestions found.';
+          }
+        } catch (error) {
+          /* The form still submits normally, so a failed suggestion needs no message. */
+        }
+      };
+
+      let debounce;
+      predictiveInput.addEventListener('input', () => {
+        window.clearTimeout(debounce);
+        const terms = predictiveInput.value.trim();
+        if (terms.length < 2) {
+          closePredictive();
+          return;
+        }
+        debounce = window.setTimeout(() => search(terms), 250);
+      });
+
+      predictiveInput.addEventListener('keydown', (event) => {
+        const items = options();
+        if (event.key === 'ArrowDown' && items.length) {
+          event.preventDefault();
+          setActive((activeIndex + 1) % items.length);
+        } else if (event.key === 'ArrowUp' && items.length) {
+          event.preventDefault();
+          setActive(activeIndex <= 0 ? items.length - 1 : activeIndex - 1);
+        } else if (event.key === 'Enter' && activeIndex >= 0 && items[activeIndex]) {
+          event.preventDefault();
+          window.location.href = items[activeIndex].href;
+        } else if (event.key === 'Escape') {
+          closePredictive();
+        }
+      });
+
+      document.addEventListener('click', (event) => {
+        if (!searchPanel.contains(event.target)) closePredictive();
+      });
+    }
     document.addEventListener('keydown', (event) => {
       if (event.key !== 'Escape') return;
       if (drawer.getAttribute('aria-hidden') === 'false') closeDrawer();
@@ -477,6 +644,13 @@
     { "type": "link_list", "id": "main_menu", "label": "Main menu", "default": "main-menu" },
     { "type": "url", "id": "outlet_url", "label": "Outlets page" },
     { "type": "url", "id": "wishlist_url", "label": "Wishlist page" },
+    { "type": "header", "content": "Search" },
+    {
+      "type": "checkbox",
+      "id": "enable_predictive_search",
+      "label": "Show search suggestions as you type",
+      "default": true
+    },
     { "type": "header", "content": "Desktop second-level navigation" },
     {
       "type": "checkbox",

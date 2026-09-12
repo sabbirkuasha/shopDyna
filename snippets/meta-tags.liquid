@@ -1,0 +1,151 @@
+{%- comment -%}
+  Document title, description, canonical URL, and social sharing metadata.
+
+  Rendered once from layout/theme.liquid, immediately before content_for_header.
+  Shopify does not emit a canonical URL, Open Graph, or Twitter card tags on its
+  own, so every one of them is produced here.
+
+  Usage:
+    {% render 'meta-tags' %}
+{%- endcomment -%}
+
+{%- liquid
+  assign seo_title = page_title
+
+  if request.page_type == 'search' and search.performed
+    assign seo_title = seo_title | append: ' — ' | append: search.results_count | append: ' results'
+  endif
+
+  if current_tags
+    assign filter_terms = current_tags | join: ', '
+    assign seo_title = seo_title | append: ' — ' | append: filter_terms
+  endif
+
+  if current_page > 1
+    assign seo_title = seo_title | append: ' — Page ' | append: current_page
+  endif
+
+  unless page_title contains shop.name
+    assign seo_title = seo_title | append: ' — ' | append: shop.name
+  endunless
+
+  assign seo_description = page_description | default: shop.description | default: settings.brand_description
+
+  assign share_image = page_image
+  if share_image == blank
+    assign share_image = settings.social_share_image
+  endif
+  if share_image == blank
+    assign share_image = settings.logo
+  endif
+
+  case request.page_type
+    when 'product'
+      assign open_graph_type = 'product'
+    when 'article'
+      assign open_graph_type = 'article'
+    when 'password', 'index'
+      assign open_graph_type = 'website'
+    else
+      assign open_graph_type = 'website'
+  endcase
+-%}
+
+<title>{{ seo_title | strip | escape }}</title>
+
+{%- if seo_description != blank %}
+  <meta name="description" content="{{ seo_description | strip_html | strip_newlines | truncate: 320 | escape }}">
+{%- endif %}
+
+<link rel="canonical" href="{{ canonical_url }}">
+
+{%- if settings.favicon != blank %}
+  <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
+  <link rel="apple-touch-icon" href="{{ settings.favicon | image_url: width: 180, height: 180 }}">
+{%- else %}
+  <link rel="icon" type="image/x-icon" href="{{ 'plannet.ico' | asset_url }}">
+{%- endif %}
+
+{%- if settings.enable_social_meta %}
+  <meta property="og:site_name" content="{{ shop.name | escape }}">
+  <meta property="og:url" content="{{ canonical_url }}">
+  <meta property="og:title" content="{{ page_title | default: shop.name | strip | escape }}">
+  <meta property="og:type" content="{{ open_graph_type }}">
+  {%- if seo_description != blank %}
+    <meta
+      property="og:description"
+      content="{{ seo_description | strip_html | strip_newlines | truncate: 300 | escape }}"
+    >
+  {%- endif %}
+  {%- if shop.locale != blank %}
+    <meta property="og:locale" content="{{ shop.locale }}">
+  {%- endif %}
+
+  {%- if share_image != blank %}
+    <meta property="og:image" content="http:{{ share_image | image_url: width: 1200 }}">
+    <meta property="og:image:secure_url" content="https:{{ share_image | image_url: width: 1200 }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="{{ 1200 | divided_by: share_image.aspect_ratio | round }}">
+    {%- if share_image.alt != blank %}
+      <meta property="og:image:alt" content="{{ share_image.alt | escape }}">
+    {%- endif %}
+  {%- endif %}
+
+  {%- if request.page_type == 'product' %}
+    <meta property="og:price:amount" content="{{ product.price | divided_by: 100.0 }}">
+    <meta property="og:price:currency" content="{{ cart.currency.iso_code }}">
+    <meta property="product:price:amount" content="{{ product.price | divided_by: 100.0 }}">
+    <meta property="product:price:currency" content="{{ cart.currency.iso_code }}">
+    <meta property="product:availability" content="{% if product.available %}in stock{% else %}out of stock{% endif %}">
+    {%- if product.selected_or_first_available_variant.sku != blank %}
+      <meta
+        property="product:retailer_item_id"
+        content="{{ product.selected_or_first_available_variant.sku | escape }}"
+      >
+    {%- endif %}
+    {%- if product.vendor != blank %}
+      <meta property="product:brand" content="{{ product.vendor | escape }}">
+    {%- endif %}
+  {%- elsif request.page_type == 'article' %}
+    <meta property="article:published_time" content="{{ article.published_at | date: '%Y-%m-%dT%H:%M:%SZ' }}">
+    {%- if article.author != blank %}
+      <meta property="article:author" content="{{ article.author | escape }}">
+    {%- endif %}
+    {%- for tag in article.tags %}
+      <meta property="article:tag" content="{{ tag | escape }}">
+    {%- endfor %}
+  {%- endif %}
+
+  <meta name="twitter:card" content="{% if share_image != blank %}summary_large_image{% else %}summary{% endif %}">
+  <meta name="twitter:title" content="{{ page_title | default: shop.name | strip | escape }}">
+  {%- if seo_description != blank %}
+    <meta
+      name="twitter:description"
+      content="{{ seo_description | strip_html | strip_newlines | truncate: 200 | escape }}"
+    >
+  {%- endif %}
+  {%- if share_image != blank %}
+    <meta name="twitter:image" content="https:{{ share_image | image_url: width: 1200 }}">
+  {%- endif %}
+  {%- if settings.social_x_handle != blank %}
+    <meta name="twitter:site" content="@{{ settings.social_x_handle | remove: '@' | escape }}">
+  {%- endif %}
+{%- endif %}
+
+{%- comment -%}
+  Keep private and transient result pages out of search indexes. Shopify already
+  serves a noindex header for the password page, so this only covers the
+  templates a crawler could otherwise reach.
+{%- endcomment -%}
+{%- if request.page_type == 'search'
+  or request.page_type == 'cart'
+  or request.page_type == 'customers/login'
+  or request.page_type == 'customers/register'
+  or request.page_type == 'customers/account'
+  or request.page_type == 'customers/order'
+  or request.page_type == 'customers/addresses'
+  or request.page_type == 'customers/activate_account'
+  or request.page_type == 'customers/reset_password'
+%}
+  <meta name="robots" content="noindex, follow">
+{%- endif %}

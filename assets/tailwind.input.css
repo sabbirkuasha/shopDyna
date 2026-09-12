@@ -2,3 +2,68 @@
 @plugin "daisyui" {
   themes: light --default;
 }
+
+/*
+ * Accessibility baseline.
+ *
+ * Several storefront controls are rendered with `outline-none` so they can show
+ * a custom focus ring. That is safe for pointer users and invisible for anyone
+ * navigating by keyboard, so a visible `:focus-visible` ring is restored here
+ * for every interactive element that has not opted out with `.focus-ring-none`.
+ */
+@layer base {
+  :where(
+      a,
+      button,
+      input,
+      select,
+      textarea,
+      summary,
+      [tabindex]:not([tabindex="-1"])
+    ):focus-visible {
+    outline: 2px solid var(--focus-ring-color, #7d1717);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  .focus-ring-none:focus-visible {
+    outline: none;
+  }
+
+  /* Give the ring contrast when it lands on a dark or accent-coloured surface. */
+  .on-accent:focus-visible {
+    outline-color: #ffffff;
+  }
+
+  /*
+   * `scroll-smooth` on <html> makes the skip link jump past the sticky header.
+   * Reserve room for it so the focused target is not hidden underneath.
+   */
+  :target,
+  #main:focus {
+    scroll-margin-top: 6rem;
+  }
+}
+
+@layer utilities {
+  /*
+   * Used by drawers and dialogs while they are closed. `inert` covers modern
+   * browsers; this keeps the content unreachable when the attribute is not yet
+   * applied by script.
+   */
+  .is-inert {
+    pointer-events: none;
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,23 +1,277 @@
 [
   {
-    "name": "Theme settings",
+    "name": "theme_info",
+    "theme_name": "shopDyna",
+    "theme_author": "Deshal",
+    "theme_version": "1.0.0",
+    "theme_documentation_url": "https://www.deshal.net",
+    "theme_support_url": "https://www.deshal.net/pages/contact-us"
+  },
+  {
+    "name": "Brand",
     "settings": [
       {
-        "type": "color",
-        "id": "background_color",
-        "label": "Background color",
-        "default": "#ffffff"
+        "type": "paragraph",
+        "content": "The logo and favicon are used across the storefront, sharing previews, and search results."
+      },
+      { "type": "image_picker", "id": "logo", "label": "Logo" },
+      {
+        "type": "range",
+        "id": "logo_width",
+        "label": "Logo width",
+        "min": 60,
+        "max": 300,
+        "step": 10,
+        "unit": "px",
+        "default": 120
+      },
+      {
+        "type": "image_picker",
+        "id": "favicon",
+        "label": "Favicon",
+        "info": "32 x 32px .png recommended."
+      },
+      {
+        "type": "text",
+        "id": "brand_legal_name",
+        "label": "Legal business name",
+        "info": "Used in search-engine structured data. Leave blank to use the store name."
+      },
+      {
+        "type": "textarea",
+        "id": "brand_description",
+        "label": "Brand description",
+        "info": "One or two sentences describing the business, used in structured data."
       }
     ]
   },
   {
-    "name": "Default",
+    "name": "Colors",
     "settings": [
+      { "type": "header", "content": "Page" },
       {
         "type": "color",
-        "id": "default_color",
-        "label": "default color",
+        "id": "background_color",
+        "label": "Page background",
         "default": "#ffffff"
+      },
+      {
+        "type": "color",
+        "id": "text_color",
+        "label": "Body text",
+        "default": "#1f2937"
+      },
+      {
+        "type": "color",
+        "id": "muted_text_color",
+        "label": "Secondary text",
+        "default": "#6b7280"
+      },
+      {
+        "type": "color",
+        "id": "border_color",
+        "label": "Borders and dividers",
+        "default": "#e5e7eb"
+      },
+      { "type": "header", "content": "Brand" },
+      {
+        "type": "color",
+        "id": "accent_color",
+        "label": "Accent",
+        "default": "#7d1717",
+        "info": "Primary brand colour used for headings, links, and primary buttons."
+      },
+      {
+        "type": "color",
+        "id": "accent_contrast_color",
+        "label": "Accent text",
+        "default": "#ffffff"
+      },
+      { "type": "header", "content": "Status" },
+      {
+        "type": "color",
+        "id": "sale_color",
+        "label": "Sale badge",
+        "default": "#b91c1c"
+      },
+      {
+        "type": "color",
+        "id": "success_color",
+        "label": "Success message",
+        "default": "#15803d"
+      },
+      {
+        "type": "color",
+        "id": "error_color",
+        "label": "Error message",
+        "default": "#b91c1c"
+      }
+    ]
+  },
+  {
+    "name": "Typography",
+    "settings": [
+      { "type": "header", "content": "Headings" },
+      {
+        "type": "font_picker",
+        "id": "heading_font",
+        "label": "Heading font",
+        "default": "assistant_n4"
+      },
+      {
+        "type": "range",
+        "id": "heading_scale",
+        "label": "Heading size",
+        "min": 90,
+        "max": 130,
+        "step": 5,
+        "unit": "%",
+        "default": 100
+      },
+      {
+        "type": "select",
+        "id": "heading_transform",
+        "label": "Heading capitalisation",
+        "options": [
+          { "value": "none", "label": "As typed" },
+          { "value": "uppercase", "label": "Uppercase" }
+        ],
+        "default": "uppercase"
+      },
+      { "type": "header", "content": "Body" },
+      {
+        "type": "font_picker",
+        "id": "body_font",
+        "label": "Body font",
+        "default": "assistant_n4"
+      },
+      {
+        "type": "range",
+        "id": "body_scale",
+        "label": "Body size",
+        "min": 90,
+        "max": 120,
+        "step": 5,
+        "unit": "%",
+        "default": 100
+      }
+    ]
+  },
+  {
+    "name": "Buttons",
+    "settings": [
+      {
+        "type": "select",
+        "id": "button_corner_radius",
+        "label": "Corner style",
+        "options": [
+          { "value": "0px", "label": "Square" },
+          { "value": "4px", "label": "Slightly rounded" },
+          { "value": "9999px", "label": "Pill" }
+        ],
+        "default": "0px"
+      },
+      {
+        "type": "select",
+        "id": "button_transform",
+        "label": "Label capitalisation",
+        "options": [
+          { "value": "none", "label": "As typed" },
+          { "value": "uppercase", "label": "Uppercase" }
+        ],
+        "default": "uppercase"
+      },
+      {
+        "type": "range",
+        "id": "button_border_width",
+        "label": "Border width",
+        "min": 0,
+        "max": 4,
+        "step": 1,
+        "unit": "px",
+        "default": 1
+      }
+    ]
+  },
+  {
+    "name": "Layout",
+    "settings": [
+      {
+        "type": "range",
+        "id": "container_width",
+        "label": "Maximum content width",
+        "min": 1000,
+        "max": 1800,
+        "step": 40,
+        "unit": "px",
+        "default": 1440
+      },
+      {
+        "type": "range",
+        "id": "section_spacing",
+        "label": "Spacing between sections",
+        "min": 0,
+        "max": 80,
+        "step": 4,
+        "unit": "px",
+        "default": 32
+      },
+      {
+        "type": "range",
+        "id": "page_gutter",
+        "label": "Page side padding",
+        "min": 8,
+        "max": 48,
+        "step": 4,
+        "unit": "px",
+        "default": 16
+      }
+    ]
+  },
+  {
+    "name": "Social media",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "These profiles are published as structured data so search engines can associate them with the store."
+      },
+      {
+        "type": "image_picker",
+        "id": "social_share_image",
+        "label": "Default sharing image",
+        "info": "1200 x 628px recommended."
+      },
+      { "type": "url", "id": "social_facebook_link", "label": "Facebook" },
+      { "type": "url", "id": "social_instagram_link", "label": "Instagram" },
+      { "type": "url", "id": "social_youtube_link", "label": "YouTube" },
+      { "type": "url", "id": "social_tiktok_link", "label": "TikTok" },
+      { "type": "url", "id": "social_pinterest_link", "label": "Pinterest" },
+      { "type": "url", "id": "social_x_link", "label": "X (Twitter)" },
+      { "type": "url", "id": "social_linkedin_link", "label": "LinkedIn" },
+      {
+        "type": "text",
+        "id": "social_x_handle",
+        "label": "X (Twitter) handle",
+        "info": "Without the @ symbol. Used for Twitter card attribution."
+      }
+    ]
+  },
+  {
+    "name": "Search engines",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "enable_structured_data",
+        "label": "Publish structured data",
+        "default": true,
+        "info": "Adds product, breadcrumb, article, organisation, and website markup for search engines."
+      },
+      {
+        "type": "checkbox",
+        "id": "enable_social_meta",
+        "label": "Publish social sharing metadata",
+        "default": true,
+        "info": "Adds Open Graph and Twitter card tags for link previews."
       }
     ]
   }

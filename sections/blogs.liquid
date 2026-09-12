@@ -1,25 +1,163 @@
-<script>
-  // console.log('All Blogs:', '{{ blogs.news.articles }}');
-  // console.log('Blog Title:', '{{  blog.title | escape  }}');
-</script>
+{%- comment -%}
+  Blog listing.
 
-<section class="p-5">
-  <h1>All Blog List</h1>
+  Reads the blog being viewed rather than a hardcoded handle, so the template
+  works for every blog in the store.
+{%- endcomment -%}
 
-  <div class="flex gap-5 flex-col py-5">
-    {%- for article in blogs.news.articles -%}
-      <div class=" bg-gray-400 p-5">
-        <a href="{{ article.url | escape }}">
-          <h1 class="text-xl font-bold">{{ article.title }}</h1>
+<section class="bg-white py-10 text-gray-900 sm:py-14" style="--blog-accent: {{ section.settings.accent_color }}">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6">
+    <header class="text-center">
+      <h1 class="m-0 text-3xl font-bold uppercase tracking-tight text-[var(--blog-accent)] sm:text-5xl">
+        {{ blog.title | escape }}
+      </h1>
+      {%- if current_tags -%}
+        <p class="mt-3 text-gray-500">
+          Showing posts tagged
+          <strong>{{ current_tags | join: ', ' }}</strong>
+          — <a class="underline hover:text-[var(--blog-accent)]" href="{{ blog.url }}">show all</a>
+        </p>
+      {%- endif -%}
+    </header>
+
+    {%- if section.settings.show_tags and blog.all_tags.size > 0 -%}
+      <nav class="mt-7 flex flex-wrap justify-center gap-2" aria-label="Blog tags">
+        <a
+          class="min-h-9 border px-4 py-1.5 text-sm uppercase{% if current_tags == blank %} border-[var(--blog-accent)] bg-[var(--blog-accent)] text-white{% else %} border-gray-300 hover:border-[var(--blog-accent)]{% endif %}"
+          href="{{ blog.url }}"
+        >
+          All
         </a>
+        {%- for tag in blog.all_tags -%}
+          <a
+            class="min-h-9 border px-4 py-1.5 text-sm uppercase{% if current_tags contains tag %} border-[var(--blog-accent)] bg-[var(--blog-accent)] text-white{% else %} border-gray-300 hover:border-[var(--blog-accent)]{% endif %}"
+            href="{{ blog.url }}/tagged/{{ tag | handleize }}"
+          >
+            {{ tag }}
+          </a>
+        {%- endfor -%}
+      </nav>
+    {%- endif -%}
 
-        {{ article.title | link_to: article.url | escape }}
-        <span>{{ article.id }} </span> <span> | </span> <span>{{ article.author }}</span>
-        <p class="py-2">{{ article.content }}</p>
-        <div class="pt-2">
-          <a href="{{ article.url }}" class="btn btn-outline btn-neutral">Read More</a>
+    {%- paginate blog.articles by section.settings.posts_per_page -%}
+      {%- if blog.articles_count == 0 -%}
+        <div class="mt-12 border border-gray-300 p-12 text-center text-gray-600">
+          <h2 class="m-0 text-xl">No posts yet</h2>
+          <p class="mt-2">Check back soon for news and stories.</p>
+          <a
+            class="mt-5 inline-flex min-h-11 items-center justify-center bg-[var(--blog-accent)] px-8 uppercase text-white"
+            href="{{ routes.root_url }}"
+            >Start shopping</a
+          >
         </div>
-      </div>
-    {%- endfor -%}
+      {%- else -%}
+        <div class="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {%- for article in blog.articles -%}
+            {%- assign article_image_alt = article.image.alt | default: article.title -%}
+            <article class="group flex flex-col overflow-hidden rounded-md bg-white shadow-sm transition-shadow hover:shadow-lg">
+              <a
+                class="block aspect-[3/2] overflow-hidden bg-gray-100"
+                href="{{ article.url }}"
+                tabindex="-1"
+                aria-hidden="true"
+              >
+                {%- if article.image -%}
+                  {{
+                    article.image
+                    | image_url: width: 900
+                    | image_tag:
+                      class: 'h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]',
+                      widths: '300, 450, 600, 900',
+                      sizes: '(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 92vw',
+                      loading: 'lazy',
+                      alt: article_image_alt
+                  }}
+                {%- else -%}
+                  <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-stone-100 to-stone-300 p-6 text-center">
+                    <span class="text-sm font-semibold uppercase tracking-widest text-gray-500">
+                      {{- blog.title | escape -}}
+                    </span>
+                  </div>
+                {%- endif -%}
+              </a>
+
+              <div class="flex flex-1 flex-col p-5">
+                <p class="text-xs uppercase tracking-wide text-gray-500">
+                  <time datetime="{{ article.published_at | date: '%Y-%m-%d' }}">
+                    {{- article.published_at | date: '%B %d, %Y' -}}
+                  </time>
+                  {%- if section.settings.show_author and article.author != blank %}
+                    · {{ article.author }}
+                  {%- endif -%}
+                </p>
+                <h2 class="mt-2 text-lg font-bold leading-snug">
+                  <a class="hover:text-[var(--blog-accent)]" href="{{ article.url }}">{{ article.title | escape }}</a>
+                </h2>
+                {%- if article.excerpt_or_content != blank -%}
+                  <p class="mt-2 flex-1 text-sm leading-6 text-gray-600">
+                    {{ article.excerpt_or_content | strip_html | truncate: 160 }}
+                  </p>
+                {%- endif -%}
+                <div class="mt-4 flex flex-wrap items-center gap-3">
+                  <a
+                    class="inline-flex min-h-11 items-center border border-[var(--blog-accent)] px-5 text-sm font-semibold uppercase text-[var(--blog-accent)] hover:bg-[var(--blog-accent)] hover:text-white"
+                    href="{{ article.url }}"
+                  >
+                    Read more<span class="sr-only"> about {{ article.title | escape }}</span>
+                  </a>
+                  {%- if blog.comments_enabled? and article.comments_count > 0 -%}
+                    <span class="text-sm text-gray-500">
+                      {{ article.comments_count }}
+                      {% if article.comments_count == 1 %}comment{% else %}comments{% endif %}
+                    </span>
+                  {%- endif -%}
+                </div>
+              </div>
+            </article>
+          {%- endfor -%}
+        </div>
+
+        {%- if paginate.pages > 1 -%}
+          <nav class="mt-10 flex items-center justify-center gap-2" aria-label="Blog pagination">
+            {%- if paginate.previous -%}
+              <a
+                class="border border-gray-300 px-4 py-2 hover:border-[var(--blog-accent)] hover:text-[var(--blog-accent)]"
+                href="{{ paginate.previous.url }}"
+                >Previous</a
+              >
+            {%- endif -%}
+            <span class="px-3 text-sm text-gray-600">Page {{ paginate.current_page }} of {{ paginate.pages }}</span>
+            {%- if paginate.next -%}
+              <a
+                class="border border-gray-300 px-4 py-2 hover:border-[var(--blog-accent)] hover:text-[var(--blog-accent)]"
+                href="{{ paginate.next.url }}"
+                >Next</a
+              >
+            {%- endif -%}
+          </nav>
+        {%- endif -%}
+      {%- endif -%}
+    {%- endpaginate -%}
   </div>
 </section>
+
+{% schema %}
+{
+  "name": "Blog posts",
+  "settings": [
+    {
+      "type": "range",
+      "id": "posts_per_page",
+      "label": "Posts per page",
+      "min": 3,
+      "max": 24,
+      "step": 3,
+      "default": 9
+    },
+    { "type": "checkbox", "id": "show_tags", "label": "Show tag filters", "default": true },
+    { "type": "checkbox", "id": "show_author", "label": "Show author", "default": true },
+    { "type": "color", "id": "accent_color", "label": "Accent color", "default": "#7d1717" }
+  ],
+  "presets": [{ "name": "Blog posts" }]
+}
+{% endschema %}

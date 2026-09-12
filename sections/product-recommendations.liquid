@@ -1,13 +1,42 @@
-{% liquid
-  assign related_collection = product.collections.first
+{%- comment -%}
+  Related products and a secondary "you might also like" row.
+
+  Related products come from Shopify's Product Recommendations endpoint, which
+  is trained on real order and browsing data. The endpoint can only answer a
+  request made against `routes.product_recommendations_url`, so the first,
+  server-rendered pass falls back to the product's own collection and the script
+  below swaps in the recommended products once they arrive. Without JavaScript
+  the collection fallback simply stays in place.
+{%- endcomment -%}
+
+{%- liquid
+  assign products_to_show = section.settings.products_to_show
+  assign fallback_collection = product.collections.first
   assign also_like_collection = section.settings.also_like_collection | default: collections.all
-%}
-<section class="bg-white py-6 text-gray-900" style="--collection-accent:{{ section.settings.accent_color }}">
-  {% if section.settings.show_related and related_collection.products_count > 1 %}
+
+  assign related_products = fallback_collection.products
+  assign related_count = fallback_collection.products_count
+
+  if recommendations.performed
+    assign related_products = recommendations.products
+    assign related_count = recommendations.products_count
+  endif
+
+  assign card_classes = 'mt-4 grid auto-cols-[80%] grid-flow-col gap-4 overflow-x-auto px-4 pb-4 sm:auto-cols-[45%] md:auto-cols-[31%] lg:auto-cols-auto lg:grid-flow-row lg:grid-cols-4'
+-%}
+
+<section
+  class="bg-white py-6 text-gray-900"
+  style="--collection-accent:{{ section.settings.accent_color }}"
+  data-product-recommendations
+  data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product.id }}&limit={{ products_to_show }}&intent=related"
+  data-performed="{{ recommendations.performed }}"
+>
+  {% if section.settings.show_related and related_count > 0 %}
     <div class="mb-8">
       <h2 class="m-0 px-5 text-2xl font-medium sm:px-10">{{ section.settings.related_heading | escape }}</h2>
-      <div class="mt-4 grid auto-cols-[80%] grid-flow-col gap-4 overflow-x-auto px-4 pb-4 sm:auto-cols-[45%] md:auto-cols-[31%] lg:auto-cols-auto lg:grid-flow-row lg:grid-cols-4">
-        {% for related_product in related_collection.products limit: section.settings.products_to_show %}
+      <div class="{{ card_classes }}">
+        {% for related_product in related_products limit: products_to_show %}
           {% unless related_product.id == product.id -%}
             {%- render 'product_single', product_card_product: related_product -%}
           {%- endunless %}
@@ -19,8 +48,8 @@
   {% if section.settings.show_also_like and also_like_collection.products_count > 1 %}
     <div>
       <h2 class="m-0 px-5 text-2xl font-medium sm:px-10">{{ section.settings.also_like_heading | escape }}</h2>
-      <div class="mt-4 grid auto-cols-[80%] grid-flow-col gap-4 overflow-x-auto px-4 pb-4 sm:auto-cols-[45%] md:auto-cols-[31%] lg:auto-cols-auto lg:grid-flow-row lg:grid-cols-4">
-        {% for suggested_product in also_like_collection.products limit: section.settings.products_to_show offset: 4 %}
+      <div class="{{ card_classes }}">
+        {% for suggested_product in also_like_collection.products limit: products_to_show offset: 4 %}
           {% unless suggested_product.id == product.id -%}
             {%- render 'product_single', product_card_product: suggested_product -%}
           {%- endunless %}
@@ -30,10 +59,56 @@
   {% endif %}
 </section>
 
+<script>
+  (() => {
+    const section = document.querySelector('[data-product-recommendations]');
+    if (!section || section.dataset.performed === 'true' || section.dataset.ready === 'true') return;
+    section.dataset.ready = 'true';
+
+    /*
+     * Only ask for recommendations once the row is close to the viewport, so a
+     * product page does not pay for the request before anyone scrolls to it.
+     */
+    const load = async () => {
+      try {
+        const response = await fetch(section.dataset.url);
+        if (!response.ok) return;
+        const markup = await response.text();
+        const next = new DOMParser()
+          .parseFromString(markup, 'text/html')
+          .querySelector('[data-product-recommendations]');
+        /* Keep the collection fallback when the endpoint has nothing to offer. */
+        if (next && next.querySelector('[data-product-card]')) section.replaceWith(next);
+      } catch (error) {
+        /* The fallback row is already on the page, so a failure needs no message. */
+      }
+    };
+
+    if (!('IntersectionObserver' in window)) {
+      load();
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        observer.disconnect();
+        load();
+      },
+      { rootMargin: '400px 0px' },
+    );
+    observer.observe(section);
+  })();
+</script>
+
 {% schema %}
 {
   "name": "Product recommendations",
   "settings": [
+    {
+      "type": "paragraph",
+      "content": "Related products use Shopify's recommendation engine and fall back to the product's first collection."
+    },
     { "type": "checkbox", "id": "show_related", "label": "Show related products", "default": true },
     { "type": "text", "id": "related_heading", "label": "Related heading", "default": "Related Products" },
     { "type": "checkbox", "id": "show_also_like", "label": "Show also-like products", "default": true },

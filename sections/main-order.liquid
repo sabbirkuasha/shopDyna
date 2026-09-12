@@ -1,0 +1,188 @@
+{%- comment -%}
+  Individual order detail for classic customer accounts.
+
+  Reached from the order history table at templates/customers/account.json. The
+  order object is only available on the customers/order template.
+{%- endcomment -%}
+
+<section class="bg-gray-50 py-10 sm:py-14" style="--account-accent: {{ section.settings.accent_color }}">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6">
+    <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+      <a class="hover:text-[var(--account-accent)] hover:underline" href="{{ routes.account_url }}">My account</a>
+      <span class="px-2" aria-hidden="true">›</span>
+      <span class="font-semibold text-gray-700" aria-current="page">Order {{ order.name }}</span>
+    </nav>
+
+    <div class="mt-4 flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-bold text-[var(--account-accent)]">Order {{ order.name }}</h1>
+        <p class="mt-1 text-gray-500">
+          Placed on
+          <time datetime="{{ order.created_at | date: '%Y-%m-%d' }}">
+            {{- order.created_at | date: '%B %d, %Y' -}}
+          </time>
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <span class="border border-gray-300 bg-white px-4 py-2 text-sm">
+          Payment: <strong>{{ order.financial_status_label }}</strong>
+        </span>
+        <span class="border border-gray-300 bg-white px-4 py-2 text-sm">
+          Fulfillment: <strong>{{ order.fulfillment_status_label }}</strong>
+        </span>
+      </div>
+    </div>
+
+    {%- if order.cancelled -%}
+      <div class="mt-6 border border-red-200 bg-red-50 p-5 text-sm text-red-700" role="status">
+        <p class="font-semibold">This order was cancelled on {{ order.cancelled_at | date: '%B %d, %Y' }}.</p>
+        {%- if order.cancel_reason_label != blank -%}
+          <p class="mt-1">Reason: {{ order.cancel_reason_label }}</p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    <div class="mt-8 grid gap-7 lg:grid-cols-[1fr_320px]">
+      <div class="overflow-hidden rounded-md bg-white shadow-sm">
+        <h2 class="border-b px-5 py-4 text-xl font-bold uppercase">Items</h2>
+        <div class="overflow-x-auto">
+          <table class="w-full min-w-[620px] text-left">
+            <caption class="sr-only">
+              Items in order
+              {{ order.name }}
+            </caption>
+            <thead class="bg-gray-100 text-sm uppercase">
+              <tr>
+                <th class="p-4" scope="col">Product</th>
+                <th class="p-4" scope="col">Price</th>
+                <th class="p-4" scope="col">Quantity</th>
+                <th class="p-4 text-right" scope="col">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {%- for line_item in order.line_items -%}
+                <tr class="border-t align-top">
+                  <td class="p-4">
+                    <div class="flex gap-4">
+                      {%- if line_item.image -%}
+                        <a
+                          class="block size-20 shrink-0 overflow-hidden bg-gray-100"
+                          href="{{ line_item.product.url }}"
+                        >
+                          {{
+                            line_item.image
+                            | image_url: width: 160
+                            | image_tag: class: 'h-full w-full object-cover', loading: 'lazy', alt: line_item.title
+                          }}
+                        </a>
+                      {%- endif -%}
+                      <div class="min-w-0">
+                        <a class="font-semibold hover:text-[var(--account-accent)]" href="{{ line_item.product.url }}">
+                          {{- line_item.product.title | default: line_item.title -}}
+                        </a>
+                        {%- unless line_item.product.has_only_default_variant -%}
+                          <p class="mt-1 text-sm text-gray-500">{{ line_item.variant.title }}</p>
+                        {%- endunless -%}
+                        {%- if line_item.sku != blank -%}
+                          <p class="mt-1 text-xs text-gray-400">SKU: {{ line_item.sku }}</p>
+                        {%- endif -%}
+                        {%- if line_item.fulfillment -%}
+                          <p class="mt-2 text-xs text-green-700">
+                            Fulfilled {{ line_item.fulfillment.created_at | date: '%b %d, %Y' }}
+                            {%- if line_item.fulfillment.tracking_url != blank %}
+                              —
+                              <a class="underline" href="{{ line_item.fulfillment.tracking_url }}">
+                                Track {{ line_item.fulfillment.tracking_company }}
+                              </a>
+                            {%- endif -%}
+                          </p>
+                        {%- endif -%}
+                        {%- for discount in line_item.line_level_discount_allocations -%}
+                          <p class="mt-1 text-xs text-green-700">
+                            {{ discount.discount_application.title }} (−{{ discount.amount | money }})
+                          </p>
+                        {%- endfor -%}
+                      </div>
+                    </div>
+                  </td>
+                  <td class="p-4">{{ line_item.final_price | money }}</td>
+                  <td class="p-4">{{ line_item.quantity }}</td>
+                  <td class="p-4 text-right font-semibold">{{ line_item.final_line_price | money }}</td>
+                </tr>
+              {%- endfor -%}
+            </tbody>
+            <tfoot class="border-t bg-gray-50">
+              <tr>
+                <td class="p-4 text-right" colspan="3">Subtotal</td>
+                <td class="p-4 text-right font-semibold">{{ order.line_items_subtotal_price | money }}</td>
+              </tr>
+              {%- for discount in order.cart_level_discount_applications -%}
+                <tr>
+                  <td class="p-4 text-right text-green-700" colspan="3">
+                    {{ discount.title }}
+                  </td>
+                  <td class="p-4 text-right font-semibold text-green-700">
+                    −{{ discount.total_allocated_amount | money }}
+                  </td>
+                </tr>
+              {%- endfor -%}
+              {%- for shipping_method in order.shipping_methods -%}
+                <tr>
+                  <td class="p-4 text-right" colspan="3">Shipping ({{ shipping_method.title }})</td>
+                  <td class="p-4 text-right font-semibold">{{ shipping_method.price | money }}</td>
+                </tr>
+              {%- endfor -%}
+              {%- for tax_line in order.tax_lines -%}
+                <tr>
+                  <td class="p-4 text-right" colspan="3">{{ tax_line.title }} ({{ tax_line.rate | times: 100 }}%)</td>
+                  <td class="p-4 text-right font-semibold">{{ tax_line.price | money }}</td>
+                </tr>
+              {%- endfor -%}
+              <tr class="border-t">
+                <td class="p-4 text-right text-lg font-bold" colspan="3">Total</td>
+                <td class="p-4 text-right text-lg font-bold text-[var(--account-accent)]">
+                  {{ order.total_price | money_with_currency }}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <aside class="h-fit space-y-5">
+        <div class="rounded-md bg-white p-5 shadow-sm">
+          <h2 class="text-lg font-bold uppercase">Shipping address</h2>
+          {%- if order.shipping_address -%}
+            <address class="mt-3 text-sm not-italic leading-7 text-gray-700">
+              {{ order.shipping_address | format_address }}
+            </address>
+          {%- else -%}
+            <p class="mt-3 text-sm text-gray-500">No shipping address on this order.</p>
+          {%- endif -%}
+        </div>
+        <div class="rounded-md bg-white p-5 shadow-sm">
+          <h2 class="text-lg font-bold uppercase">Billing address</h2>
+          {%- if order.billing_address -%}
+            <address class="mt-3 text-sm not-italic leading-7 text-gray-700">
+              {{ order.billing_address | format_address }}
+            </address>
+          {%- else -%}
+            <p class="mt-3 text-sm text-gray-500">No billing address on this order.</p>
+          {%- endif -%}
+        </div>
+        <a
+          class="flex min-h-11 items-center justify-center border border-[var(--account-accent)] px-5 font-semibold uppercase text-[var(--account-accent)]"
+          href="{{ routes.account_url }}"
+          >Back to order history</a
+        >
+      </aside>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Customer order",
+  "settings": [{ "type": "color", "id": "accent_color", "label": "Accent color", "default": "#7d1717" }]
+}
+{% endschema %}

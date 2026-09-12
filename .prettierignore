@@ -1,0 +1,13 @@
+node_modules
+package-lock.json
+
+# Generated or vendored assets
+assets/tailwind.output.css
+assets/gsap.min.js
+assets/ScrollTrigger.min.js
+
+# Managed by Shopify admin or the Shopify CLI
+config/settings_data.json
+config/markets.json
+locales
+.shopify

@@ -12,7 +12,7 @@
   <div class="w-full px-4 py-6">
     <div class="hidden min-h-72 place-items-center text-center" data-favourites-empty>
       <div>
-        <svg class="mx-auto size-20 fill-none stroke-gray-300 stroke-1" viewBox="0 0 24 24">
+        <svg class="mx-auto size-20 fill-none stroke-gray-300 stroke-1" aria-hidden="true" viewBox="0 0 24 24">
           <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.9-8.6a5.5 5.5 0 0 0-.1-7.8Z"/>
         </svg>
         <h2 class="mt-4 text-xl font-semibold">No favourites yet</h2>
@@ -45,7 +45,7 @@
       grid.innerHTML = items
         .map(
           (item) =>
-            `<article class="relative overflow-hidden rounded-md bg-white shadow-sm"><button class="absolute right-2 top-2 z-10 grid size-9 place-items-center rounded-full border-0 bg-white/90 text-red-700 shadow" type="button" aria-label="Remove from favourites" data-favorite-toggle data-product='${escapeHtml(JSON.stringify(item))}'><svg class="size-5 fill-current stroke-current" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.9-8.6a5.5 5.5 0 0 0-.1-7.8Z"/></svg></button><a href="${escapeHtml(item.url)}"><div class="aspect-[4/5] bg-gray-100"><img class="h-full w-full object-cover" src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}" loading="lazy"></div><div class="p-3"><h2 class="truncate font-semibold">${escapeHtml(item.title)}</h2><p class="mt-1">${escapeHtml(item.price)}</p></div></a></article>`,
+            `<article class="relative overflow-hidden rounded-md bg-white shadow-sm"><button class="absolute right-2 top-2 z-10 grid size-9 place-items-center rounded-full border-0 bg-white/90 text-red-700 shadow" type="button" aria-label="Remove from favourites" data-favorite-toggle data-product='${escapeHtml(JSON.stringify(item))}'><svg class="size-5 fill-current stroke-current" aria-hidden="true" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.9-8.6a5.5 5.5 0 0 0-.1-7.8Z"/></svg></button><a href="${escapeHtml(item.url)}"><div class="aspect-[4/5] bg-gray-100"><img class="h-full w-full object-cover" src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}" loading="lazy"></div><div class="p-3"><h2 class="truncate font-semibold">${escapeHtml(item.title)}</h2><p class="mt-1">${escapeHtml(item.price)}</p></div></a></article>`,
         )
         .join('');
     };

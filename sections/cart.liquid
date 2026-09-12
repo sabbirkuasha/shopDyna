@@ -84,8 +84,11 @@
                       data-cart-page-change
                       data-line="{{ forloop.index }}"
                       data-quantity="{{ item.quantity | minus: 1 }}"
-                      aria-label="Decrease {{ item.product.title }} quantity"
-                      {% if item.quantity <= 1 %}disabled{% endif %}
+                      data-item-title="{{ item.product.title | escape }}"
+                      aria-label="Decrease {{ item.product.title | escape }} quantity"
+                      {% if item.quantity <= 1 %}
+                        disabled
+                      {% endif %}
                     >
                       −</button
                     ><span class="relative h-full min-w-0 flex-1" aria-live="polite">
@@ -99,21 +102,24 @@
                         readonly
                         data-cart-page-quantity
                       >
-                      <span class="absolute inset-0 hidden items-center justify-center bg-white" data-cart-page-quantity-loading>
+                      <span
+                        class="absolute inset-0 hidden items-center justify-center bg-white"
+                        data-cart-page-quantity-loading
+                      >
                         <svg class="size-4 animate-spin" viewBox="0 0 24 24" aria-hidden="true">
                           <circle class="fill-none stroke-gray-300 stroke-2" cx="12" cy="12" r="9"></circle>
                           <path class="fill-none stroke-[var(--cart-accent)] stroke-2" d="M12 3a9 9 0 0 1 9 9"></path>
                         </svg>
                         <span class="sr-only">Updating quantity</span>
-                      </span>
-                    </span
+                      </span> </span
                     ><button
                       class="size-9 cursor-pointer border-y-0 border-r-0 border-l border-gray-300 bg-gray-100 text-xl transition-colors hover:bg-gray-200 active:bg-[var(--cart-accent)] active:text-white disabled:cursor-wait disabled:bg-gray-50 disabled:text-gray-300"
                       type="button"
                       data-cart-page-change
                       data-line="{{ forloop.index }}"
                       data-quantity="{{ item.quantity | plus: 1 }}"
-                      aria-label="Increase {{ item.product.title }} quantity"
+                      data-item-title="{{ item.product.title | escape }}"
+                      aria-label="Increase {{ item.product.title | escape }} quantity"
                     >
                       +
                     </button>
@@ -174,8 +180,11 @@
                     data-cart-page-change
                     data-line="{{ forloop.index }}"
                     data-quantity="{{ item.quantity | minus: 1 }}"
-                    aria-label="Decrease {{ item.product.title }} quantity"
-                    {% if item.quantity <= 1 %}disabled{% endif %}
+                    data-item-title="{{ item.product.title | escape }}"
+                    aria-label="Decrease {{ item.product.title | escape }} quantity"
+                    {% if item.quantity <= 1 %}
+                      disabled
+                    {% endif %}
                   >
                     −</button
                   ><span class="relative h-full min-w-0 flex-1" aria-live="polite">
@@ -189,21 +198,24 @@
                       type="number"
                       data-cart-page-quantity
                     >
-                    <span class="absolute inset-0 hidden items-center justify-center bg-white" data-cart-page-quantity-loading>
+                    <span
+                      class="absolute inset-0 hidden items-center justify-center bg-white"
+                      data-cart-page-quantity-loading
+                    >
                       <svg class="size-4 animate-spin" viewBox="0 0 24 24" aria-hidden="true">
                         <circle class="fill-none stroke-gray-300 stroke-2" cx="12" cy="12" r="9"></circle>
                         <path class="fill-none stroke-[var(--cart-accent)] stroke-2" d="M12 3a9 9 0 0 1 9 9"></path>
                       </svg>
                       <span class="sr-only">Updating quantity</span>
-                    </span>
-                  </span
+                    </span> </span
                   ><button
                     class="size-10 cursor-pointer border-y-0 border-r-0 border-l border-gray-300 bg-gray-100 text-xl transition-colors hover:bg-gray-200 active:bg-[var(--cart-accent)] active:text-white disabled:cursor-wait disabled:bg-gray-50 disabled:text-gray-300"
                     type="button"
                     data-cart-page-change
                     data-line="{{ forloop.index }}"
                     data-quantity="{{ item.quantity | plus: 1 }}"
-                    aria-label="Increase {{ item.product.title }} quantity"
+                    data-item-title="{{ item.product.title | escape }}"
+                    aria-label="Increase {{ item.product.title | escape }} quantity"
                   >
                     +
                   </button>
@@ -218,9 +230,9 @@
                 <a
                   class="grid size-10 place-items-center rounded-full text-gray-500 hover:bg-red-50 hover:text-red-700"
                   href="{{ item.url_to_remove }}"
-                  aria-label="Remove {{ item.product.title }}"
+                  aria-label="Remove {{ item.product.title | escape }} from your cart"
                 >
-                  <svg class="size-5 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+                  <svg class="size-5 fill-none stroke-current stroke-2" aria-hidden="true" viewBox="0 0 24 24">
                     <path d="M4 7h16M10 11v6M14 11v6M6 7l1 14h10l1-14M9 7V4h6v3"/>
                   </svg>
                 </a>
@@ -256,7 +268,8 @@
                   <p class="text-sm text-gray-500">Shipping and discounts are calculated at checkout.</p>
                 </div>
                 <div class="flex justify-between py-5 text-xl">
-                  <strong>Total (VAT included)</strong><strong class="text-[var(--cart-accent)]">{{ cart.total_price | money }}</strong>
+                  <strong>Total (VAT included)</strong
+                  ><strong class="text-[var(--cart-accent)]">{{ cart.total_price | money }}</strong>
                 </div>
               </div>
               <div
@@ -271,7 +284,7 @@
                 <span>Updating totals…</span>
               </div>
             </div>
-            <label class="mb-2 block text-sm font-medium" for="CartNote">Order note</label><textarea
+            <label class="mb-2 block text-sm font-medium" for="CartNote">Order note</label>><textarea
               class="min-h-24 w-full resize-y border border-gray-300 p-3 outline-none focus:border-[var(--cart-accent)]"
               id="CartNote"
               name="note"
@@ -304,13 +317,34 @@
 <script>
   if (!window.cartPageQuantityControlsReady) {
     window.cartPageQuantityControlsReady = true;
+
+    const announce = (message) => {
+      const region = document.querySelector('[data-live-region]');
+      if (!region || !message) return;
+      region.textContent = '';
+      window.setTimeout(() => {
+        region.textContent = message;
+      }, 60);
+    };
+
+    const readCartError = async (response, fallback) => {
+      try {
+        const payload = await response.json();
+        return payload.description || payload.message || fallback;
+      } catch (error) {
+        return fallback;
+      }
+    };
+
     document.addEventListener('click', async (event) => {
       const button = event.target.closest('[data-cart-page-change]');
-      if (!button || button.disabled) return;
+      if (!button || button.disabled || button.dataset.pending === 'true') return;
 
       const requestedQuantity = Number(button.dataset.quantity);
       if (requestedQuantity < 1) return;
+      button.dataset.pending = 'true';
 
+      const title = button.dataset.itemTitle || 'item';
       const cartSection = document.getElementById('CartPageSection');
       const cartLine = button.closest('[data-cart-page-line]');
       const quantityControl = button.closest('[data-cart-page-quantity-control]');
@@ -342,15 +376,28 @@
             quantity: requestedQuantity,
           }),
         });
-        if (!response.ok) throw new Error('Unable to update quantity');
+        if (!response.ok) {
+          throw new Error(await readCartError(response, "We couldn't update that quantity. Please try again."));
+        }
         const updatedCart = await response.json();
+
+        /*
+         * Shopify caps the quantity at the available stock rather than
+         * failing, so surface the difference instead of silently showing a
+         * lower number than the customer asked for.
+         */
+        const updatedLine = updatedCart.items?.[Number(button.dataset.line) - 1];
+        if (updatedLine && updatedLine.quantity < requestedQuantity) {
+          announce(`Only ${updatedLine.quantity} of ${title} ${updatedLine.quantity === 1 ? 'is' : 'are'} available.`);
+        } else {
+          announce(`${title} quantity updated to ${requestedQuantity}.`);
+        }
+
         const sectionId = cartSection.dataset.cartPageSectionId;
         const sectionResponse = await fetch(`${window.location.pathname}?section_id=${encodeURIComponent(sectionId)}`);
         if (!sectionResponse.ok) throw new Error('Unable to refresh cart');
         const html = await sectionResponse.text();
-        const nextSection = new DOMParser()
-          .parseFromString(html, 'text/html')
-          .querySelector('#CartPageSection');
+        const nextSection = new DOMParser().parseFromString(html, 'text/html').querySelector('#CartPageSection');
         if (!nextSection) throw new Error('Unable to render updated cart');
         cartSection.replaceWith(nextSection);
         document.querySelectorAll('[data-cart-count]').forEach((count) => {
@@ -358,7 +405,6 @@
           count.classList.toggle('hidden', updatedCart.item_count === 0);
         });
       } catch (error) {
-        console.error(error);
         cartLine?.removeAttribute('aria-busy');
         quantityInput?.classList.remove('invisible');
         quantityLoading?.classList.add('hidden');
@@ -367,10 +413,16 @@
         summaryValues?.classList.remove('animate-pulse', 'opacity-50');
         summaryLoading?.classList.add('hidden');
         summaryLoading?.classList.remove('flex');
-        quantityError?.classList.remove('hidden');
+        if (quantityError) {
+          quantityError.textContent = error.message || "We couldn't update that quantity. Please try again.";
+          quantityError.classList.remove('hidden');
+        }
+        announce(error.message || "We couldn't update that quantity. Please try again.");
         quantityButtons?.forEach((control) => {
           control.disabled = Number(control.dataset.quantity) < 1;
         });
+      } finally {
+        delete button.dataset.pending;
       }
     });
   }

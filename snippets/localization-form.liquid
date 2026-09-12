@@ -1,0 +1,129 @@
+{%- comment -%}
+  Country/region and language selectors.
+
+  Each selector renders only when the store actually offers a choice, so a
+  single-market, single-language store shows nothing at all. Both use Shopify's
+  `localization` form, which sets the buyer's market and locale server side, so
+  they keep working without JavaScript.
+
+  Accepts:
+    show_country  - render the country/region selector (default true)
+    show_language - render the language selector (default true)
+    id_prefix     - unique prefix for element ids
+
+  Usage:
+    {% render 'localization-form', id_prefix: 'Footer' %}
+{%- endcomment -%}
+
+{%- liquid
+  assign render_country = true
+  if show_country == false
+    assign render_country = false
+  endif
+
+  assign render_language = true
+  if show_language == false
+    assign render_language = false
+  endif
+
+  assign prefix = id_prefix | default: 'Localization'
+  assign has_countries = false
+  assign has_languages = false
+
+  if render_country and localization.available_countries.size > 1
+    assign has_countries = true
+  endif
+  if render_language and localization.available_languages.size > 1
+    assign has_languages = true
+  endif
+
+  assign control_class = 'h-11 w-full min-w-44 cursor-pointer border border-gray-400 bg-transparent px-3 text-sm outline-none focus:border-current'
+-%}
+
+{%- if has_countries or has_languages -%}
+  <div class="flex flex-wrap gap-4">
+    {%- if has_countries -%}
+      {%- form 'localization', class: 'contents', id: 'CountryForm-' | append: prefix -%}
+        <div>
+          <label class="mb-2 block text-xs font-semibold uppercase tracking-wide" for="CountrySelect-{{ prefix }}">
+            Country / region
+          </label>
+          <select
+            class="{{ control_class }}"
+            id="CountrySelect-{{ prefix }}"
+            name="country_code"
+            data-localization-select
+          >
+            {%- for country in localization.available_countries -%}
+              <option
+                value="{{ country.iso_code }}"
+                {% if country.iso_code == localization.country.iso_code %}
+                  selected
+                {% endif %}
+              >
+                {{ country.name }} ({{ country.currency.iso_code }}
+                {{ country.currency.symbol }})
+              </option>
+            {%- endfor -%}
+          </select>
+          {%- comment -%} Submit button for when JavaScript is unavailable. {%- endcomment -%}
+          <noscript>
+            <button
+              class="mt-2 min-h-11 w-full border border-current bg-transparent px-4 text-sm uppercase"
+              type="submit"
+            >
+              Update country
+            </button>
+          </noscript>
+        </div>
+      {%- endform -%}
+    {%- endif -%}
+
+    {%- if has_languages -%}
+      {%- form 'localization', class: 'contents', id: 'LanguageForm-' | append: prefix -%}
+        <div>
+          <label class="mb-2 block text-xs font-semibold uppercase tracking-wide" for="LanguageSelect-{{ prefix }}">
+            Language
+          </label>
+          <select
+            class="{{ control_class }}"
+            id="LanguageSelect-{{ prefix }}"
+            name="locale_code"
+            data-localization-select
+          >
+            {%- for language in localization.available_languages -%}
+              <option
+                value="{{ language.iso_code }}"
+                lang="{{ language.iso_code }}"
+                {% if language.iso_code == localization.language.iso_code %}
+                  selected
+                {% endif %}
+              >
+                {{ language.endonym_name | capitalize }}
+              </option>
+            {%- endfor -%}
+          </select>
+          <noscript>
+            <button
+              class="mt-2 min-h-11 w-full border border-current bg-transparent px-4 text-sm uppercase"
+              type="submit"
+            >
+              Update language
+            </button>
+          </noscript>
+        </div>
+      {%- endform -%}
+    {%- endif -%}
+  </div>
+
+  <script>
+    (() => {
+      if (window.deshalLocalizationReady) return;
+      window.deshalLocalizationReady = true;
+      document.addEventListener('change', (event) => {
+        const select = event.target.closest('[data-localization-select]');
+        if (select) select.form?.submit();
+      });
+    })();
+  </script>
+{%- endif -%}

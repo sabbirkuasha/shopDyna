@@ -1,0 +1,93 @@
+{%- comment -%}
+  Predictive search results.
+
+  Rendered on its own by Shopify when the header requests
+  `routes.predictive_search_url` with `section_id=predictive-search`. It is never
+  placed in a JSON template — the header fetches it and injects the markup.
+{%- endcomment -%}
+
+{%- liquid
+  assign products = predictive_search.resources.products
+  assign pages = predictive_search.resources.pages
+  assign articles = predictive_search.resources.articles
+  assign total = products.size | plus: pages.size | plus: articles.size
+-%}
+
+<div id="PredictiveSearchResults" data-predictive-results data-count="{{ total }}">
+  {%- if predictive_search.performed -%}
+    {%- if total == 0 -%}
+      <p class="px-4 py-6 text-center text-sm text-gray-500">
+        No results for “{{ predictive_search.terms | escape }}”. Press Enter to search everything.
+      </p>
+    {%- else -%}
+      <ul class="m-0 list-none p-0" id="PredictiveSearchList" role="listbox" aria-label="Search suggestions">
+        {%- for product in products -%}
+          <li id="PredictiveOption-product-{{ forloop.index }}" role="option" aria-selected="false">
+            <a
+              class="flex items-center gap-3 border-b border-gray-100 px-4 py-3 hover:bg-gray-50 aria-[current=true]:bg-gray-100"
+              href="{{ product.url }}"
+              tabindex="-1"
+            >
+              <span class="size-12 shrink-0 overflow-hidden bg-gray-100">
+                {%- if product.featured_image -%}
+                  {{
+                    product.featured_image
+                    | image_url: width: 96
+                    | image_tag: class: 'h-full w-full object-cover', loading: 'lazy', alt: ''
+                  }}
+                {%- endif -%}
+              </span>
+              <span class="min-w-0 flex-1">
+                <span class="block truncate text-sm font-semibold text-gray-900">{{ product.title | escape }}</span>
+                <span class="block text-sm text-gray-600">
+                  {%- if product.price_varies %}From {% endif -%}
+                  {{ product.price | money }}
+                </span>
+              </span>
+            </a>
+          </li>
+        {%- endfor -%}
+
+        {%- for page in pages -%}
+          <li id="PredictiveOption-page-{{ forloop.index }}" role="option" aria-selected="false">
+            <a
+              class="block border-b border-gray-100 px-4 py-3 text-sm hover:bg-gray-50 aria-[current=true]:bg-gray-100"
+              href="{{ page.url }}"
+              tabindex="-1"
+            >
+              <span class="text-xs uppercase tracking-wide text-gray-400">Page</span>
+              <span class="block truncate font-semibold text-gray-900">{{ page.title | escape }}</span>
+            </a>
+          </li>
+        {%- endfor -%}
+
+        {%- for article in articles -%}
+          <li id="PredictiveOption-article-{{ forloop.index }}" role="option" aria-selected="false">
+            <a
+              class="block border-b border-gray-100 px-4 py-3 text-sm hover:bg-gray-50 aria-[current=true]:bg-gray-100"
+              href="{{ article.url }}"
+              tabindex="-1"
+            >
+              <span class="text-xs uppercase tracking-wide text-gray-400">Article</span>
+              <span class="block truncate font-semibold text-gray-900">{{ article.title | escape }}</span>
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+
+      <a
+        class="block bg-gray-50 px-4 py-3 text-center text-sm font-semibold uppercase text-gray-800 hover:bg-gray-100"
+        href="{{ routes.search_url }}?q={{ predictive_search.terms | url_encode }}"
+        tabindex="-1"
+      >
+        See all results for “{{ predictive_search.terms | escape }}”
+      </a>
+    {%- endif -%}
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Predictive search"
+}
+{% endschema %}

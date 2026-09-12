@@ -1,3 +1,19 @@
 node_modules
 package.json
 package-lock.json
+
+# Tooling and source files that are not part of the uploaded theme
+.env
+.prettierrc
+.gitattributes
+.shopify
+docs
+scripts
+assets/tailwind.input.css
+
+# Artifacts that must never reach the store
+*.bak
+*.orig
+*.rej
+.DS_Store
+Thumbs.db

@@ -149,6 +149,16 @@
         </div>
       </div>
     {% endif %}
+
+    {%- if section.settings.show_localization -%}
+      {%- comment -%}
+        Renders nothing unless the store actually offers more than one country
+        or language, so a single-market store is unaffected.
+      {%- endcomment -%}
+      <div class="mt-8 border-t border-white/20 pt-6">
+        {% render 'localization-form', id_prefix: 'Footer' %}
+      </div>
+    {%- endif -%}
   </div>
 
   <div class="bg-[var(--footer-accent)] px-5 py-4 text-center text-xs capitalize leading-6 text-white sm:text-sm">
@@ -208,6 +218,14 @@
     { "type": "url", "id": "social_facebook_url", "label": "Facebook URL" },
     { "type": "url", "id": "social_instagram_url", "label": "Instagram URL" },
     { "type": "url", "id": "social_youtube_url", "label": "YouTube URL" },
+    { "type": "header", "content": "Localization" },
+    {
+      "type": "checkbox",
+      "id": "show_localization",
+      "label": "Show country and language selectors",
+      "default": true,
+      "info": "Only appears when more than one market or translated language is published."
+    },
     { "type": "header", "content": "Copyright" },
     { "type": "text", "id": "copyright_owner", "label": "Copyright owner", "default": "Deshal" },
     { "type": "text", "id": "developer_name", "label": "Developer name", "default": "Team Zoetrone" },

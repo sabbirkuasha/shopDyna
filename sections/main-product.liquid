@@ -132,6 +132,22 @@
               <span class="text-xs font-normal uppercase">Price varies by option</span>
             {%- endif %}
           </div>
+          {%- comment -%}
+            Unit pricing is only shown for products the merchant sells by a
+            measured quantity, which Shopify signals with unit_price_measurement.
+          {%- endcomment -%}
+          <p
+            class="mt-1 text-sm font-normal text-gray-500{% unless selected_variant.unit_price_measurement %} hidden{% endunless %}"
+            data-unit-price
+          >
+            {%- if selected_variant.unit_price_measurement -%}
+              {{ selected_variant.unit_price | money }} /
+              {%- if selected_variant.unit_price_measurement.reference_value != 1 %}
+                {{ selected_variant.unit_price_measurement.reference_value }}
+              {%- endif %}
+              {{ selected_variant.unit_price_measurement.reference_unit }}
+            {%- endif -%}
+          </p>
         </div>
         <div class="flex items-center gap-2 text-base sm:text-xl">
           <span>SKU:</span><span data-product-sku>{{ selected_variant.sku | default: 'N/A' }}</span
@@ -141,7 +157,7 @@
             aria-label="Copy SKU"
             data-copy-sku
           >
-            <svg class="size-5 fill-none stroke-current stroke-1.5" viewBox="0 0 24 24">
+            <svg class="size-5 fill-none stroke-current stroke-1.5" aria-hidden="true" viewBox="0 0 24 24">
               <path d="M15.75 17.25v3.38c0 .62-.5 1.12-1.13 1.12H4.88c-.63 0-1.13-.5-1.13-1.12V7.88c0-.63.5-1.13 1.13-1.13h1.87M9.38 17.25h9.75c.62 0 1.12-.5 1.12-1.13v-4.87a9 9 0 0 0-9-9H9.37c-.62 0-1.12.5-1.12 1.13v12.74c0 .63.5 1.13 1.12 1.13Z"/>
             </svg>
           </button>
@@ -152,6 +168,28 @@
 
         <select class="hidden" name="id" data-variant-select>
           {% for variant in product.variants %}
+            {%- liquid
+              # Only report a number when Shopify is tracking stock and the
+              # remaining quantity is genuinely low, so exact inventory levels
+              # are never published for healthy stock.
+              assign inventory_message = ''
+              if variant.available and variant.inventory_management == 'shopify'
+                if variant.inventory_quantity > 0 and variant.inventory_quantity <= section.settings.low_stock_threshold
+                  assign inventory_message = 'Only ' | append: variant.inventory_quantity | append: ' left'
+                elsif variant.inventory_quantity <= 0 and variant.inventory_policy == 'continue'
+                  assign inventory_message = 'Available on backorder'
+                endif
+              endif
+
+              assign unit_price_label = ''
+              if variant.unit_price_measurement
+                assign unit_reference = variant.unit_price_measurement.reference_unit
+                if variant.unit_price_measurement.reference_value != 1
+                  assign unit_reference = variant.unit_price_measurement.reference_value | append: ' ' | append: variant.unit_price_measurement.reference_unit
+                endif
+                assign unit_price_label = variant.unit_price | money | append: ' / ' | append: unit_reference
+              endif
+            -%}
             <option
               value="{{ variant.id }}"
               data-options="{{ variant.options | json | escape }}"
@@ -160,6 +198,8 @@
               data-has-compare="{% if variant.compare_at_price > variant.price %}true{% else %}false{% endif %}"
               data-sku="{{ variant.sku | escape }}"
               data-available="{{ variant.available }}"
+              data-inventory-message="{{ inventory_message | escape }}"
+              data-unit-price="{{ unit_price_label | escape }}"
               data-media-id="{{ variant.featured_media.id }}"
               {% if variant.id == selected_variant.id %}
                 selected
@@ -202,6 +242,24 @@
         >
           Stock out
         </div>
+
+        {%- liquid
+          assign selected_inventory_message = ''
+          if selected_variant.available and selected_variant.inventory_management == 'shopify'
+            if selected_variant.inventory_quantity > 0 and selected_variant.inventory_quantity <= section.settings.low_stock_threshold
+              assign selected_inventory_message = 'Only ' | append: selected_variant.inventory_quantity | append: ' left'
+            elsif selected_variant.inventory_quantity <= 0 and selected_variant.inventory_policy == 'continue'
+              assign selected_inventory_message = 'Available on backorder'
+            endif
+          endif
+        -%}
+        <p
+          class="mt-2 text-center text-sm font-medium text-amber-700{% if selected_inventory_message == blank %} hidden{% endif %}"
+          role="status"
+          data-inventory-message
+        >
+          {{- selected_inventory_message -}}
+        </p>
 
         <div class="mt-2 flex flex-wrap items-stretch gap-2 text-center uppercase xl:gap-4">
           <div class="flex h-12 shrink-0">
@@ -265,7 +323,7 @@
             data-favorite-toggle
             data-product='{"handle":{{ product.handle | json }},"title":{{ product.title | json }},"url":{{ product.url | json }},"image":{{ product.featured_image | image_url: width: 700 | json }},"price":{{ product.price | money | json }}}'
           >
-            <svg class="mr-2 size-5 fill-none stroke-current stroke-1.5" viewBox="0 0 24 24">
+            <svg class="mr-2 size-5 fill-none stroke-current stroke-1.5" aria-hidden="true" viewBox="0 0 24 24">
               <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.9-8.6a5.5 5.5 0 0 0-.1-7.8Z"/>
             </svg>
             Add to favourites
@@ -369,6 +427,8 @@
       compare = s.querySelector('[data-compare-price]'),
       sku = s.querySelector('[data-product-sku]'),
       stock = s.querySelector('[data-stock-message]'),
+      inventory = s.querySelector('[data-inventory-message]'),
+      unitPrice = s.querySelector('[data-unit-price]'),
       add = s.querySelector('[data-add-button]'),
       buy = s.querySelector('[data-buy-button]'),
       label = s.querySelector('[data-add-label]'),
@@ -403,6 +463,16 @@
       add.disabled = !available;
       buy.disabled = !available;
       label.textContent = available ? 'Add to cart' : 'Sold out';
+
+      if (inventory) {
+        inventory.textContent = o.dataset.inventoryMessage || '';
+        inventory.classList.toggle('hidden', !o.dataset.inventoryMessage);
+      }
+      if (unitPrice) {
+        unitPrice.textContent = o.dataset.unitPrice || '';
+        unitPrice.classList.toggle('hidden', !o.dataset.unitPrice);
+      }
+
       media(o.dataset.mediaId);
       history.replaceState({}, '', `${location.pathname}?variant=${o.value}`);
     };
@@ -564,7 +634,19 @@
       "label": "Outlet stock API URL",
       "default": "https://pos.deshal.org"
     },
-    { "type": "url", "id": "wishlist_url", "label": "Wishlist page" }
+    { "type": "url", "id": "wishlist_url", "label": "Wishlist page" },
+    { "type": "header", "content": "Inventory" },
+    {
+      "type": "range",
+      "id": "low_stock_threshold",
+      "label": "Low stock notice below",
+      "min": 0,
+      "max": 25,
+      "step": 1,
+      "unit": "pcs",
+      "default": 5,
+      "info": "Shows \"Only N left\" at or below this quantity. Set to 0 to never show a quantity."
+    }
   ]
 }
 {% endschema %}

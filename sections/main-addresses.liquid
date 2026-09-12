@@ -1,0 +1,252 @@
+{%- comment -%}
+  Classic customer account address book.
+
+  Shopify's `customer_address` form tag handles create, update, and delete. The
+  delete action must be sent as a POST with `_method: delete`, which is what
+  Shopify.postLink in shopify_common.js does, so that script is loaded here
+  rather than relying on inline event handlers.
+{%- endcomment -%}
+
+<section class="bg-gray-50 py-10 sm:py-14" style="--account-accent: {{ section.settings.accent_color }}">
+  <div class="mx-auto max-w-4xl px-4 sm:px-6" data-addresses>
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <p class="text-sm uppercase tracking-[0.2em] text-gray-500">My account</p>
+        <h1 class="mt-1 text-3xl font-bold text-[var(--account-accent)]">Addresses</h1>
+      </div>
+      <a
+        class="border border-gray-400 px-5 py-2 text-sm font-semibold uppercase hover:border-[var(--account-accent)]"
+        href="{{ routes.account_url }}"
+        >Back to account</a
+      >
+    </div>
+
+    <div class="mt-8 flex justify-end">
+      <button
+        class="min-h-11 cursor-pointer border-0 bg-[var(--account-accent)] px-6 font-semibold uppercase text-white hover:brightness-110"
+        type="button"
+        aria-expanded="false"
+        aria-controls="AddressNew"
+        data-address-toggle="AddressNew"
+      >
+        Add a new address
+      </button>
+    </div>
+
+    <div class="mt-5 hidden rounded-md bg-white p-6 shadow-sm sm:p-8" id="AddressNew">
+      <h2 class="text-xl font-bold uppercase">New address</h2>
+      {%- form 'customer_address', customer.new_address, class: 'mt-6' -%}
+        {%- if form.errors -%}
+          <div class="mb-5 border border-red-200 bg-red-50 p-4 text-sm text-red-700" role="alert">
+            {{ form.errors | default_errors }}
+          </div>
+        {%- endif -%}
+        {%- render 'address-fields', form: form, key: 'New' -%}
+        <div class="mt-5 flex items-center gap-3">
+          <input
+            class="size-4"
+            id="AddressDefaultNew"
+            type="checkbox"
+            name="address[default]"
+            value="1"
+            {% if form.default %}
+              checked
+            {% endif %}
+          >
+          <label class="text-sm" for="AddressDefaultNew">Set as default address</label>
+        </div>
+        <div class="mt-7 flex flex-wrap gap-3">
+          <button
+            class="min-h-11 cursor-pointer border-0 bg-[var(--account-accent)] px-7 font-semibold uppercase text-white hover:brightness-110"
+            type="submit"
+          >
+            Add address
+          </button>
+          <button
+            class="min-h-11 cursor-pointer border border-gray-400 bg-white px-7 font-semibold uppercase"
+            type="button"
+            data-address-cancel="AddressNew"
+          >
+            Cancel
+          </button>
+        </div>
+      {%- endform -%}
+    </div>
+
+    {%- paginate customer.addresses by 6 -%}
+      {%- if customer.addresses.size == 0 -%}
+        <div class="mt-8 rounded-md bg-white p-10 text-center text-gray-500 shadow-sm">
+          You haven't saved an address yet.
+        </div>
+      {%- else -%}
+        <div class="mt-8 grid gap-5 sm:grid-cols-2">
+          {%- for address in customer.addresses -%}
+            <div class="rounded-md bg-white p-6 shadow-sm">
+              {%- if address == customer.default_address -%}
+                <p class="mb-3 inline-block bg-[var(--account-accent)] px-3 py-1 text-xs font-semibold uppercase text-white">
+                  Default
+                </p>
+              {%- endif -%}
+              <address class="text-sm not-italic leading-7 text-gray-700">
+                {{ address | format_address }}
+              </address>
+              <div class="mt-5 flex flex-wrap gap-3">
+                <button
+                  class="min-h-11 cursor-pointer border border-[var(--account-accent)] bg-white px-5 text-sm font-semibold uppercase text-[var(--account-accent)]"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="Address-{{ address.id }}"
+                  data-address-toggle="Address-{{ address.id }}"
+                >
+                  Edit
+                </button>
+                <button
+                  class="min-h-11 cursor-pointer border border-gray-300 bg-white px-5 text-sm font-semibold uppercase text-gray-600 hover:border-red-400 hover:text-red-700"
+                  type="button"
+                  data-address-delete="{{ address.url }}"
+                  data-address-confirm="Delete this address? This cannot be undone."
+                >
+                  Delete
+                </button>
+              </div>
+
+              <div class="mt-6 hidden border-t border-gray-200 pt-6" id="Address-{{ address.id }}">
+                <h2 class="text-lg font-bold uppercase">Edit address</h2>
+                {%- form 'customer_address', address, class: 'mt-5' -%}
+                  {%- if form.errors -%}
+                    <div class="mb-5 border border-red-200 bg-red-50 p-4 text-sm text-red-700" role="alert">
+                      {{ form.errors | default_errors }}
+                    </div>
+                  {%- endif -%}
+                  {%- render 'address-fields', form: form, key: address.id -%}
+                  <div class="mt-5 flex items-center gap-3">
+                    <input
+                      class="size-4"
+                      id="AddressDefault-{{ address.id }}"
+                      type="checkbox"
+                      name="address[default]"
+                      value="1"
+                      {% if address == customer.default_address %}
+                        checked
+                      {% endif %}
+                    >
+                    <label class="text-sm" for="AddressDefault-{{ address.id }}">Set as default address</label>
+                  </div>
+                  <div class="mt-7 flex flex-wrap gap-3">
+                    <button
+                      class="min-h-11 cursor-pointer border-0 bg-[var(--account-accent)] px-7 font-semibold uppercase text-white hover:brightness-110"
+                      type="submit"
+                    >
+                      Save
+                    </button>
+                    <button
+                      class="min-h-11 cursor-pointer border border-gray-400 bg-white px-7 font-semibold uppercase"
+                      type="button"
+                      data-address-cancel="Address-{{ address.id }}"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                {%- endform -%}
+              </div>
+            </div>
+          {%- endfor -%}
+        </div>
+
+        {%- if paginate.pages > 1 -%}
+          <nav class="mt-8 flex items-center justify-center gap-2" aria-label="Address pagination">
+            {%- if paginate.previous -%}
+              <a
+                class="border border-gray-300 px-4 py-2 hover:border-[var(--account-accent)]"
+                href="{{ paginate.previous.url }}"
+              >
+                Previous
+              </a>
+            {%- endif -%}
+            <span class="px-3 text-sm text-gray-600">Page {{ paginate.current_page }} of {{ paginate.pages }}</span>
+            {%- if paginate.next -%}
+              <a
+                class="border border-gray-300 px-4 py-2 hover:border-[var(--account-accent)]"
+                href="{{ paginate.next.url }}"
+              >
+                Next
+              </a>
+            {%- endif -%}
+          </nav>
+        {%- endif -%}
+      {%- endif -%}
+    {%- endpaginate -%}
+  </div>
+</section>
+
+{%- comment -%}
+  Shopify.postLink and Shopify.CountryProvinceSelector live in this script.
+  Loaded with defer so it never blocks the parser.
+{%- endcomment -%}
+<script src="{{ 'shopify_common.js' | shopify_asset_url }}" defer></script>
+
+<script>
+  (() => {
+    const root = document.querySelector('[data-addresses]');
+    if (!root || root.dataset.ready === 'true') return;
+    root.dataset.ready = 'true';
+
+    const setOpen = (panel, open, trigger) => {
+      panel.classList.toggle('hidden', !open);
+      trigger?.setAttribute('aria-expanded', String(open));
+      if (open) panel.querySelector('input, select, textarea')?.focus();
+    };
+
+    root.addEventListener('click', (event) => {
+      const toggle = event.target.closest('[data-address-toggle]');
+      if (toggle) {
+        const panel = document.getElementById(toggle.dataset.addressToggle);
+        if (panel) setOpen(panel, panel.classList.contains('hidden'), toggle);
+        return;
+      }
+
+      const cancel = event.target.closest('[data-address-cancel]');
+      if (cancel) {
+        const panel = document.getElementById(cancel.dataset.addressCancel);
+        const trigger = root.querySelector(`[data-address-toggle="${cancel.dataset.addressCancel}"]`);
+        if (panel) setOpen(panel, false, trigger);
+        trigger?.focus();
+        return;
+      }
+
+      const remove = event.target.closest('[data-address-delete]');
+      if (remove) {
+        if (!window.confirm(remove.dataset.addressConfirm)) return;
+        window.Shopify.postLink(remove.dataset.addressDelete, { parameters: { _method: 'delete' } });
+      }
+    });
+
+    /*
+     * Shopify's province list depends on the selected country, so each form
+     * gets its own linked pair of selects. shopify_common.js is deferred, so
+     * wait until it has executed before constructing the selectors.
+     */
+    const linkCountrySelectors = () => {
+      if (!window.Shopify?.CountryProvinceSelector) return;
+      root.querySelectorAll('[data-address-country]').forEach((country) => {
+        const key = country.dataset.addressCountry;
+        new window.Shopify.CountryProvinceSelector(`AddressCountry-${key}`, `AddressProvince-${key}`, {
+          hideElement: `AddressProvinceContainer-${key}`,
+        });
+      });
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', linkCountrySelectors);
+    } else {
+      linkCountrySelectors();
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Customer addresses",
+  "settings": [{ "type": "color", "id": "accent_color", "label": "Accent color", "default": "#7d1717" }]
+}
+{% endschema %}

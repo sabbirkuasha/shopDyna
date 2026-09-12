@@ -1,0 +1,240 @@
+{%- comment -%}
+  JSON-LD structured data for search engines.
+
+  Rendered once from layout/theme.liquid. Emits Organization and WebSite markup
+  on every page, then the schema that matches the current template: Product and
+  BreadcrumbList on a product, BreadcrumbList on a collection, and Article on a
+  blog article.
+
+  Usage:
+    {% render 'structured-data' %}
+{%- endcomment -%}
+
+{%- unless settings.enable_structured_data == false -%}
+  {%- liquid
+    assign organization_name = settings.brand_legal_name | default: shop.name
+    assign organization_logo = settings.logo | default: settings.social_share_image
+
+    assign social_links = ''
+    assign social_candidates = settings.social_facebook_link | append: ',' | append: settings.social_instagram_link | append: ',' | append: settings.social_youtube_link | append: ',' | append: settings.social_tiktok_link | append: ',' | append: settings.social_pinterest_link | append: ',' | append: settings.social_x_link | append: ',' | append: settings.social_linkedin_link
+    assign social_links = social_candidates | split: ','
+  -%}
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": {{ organization_name | json }},
+      "url": {{ shop.url | json }}
+      {%- if settings.brand_description != blank -%}
+        , "description": {{ settings.brand_description | strip_html | strip_newlines | json }}
+      {%- endif -%}
+      {%- if organization_logo != blank -%}
+        , "logo": {{ organization_logo | image_url: width: 600 | prepend: 'https:' | json }}
+      {%- endif -%}
+      {%- if shop.phone != blank -%}
+        , "telephone": {{ shop.phone | json }}
+      {%- endif -%}
+      {%- if shop.address.summary != blank -%}
+        , "address": {
+          "@type": "PostalAddress",
+          "streetAddress": {{ shop.address.street | json }},
+          "addressLocality": {{ shop.address.city | json }},
+          "addressRegion": {{ shop.address.province | json }},
+          "postalCode": {{ shop.address.zip | json }},
+          "addressCountry": {{ shop.address.country_upper | json }}
+        }
+      {%- endif -%}
+      {%- assign profile_count = 0 -%}
+      {%- for link in social_links -%}
+        {%- if link != blank -%}
+          {%- assign profile_count = profile_count | plus: 1 -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- if profile_count > 0 -%}
+        , "sameAs": [
+          {%- assign printed = 0 -%}
+          {%- for link in social_links -%}
+            {%- if link != blank -%}
+              {%- if printed > 0 %},{% endif -%}
+              {{ link | json }}
+              {%- assign printed = printed | plus: 1 -%}
+            {%- endif -%}
+          {%- endfor -%}
+        ]
+      {%- endif -%}
+    }
+  </script>
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": {{ shop.name | json }},
+      "url": {{ shop.url | json }},
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          {%- comment -%}
+            The search_term_string placeholder is emitted as literal text, not
+            built inside the Liquid expression: Shopify's upload parser rejects
+            curly braces that appear within a Liquid output tag.
+          {%- endcomment -%}
+          "urlTemplate": "{{ shop.url }}{{ routes.search_url }}?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+  </script>
+
+  {%- if request.page_type == 'product' and product != blank -%}
+    {%- liquid
+      assign product_description = product.description | strip_html | strip_newlines | truncate: 500
+      assign current_variant = product.selected_or_first_available_variant
+    -%}
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": {{ product.title | json }},
+        "url": {{ shop.url | append: product.url | json }},
+        {%- if product_description != blank -%}
+          "description": {{ product_description | json }},
+        {%- endif -%}
+        {%- if product.featured_media != blank -%}
+          "image": [
+            {%- for media in product.media limit: 5 -%}
+              {%- if media.media_type == 'image' -%}
+                {%- unless forloop.first %},{% endunless -%}
+                {{ media | image_url: width: 1200 | prepend: 'https:' | json }}
+              {%- endif -%}
+            {%- endfor -%}
+          ],
+        {%- endif -%}
+        {%- if product.vendor != blank -%}
+          "brand": { "@type": "Brand", "name": {{ product.vendor | json }} },
+        {%- endif -%}
+        {%- if current_variant.sku != blank -%}
+          "sku": {{ current_variant.sku | json }},
+        {%- endif -%}
+        {%- if current_variant.barcode != blank -%}
+          "gtin": {{ current_variant.barcode | json }},
+        {%- endif -%}
+        {%- if product.type != blank -%}
+          "category": {{ product.type | json }},
+        {%- endif -%}
+        "offers": [
+          {%- for variant in product.variants -%}
+            {%- unless forloop.first %},{% endunless -%}
+            {
+              "@type": "Offer",
+              "url": {{ shop.url | append: variant.url | json }},
+              "price": {{ variant.price | divided_by: 100.0 | json }},
+              "priceCurrency": {{ cart.currency.iso_code | json }},
+              "availability": "https://schema.org/{% if variant.available %}InStock{% else %}OutOfStock{% endif %}",
+              "itemCondition": "https://schema.org/NewCondition"
+              {%- if variant.sku != blank -%}
+                , "sku": {{ variant.sku | json }}
+              {%- endif -%}
+              {%- if variant.title != blank and product.has_only_default_variant == false -%}
+                , "name": {{ variant.title | json }}
+              {%- endif -%}
+            }
+          {%- endfor -%}
+        ]
+      }
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": {{ shop.url | append: routes.root_url | json }}
+          }
+          {%- if collection != blank -%}
+            , {
+              "@type": "ListItem",
+              "position": 2,
+              "name": {{ collection.title | json }},
+              "item": {{ shop.url | append: collection.url | json }}
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": {{ product.title | json }},
+              "item": {{ shop.url | append: product.url | json }}
+            }
+          {%- else -%}
+            , {
+              "@type": "ListItem",
+              "position": 2,
+              "name": {{ product.title | json }},
+              "item": {{ shop.url | append: product.url | json }}
+            }
+          {%- endif -%}
+        ]
+      }
+    </script>
+  {%- endif -%}
+
+  {%- if request.page_type == 'collection' and collection != blank -%}
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": {{ shop.url | append: routes.root_url | json }}
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": {{ collection.title | json }},
+            "item": {{ shop.url | append: collection.url | json }}
+          }
+        ]
+      }
+    </script>
+  {%- endif -%}
+
+  {%- if request.page_type == 'article' and article != blank -%}
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": {{ article.title | json }},
+        "mainEntityOfPage": { "@type": "WebPage", "@id": {{ shop.url | append: article.url | json }} },
+        "datePublished": {{ article.published_at | date: '%Y-%m-%dT%H:%M:%SZ' | json }},
+        "dateModified": {{ article.updated_at | default: article.published_at | date: '%Y-%m-%dT%H:%M:%SZ' | json }},
+        {%- if article.excerpt_or_content != blank -%}
+          "description": {{ article.excerpt_or_content | strip_html | strip_newlines | truncate: 300 | json }},
+        {%- endif -%}
+        {%- if article.image != blank -%}
+          "image": [{{ article.image | image_url: width: 1200 | prepend: 'https:' | json }}],
+        {%- endif -%}
+        {%- if article.author != blank -%}
+          "author": { "@type": "Person", "name": {{ article.author | json }} },
+        {%- endif -%}
+        "publisher": {
+          "@type": "Organization",
+          "name": {{ organization_name | json }}
+          {%- if organization_logo != blank -%}
+            , "logo": {
+              "@type": "ImageObject",
+              "url": {{ organization_logo | image_url: width: 600 | prepend: 'https:' | json }}
+            }
+          {%- endif -%}
+        }
+      }
+    </script>
+  {%- endif -%}
+{%- endunless -%}

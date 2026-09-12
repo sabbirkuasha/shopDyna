@@ -1,22 +1,252 @@
-<section class="p-5">
-  {% if article.image %}
-    <h1 class="text-xl font-bold">{{ article.title }}</h1>
-    <div class="flex flex-wrap gap-2 pt-1">
-      {%- for badge in article.tags -%}
-        <div class="badge badge-neutral hover:badge-primary badge-outline cursor-pointer">{{ badge }}</div>
-      {% endfor %}
-    </div>
-    <div class="flex justify-center py-5 ">
-      <img width="auto" height="auto" class="w-1/2" src="{{ article.image | image_url }}" alt="">
-    </div>
-    <p>
-      {{ article.content | strip_html }}
-    </p>
+{%- comment -%}
+  Blog article.
 
-    <hr class="mt-5">
-    <div class="italic text-right ">
-      <span>{{ article.id }} </span> <span> | </span> <span>{{ article.author }}</span> |
-      <span>{{ article.published_at | date: '%B %d, %Y' }}</span>
+  Renders correctly whether or not the article has a featured image, an author,
+  tags, or comments. Comments are only rendered when the merchant has enabled
+  them on the blog in Shopify Admin.
+{%- endcomment -%}
+
+<article class="bg-white py-10 text-gray-900 sm:py-14" style="--blog-accent: {{ section.settings.accent_color }}">
+  <div class="mx-auto max-w-3xl px-4 sm:px-6">
+    <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
+      <a class="hover:text-[var(--blog-accent)] hover:underline" href="{{ routes.root_url }}">Home</a>
+      <span class="px-2" aria-hidden="true">›</span>
+      <a class="hover:text-[var(--blog-accent)] hover:underline" href="{{ blog.url }}">{{ blog.title | escape }}</a>
+      <span class="px-2" aria-hidden="true">›</span>
+      <span class="text-gray-700" aria-current="page">{{ article.title | escape }}</span>
+    </nav>
+
+    <header class="mt-6">
+      <h1 class="m-0 text-3xl font-bold leading-tight text-[var(--blog-accent)] sm:text-4xl">
+        {{ article.title | escape }}
+      </h1>
+      <p class="mt-3 text-sm uppercase tracking-wide text-gray-500">
+        <time datetime="{{ article.published_at | date: '%Y-%m-%d' }}">
+          {{- article.published_at | date: '%B %d, %Y' -}}
+        </time>
+        {%- if article.author != blank %} · {{ article.author }}{% endif -%}
+        {%- if blog.comments_enabled? and article.comments_count > 0 %}
+          · {{ article.comments_count }}
+          {% if article.comments_count == 1 %}comment{% else %}comments{% endif %}
+        {%- endif -%}
+      </p>
+
+      {%- if article.tags.size > 0 -%}
+        <ul class="mt-4 flex list-none flex-wrap gap-2 p-0">
+          {%- for tag in article.tags -%}
+            <li>
+              <a
+                class="inline-flex min-h-9 items-center border border-gray-300 px-3 text-sm hover:border-[var(--blog-accent)] hover:text-[var(--blog-accent)]"
+                href="{{ blog.url }}/tagged/{{ tag | handleize }}"
+              >
+                {{ tag }}
+              </a>
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </header>
+
+    {%- if article.image -%}
+      {%- assign article_image_alt = article.image.alt | default: article.title -%}
+      <figure class="my-8">
+        {{
+          article.image
+          | image_url: width: 1600
+          | image_tag:
+            class: 'w-full rounded-md object-cover',
+            widths: '480, 768, 1024, 1440, 1600',
+            sizes: '(min-width: 768px) 768px, 92vw',
+            loading: 'eager',
+            fetchpriority: 'high',
+            alt: article_image_alt
+        }}
+      </figure>
+    {%- endif -%}
+
+    <div class="prose mt-8 max-w-none leading-8 [&_a]:text-[var(--blog-accent)] [&_a]:underline [&_h2]:mt-8 [&_h2]:text-2xl [&_h2]:font-bold [&_h3]:mt-6 [&_h3]:text-xl [&_h3]:font-semibold [&_img]:h-auto [&_img]:max-w-full [&_li]:my-1 [&_ol]:list-decimal [&_ol]:pl-6 [&_p]:my-4 [&_ul]:list-disc [&_ul]:pl-6">
+      {{ article.content }}
     </div>
-  {% endif %}
-</section>
+
+    {%- if section.settings.show_sharing -%}
+      {%- assign share_url = shop.url | append: article.url -%}
+      <div class="mt-10 border-t border-gray-200 pt-6">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-500">Share this post</h2>
+        <ul class="mt-3 flex list-none flex-wrap gap-3 p-0">
+          <li>
+            <a
+              class="inline-flex min-h-11 items-center border border-gray-300 px-4 text-sm hover:border-[var(--blog-accent)]"
+              href="https://www.facebook.com/sharer/sharer.php?u={{ share_url | url_encode }}"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Facebook<span class="sr-only"> (opens in a new tab)</span>
+            </a>
+          </li>
+          <li>
+            <a
+              class="inline-flex min-h-11 items-center border border-gray-300 px-4 text-sm hover:border-[var(--blog-accent)]"
+              href="https://twitter.com/intent/tweet?url={{ share_url | url_encode }}&text={{ article.title | url_encode }}"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              X<span class="sr-only"> (opens in a new tab)</span>
+            </a>
+          </li>
+          <li>
+            <a
+              class="inline-flex min-h-11 items-center border border-gray-300 px-4 text-sm hover:border-[var(--blog-accent)]"
+              href="https://api.whatsapp.com/send?text={{ article.title | url_encode }}%20{{ share_url | url_encode }}"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              WhatsApp<span class="sr-only"> (opens in a new tab)</span>
+            </a>
+          </li>
+          <li>
+            <a
+              class="inline-flex min-h-11 items-center border border-gray-300 px-4 text-sm hover:border-[var(--blog-accent)]"
+              href="mailto:?subject={{ article.title | url_encode }}&body={{ share_url | url_encode }}"
+            >
+              Email
+            </a>
+          </li>
+        </ul>
+      </div>
+    {%- endif -%}
+
+    <nav
+      class="mt-10 flex flex-wrap justify-between gap-4 border-t border-gray-200 pt-6"
+      aria-label="Article navigation"
+    >
+      {%- if blog.previous_article -%}
+        <a class="max-w-[45%] text-sm hover:text-[var(--blog-accent)]" href="{{ blog.previous_article.url }}">
+          <span class="block text-xs uppercase tracking-wide text-gray-400">Previous</span>
+          {{ blog.previous_article.title | escape }}
+        </a>
+      {%- else -%}
+        <span></span>
+      {%- endif -%}
+      {%- if blog.next_article -%}
+        <a class="max-w-[45%] text-right text-sm hover:text-[var(--blog-accent)]" href="{{ blog.next_article.url }}">
+          <span class="block text-xs uppercase tracking-wide text-gray-400">Next</span>
+          {{ blog.next_article.title | escape }}
+        </a>
+      {%- endif -%}
+    </nav>
+
+    {%- if blog.comments_enabled? -%}
+      <section class="mt-12 border-t border-gray-200 pt-8" id="comments">
+        <h2 class="text-2xl font-bold uppercase">
+          Comments
+          {%- if article.comments_count > 0 %} ({{ article.comments_count }}){% endif -%}
+        </h2>
+
+        {%- if article.comments_count > 0 -%}
+          {%- paginate article.comments by 20 -%}
+            <ul class="mt-6 list-none space-y-6 p-0">
+              {%- for comment in article.comments -%}
+                <li class="border border-gray-200 p-5">
+                  <p class="text-sm font-semibold">{{ comment.author | escape }}</p>
+                  <p class="text-xs text-gray-500">
+                    <time datetime="{{ comment.created_at | date: '%Y-%m-%d' }}">
+                      {{- comment.created_at | date: '%B %d, %Y' -}}
+                    </time>
+                  </p>
+                  <div class="mt-3 leading-7 [&_p]:my-2">{{ comment.content }}</div>
+                </li>
+              {%- endfor -%}
+            </ul>
+
+            {%- if paginate.pages > 1 -%}
+              <nav class="mt-6 flex items-center justify-center gap-2" aria-label="Comment pagination">
+                {%- if paginate.previous -%}
+                  <a class="border border-gray-300 px-4 py-2" href="{{ paginate.previous.url }}">Previous</a>
+                {%- endif -%}
+                <span class="px-3 text-sm text-gray-600">Page {{ paginate.current_page }} of {{ paginate.pages }}</span>
+                {%- if paginate.next -%}
+                  <a class="border border-gray-300 px-4 py-2" href="{{ paginate.next.url }}">Next</a>
+                {%- endif -%}
+              </nav>
+            {%- endif -%}
+          {%- endpaginate -%}
+        {%- else -%}
+          <p class="mt-4 text-gray-500">No comments yet. Be the first to write one.</p>
+        {%- endif -%}
+
+        {%- form 'new_comment', article, class: 'mt-8' -%}
+          {%- if form.errors -%}
+            <div class="mb-5 border border-red-200 bg-red-50 p-4 text-sm text-red-700" role="alert">
+              {{ form.errors | default_errors }}
+            </div>
+          {%- elsif form.posted_successfully? -%}
+            <div class="mb-5 border border-green-200 bg-green-50 p-4 text-sm text-green-700" role="status">
+              {%- if blog.moderated? -%}
+                Thank you. Your comment will appear once it has been approved.
+              {%- else -%}
+                Thank you for your comment.
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+
+          <h3 class="text-lg font-semibold uppercase">Leave a comment</h3>
+          <div class="mt-4 grid gap-4 sm:grid-cols-2">
+            <div>
+              <label class="mb-2 block text-sm font-medium" for="CommentAuthor">Name</label>
+              <input
+                class="h-12 w-full border border-gray-300 px-4 outline-none focus:border-[var(--blog-accent)]"
+                id="CommentAuthor"
+                name="comment[author]"
+                type="text"
+                value="{{ form.author }}"
+                autocomplete="name"
+                required
+              >
+            </div>
+            <div>
+              <label class="mb-2 block text-sm font-medium" for="CommentEmail">Email</label>
+              <input
+                class="h-12 w-full border border-gray-300 px-4 outline-none focus:border-[var(--blog-accent)]"
+                id="CommentEmail"
+                name="comment[email]"
+                type="email"
+                value="{{ form.email }}"
+                autocomplete="email"
+                required
+              >
+            </div>
+            <div class="sm:col-span-2">
+              <label class="mb-2 block text-sm font-medium" for="CommentBody">Comment</label>
+              <textarea
+                class="w-full border border-gray-300 p-4 outline-none focus:border-[var(--blog-accent)]"
+                id="CommentBody"
+                name="comment[body]"
+                rows="5"
+                required
+              >{{ form.body }}</textarea>
+            </div>
+          </div>
+          {%- if blog.moderated? -%}
+            <p class="mt-3 text-xs text-gray-500">Comments are reviewed before they are published.</p>
+          {%- endif -%}
+          <button
+            class="mt-5 min-h-12 cursor-pointer border-0 bg-[var(--blog-accent)] px-8 font-semibold uppercase text-white hover:brightness-110"
+            type="submit"
+          >
+            Post comment
+          </button>
+        {%- endform -%}
+      </section>
+    {%- endif -%}
+  </div>
+</article>
+
+{% schema %}
+{
+  "name": "Blog article",
+  "settings": [
+    { "type": "checkbox", "id": "show_sharing", "label": "Show sharing links", "default": true },
+    { "type": "color", "id": "accent_color", "label": "Accent color", "default": "#7d1717" }
+  ]
+}
+{% endschema %}

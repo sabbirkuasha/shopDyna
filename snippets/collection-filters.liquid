@@ -1,0 +1,359 @@
+{%- comment -%}
+  Storefront filtering for a collection or the search results page.
+
+  Renders the filters configured in Shopify Search & Discovery from
+  `collection.filters` (or `search.filters`). One GET form drives both layouts:
+  an inline bar on desktop and a slide-in drawer on mobile.
+
+  The current sort order is carried in a hidden field so filtering never resets
+  it, and the sort control in collection.liquid carries the active filters for
+  the same reason in reverse.
+
+  Accepts:
+    filters    - collection.filters or search.filters
+    form_url   - where the form submits (collection.url or routes.search_url)
+    results    - the paginate object, used for the result count
+    section_id - unique suffix for element ids
+    sort_by    - the active sort key, preserved across filtering
+    search_terms - optional, keeps `q` when filtering search results
+
+  Usage:
+    {% render 'collection-filters',
+       filters: collection.filters,
+       form_url: collection.url,
+       results: paginate,
+       section_id: section.id,
+       sort_by: sort_by %}
+{%- endcomment -%}
+
+{%- liquid
+  assign active_filter_count = 0
+  for filter in filters
+    case filter.type
+      when 'price_range'
+        if filter.min_value.value != null or filter.max_value.value != null
+          assign active_filter_count = active_filter_count | plus: 1
+        endif
+      else
+        assign active_filter_count = active_filter_count | plus: filter.active_values.size
+    endcase
+  endfor
+-%}
+
+{%- if filters.size > 0 -%}
+  <div class="border-y border-gray-200 bg-white" data-collection-filters>
+    <div class="flex flex-wrap items-center gap-3 px-4 py-3">
+      <button
+        class="inline-flex min-h-11 cursor-pointer items-center gap-2 border border-gray-300 bg-white px-4 text-sm font-semibold uppercase hover:border-[var(--collection-accent)] lg:hidden"
+        type="button"
+        aria-controls="FilterDrawer-{{ section_id }}"
+        aria-expanded="false"
+        data-filter-drawer-open
+      >
+        <svg class="size-4 fill-none stroke-current stroke-2" aria-hidden="true" viewBox="0 0 24 24">
+          <path d="M3 6h18M6 12h12M10 18h4"/>
+        </svg>
+        Filter
+        {%- if active_filter_count > 0 -%}
+          <span class="grid size-5 place-items-center rounded-full bg-[var(--collection-accent)] text-[11px] font-bold text-white">
+            {{- active_filter_count -}}
+          </span>
+        {%- endif -%}
+      </button>
+
+      {%- if results.items and results.items > 0 -%}
+        <p class="text-sm text-gray-600" role="status">
+          {{ results.items }}
+          {% if results.items == 1 %}product{% else %}products{% endif %}
+        </p>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} Active filter chips {%- endcomment -%}
+    {%- if active_filter_count > 0 -%}
+      <div class="flex flex-wrap items-center gap-2 px-4 pb-3">
+        <span class="text-sm font-semibold uppercase text-gray-500">Active:</span>
+        {%- for filter in filters -%}
+          {%- case filter.type -%}
+            {%- when 'price_range' -%}
+              {%- if filter.min_value.value != null or filter.max_value.value != null -%}
+                <a
+                  class="inline-flex min-h-9 items-center gap-2 border border-gray-300 bg-gray-50 px-3 text-sm hover:border-[var(--collection-accent)]"
+                  href="{{ filter.url_to_remove }}"
+                >
+                  <span>
+                    {{- filter.min_value.value | default: 0 | money -}}
+                    –
+                    {{- filter.max_value.value | default: filter.range_max | money -}}
+                  </span>
+                  <span aria-hidden="true">×</span>
+                  <span class="sr-only">Remove price filter</span>
+                </a>
+              {%- endif -%}
+            {%- else -%}
+              {%- for value in filter.active_values -%}
+                <a
+                  class="inline-flex min-h-9 items-center gap-2 border border-gray-300 bg-gray-50 px-3 text-sm hover:border-[var(--collection-accent)]"
+                  href="{{ value.url_to_remove }}"
+                >
+                  <span>{{ filter.label | escape }}: {{ value.label | escape }}</span>
+                  <span aria-hidden="true">×</span>
+                  <span class="sr-only"
+                    >Remove filter {{ filter.label | escape }}
+                    {{ value.label | escape -}}
+                  </span>
+                </a>
+              {%- endfor -%}
+          {%- endcase -%}
+        {%- endfor -%}
+        <a
+          class="inline-flex min-h-9 items-center px-3 text-sm font-semibold uppercase text-[var(--collection-accent)] underline"
+          href="{{ form_url }}{% if sort_by != blank %}?sort_by={{ sort_by }}{% endif %}"
+        >
+          Clear all
+        </a>
+      </div>
+    {%- endif -%}
+
+    {%- comment -%}
+      The overlay is only interactive below the lg breakpoint, where the form
+      becomes a drawer.
+    {%- endcomment -%}
+    <div
+      class="invisible fixed inset-0 z-[60] bg-black/45 opacity-0 transition lg:hidden"
+      data-filter-drawer-overlay
+    ></div>
+
+    <form
+      id="FilterDrawer-{{ section_id }}"
+      class="invisible fixed inset-y-0 left-0 z-[70] w-[min(360px,88vw)] -translate-x-full overflow-y-auto bg-white shadow-2xl transition lg:visible lg:static lg:z-auto lg:w-auto lg:translate-x-0 lg:overflow-visible lg:bg-transparent lg:shadow-none"
+      method="get"
+      action="{{ form_url }}"
+      data-filter-form
+    >
+      {%- if sort_by != blank -%}
+        <input type="hidden" name="sort_by" value="{{ sort_by | escape }}">
+      {%- endif -%}
+      {%- if search_terms != blank -%}
+        <input type="hidden" name="q" value="{{ search_terms | escape }}">
+        <input type="hidden" name="type" value="product">
+      {%- endif -%}
+
+      <div class="flex items-center justify-between border-b border-gray-200 px-5 py-4 lg:hidden">
+        <h2 class="text-lg font-bold uppercase">Filter</h2>
+        <button
+          class="grid size-10 cursor-pointer place-items-center rounded-full border-0 bg-transparent hover:bg-gray-100"
+          type="button"
+          aria-label="Close filters"
+          data-filter-drawer-close
+        >
+          <svg class="size-6 fill-none stroke-current stroke-2" aria-hidden="true" viewBox="0 0 24 24">
+            <path d="m5 5 14 14M19 5 5 19"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="px-5 pb-32 lg:flex lg:flex-wrap lg:items-start lg:gap-2 lg:px-4 lg:pb-4">
+        {%- for filter in filters -%}
+          <details
+            class="group border-b border-gray-200 py-2 lg:relative lg:border-0 lg:py-0"
+            {% if filter.active_values.size > 0 %}
+              open
+            {% endif %}
+          >
+            <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 font-semibold uppercase lg:min-h-0 lg:border lg:border-gray-300 lg:px-4 lg:py-2.5 lg:text-sm lg:hover:border-[var(--collection-accent)]">
+              <span>
+                {{- filter.label | escape -}}
+                {%- if filter.active_values.size > 0 %}
+                  <span class="ml-1 font-normal text-[var(--collection-accent)]"
+                    >({{ filter.active_values.size }})</span
+                  >
+                {%- endif -%}
+              </span>
+              <svg
+                class="size-4 shrink-0 fill-none stroke-current stroke-2 transition-transform group-open:rotate-180"
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+              >
+                <path d="m6 9 6 6 6-6"/>
+              </svg>
+            </summary>
+
+            <div class="pb-3 lg:absolute lg:left-0 lg:top-full lg:z-30 lg:mt-1 lg:max-h-80 lg:w-72 lg:overflow-y-auto lg:border lg:border-gray-300 lg:bg-white lg:p-4 lg:shadow-xl">
+              {%- case filter.type -%}
+                {%- when 'price_range' -%}
+                  <div class="flex items-end gap-3">
+                    <div class="flex-1">
+                      <label class="mb-1 block text-xs uppercase text-gray-500" for="FilterPriceMin-{{ section_id }}">
+                        From
+                      </label>
+                      <input
+                        class="h-11 w-full border border-gray-300 px-3 outline-none focus:border-[var(--collection-accent)]"
+                        id="FilterPriceMin-{{ section_id }}"
+                        name="{{ filter.min_value.param_name }}"
+                        type="number"
+                        inputmode="numeric"
+                        min="0"
+                        max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                        step="1"
+                        value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}"
+                        placeholder="0"
+                      >
+                    </div>
+                    <div class="flex-1">
+                      <label class="mb-1 block text-xs uppercase text-gray-500" for="FilterPriceMax-{{ section_id }}">
+                        To
+                      </label>
+                      <input
+                        class="h-11 w-full border border-gray-300 px-3 outline-none focus:border-[var(--collection-accent)]"
+                        id="FilterPriceMax-{{ section_id }}"
+                        name="{{ filter.max_value.param_name }}"
+                        type="number"
+                        inputmode="numeric"
+                        min="0"
+                        max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                        step="1"
+                        value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}"
+                        placeholder="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                      >
+                    </div>
+                  </div>
+                  <button
+                    class="mt-3 min-h-11 w-full cursor-pointer border-0 bg-[var(--collection-accent)] text-sm font-semibold uppercase text-white"
+                    type="submit"
+                  >
+                    Apply price
+                  </button>
+
+                {%- when 'boolean' -%}
+                  <ul class="list-none space-y-2 p-0">
+                    {%- for value in filter.values -%}
+                      <li class="flex items-center gap-3">
+                        <input
+                          class="size-4 shrink-0"
+                          id="Filter-{{ filter.param_name | escape }}-{{ forloop.index }}-{{ section_id }}"
+                          type="checkbox"
+                          name="{{ value.param_name }}"
+                          value="{{ value.value | escape }}"
+                          {% if value.active %}
+                            checked
+                          {% endif %}
+                          {% if value.count == 0 and value.active == false %}
+                            disabled
+                          {% endif %}
+                        >
+                        <label
+                          class="flex-1 text-sm{% if value.count == 0 and value.active == false %} text-gray-400{% endif %}"
+                          for="Filter-{{ filter.param_name | escape }}-{{ forloop.index }}-{{ section_id }}"
+                        >
+                          {{ value.label | escape }}
+                          <span class="text-gray-400">({{ value.count }})</span>
+                        </label>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+
+                {%- else -%}
+                  <ul class="list-none space-y-2 p-0">
+                    {%- for value in filter.values -%}
+                      <li class="flex items-center gap-3">
+                        <input
+                          class="size-4 shrink-0"
+                          id="Filter-{{ filter.param_name | escape }}-{{ forloop.index }}-{{ section_id }}"
+                          type="checkbox"
+                          name="{{ value.param_name }}"
+                          value="{{ value.value | escape }}"
+                          {% if value.active %}
+                            checked
+                          {% endif %}
+                          {% if value.count == 0 and value.active == false %}
+                            disabled
+                          {% endif %}
+                        >
+                        <label
+                          class="flex-1 text-sm{% if value.count == 0 and value.active == false %} text-gray-400{% endif %}"
+                          for="Filter-{{ filter.param_name | escape }}-{{ forloop.index }}-{{ section_id }}"
+                        >
+                          {{ value.label | escape }}
+                          <span class="text-gray-400">({{ value.count }})</span>
+                        </label>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+              {%- endcase -%}
+            </div>
+          </details>
+        {%- endfor -%}
+      </div>
+
+      {%- comment -%}
+        The drawer keeps explicit actions so filtering still works without
+        JavaScript. On desktop the form auto-submits on change instead.
+      {%- endcomment -%}
+      <div class="fixed inset-x-0 bottom-0 flex gap-3 border-t border-gray-200 bg-white p-4 lg:hidden">
+        <a
+          class="flex min-h-12 flex-1 items-center justify-center border border-gray-400 font-semibold uppercase"
+          href="{{ form_url }}{% if sort_by != blank %}?sort_by={{ sort_by }}{% endif %}"
+        >
+          Clear
+        </a>
+        <button
+          class="min-h-12 flex-1 cursor-pointer border-0 bg-[var(--collection-accent)] font-semibold uppercase text-white"
+          type="submit"
+        >
+          Show results
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    (() => {
+      const root = document.querySelector('[data-collection-filters]');
+      if (!root || root.dataset.ready === 'true') return;
+      root.dataset.ready = 'true';
+
+      const form = root.querySelector('[data-filter-form]');
+      const overlay = root.querySelector('[data-filter-drawer-overlay]');
+      const openButton = root.querySelector('[data-filter-drawer-open]');
+      const closeButton = root.querySelector('[data-filter-drawer-close]');
+      const desktop = window.matchMedia('(min-width: 1024px)');
+      let lastFocused;
+
+      const setDrawer = (open) => {
+        form.classList.toggle('invisible', !open);
+        form.classList.toggle('-translate-x-full', !open);
+        overlay.classList.toggle('invisible', !open);
+        overlay.classList.toggle('opacity-0', !open);
+        openButton?.setAttribute('aria-expanded', String(open));
+        document.body.classList.toggle('overflow-hidden', open);
+        if (open) {
+          lastFocused = document.activeElement;
+          closeButton?.focus();
+        } else if (lastFocused?.isConnected) {
+          lastFocused.focus();
+        }
+      };
+
+      openButton?.addEventListener('click', () => setDrawer(true));
+      closeButton?.addEventListener('click', () => setDrawer(false));
+      overlay?.addEventListener('click', () => setDrawer(false));
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !desktop.matches && !form.classList.contains('invisible')) {
+          setDrawer(false);
+        }
+      });
+
+      /*
+       * Checking a box applies the filter straight away on desktop, where the
+       * dropdown is always visible. On mobile the customer uses "Show results"
+       * so several filters can be chosen before the page reloads.
+       */
+      form.addEventListener('change', (event) => {
+        if (!desktop.matches) return;
+        if (event.target.type === 'number') return;
+        form.submit();
+      });
+    })();
+  </script>
+{%- endif -%}

@@ -1,16 +1,73 @@
-<section class="bg-white ">
-  <div class="py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6">
-    <div class="mx-auto max-w-screen-sm text-center">
-      <h1 class="mb-4 text-7xl tracking-tight font-extrabold lg:text-9xl text-primary-600 ">404</h1>
-      <p class="mb-4 text-3xl tracking-tight font-bold text-gray-900 md:text-4xl ">Something's missing.</p>
-      <p class="mb-4 text-lg font-light text-gray-800 dark:text-gray-400">
-        Sorry, we can't find that page. You'll find lots to explore on the home page.
-      </p>
-      <a
-        href="{{ routes.root_url }}"
-        class="btn btn-primary"
-        >Back to Homepage</a
+{%- comment -%}
+  404 page.
+
+  Gives a customer arriving from a stale link somewhere useful to go: search,
+  plus the menu the merchant chooses in the Theme Editor.
+{%- endcomment -%}
+
+<section class="bg-white py-16 text-gray-900 sm:py-24" style="--error-accent: {{ section.settings.accent_color }}">
+  <div class="mx-auto max-w-2xl px-4 text-center sm:px-6">
+    <p class="m-0 text-7xl font-extrabold tracking-tight text-[var(--error-accent)] lg:text-9xl">404</p>
+    <h1 class="mt-4 text-2xl font-bold tracking-tight md:text-4xl">{{ section.settings.heading | escape }}</h1>
+    <p class="mt-3 text-lg font-light text-gray-600">{{ section.settings.message | escape }}</p>
+
+    <form class="mx-auto mt-8 flex max-w-md" method="get" action="{{ routes.search_url }}" role="search">
+      <label class="sr-only" for="Search404">Search the store</label>
+      <input
+        class="h-12 min-w-0 flex-1 border border-gray-300 px-4 outline-none focus:border-[var(--error-accent)]"
+        id="Search404"
+        name="q"
+        type="search"
+        placeholder="Search for a product"
       >
-    </div>
+      <button
+        class="h-12 cursor-pointer border-0 bg-[var(--error-accent)] px-6 font-semibold uppercase text-white"
+        type="submit"
+      >
+        Search
+      </button>
+    </form>
+
+    <a
+      class="mt-8 inline-flex min-h-12 items-center justify-center bg-[var(--error-accent)] px-8 font-semibold uppercase text-white hover:brightness-110"
+      href="{{ routes.root_url }}"
+    >
+      Back to home
+    </a>
+
+    {%- if section.settings.suggested_menu != blank -%}
+      <nav class="mt-10" aria-label="Suggested links">
+        <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-500">Popular destinations</h2>
+        <ul class="mt-3 flex list-none flex-wrap justify-center gap-2 p-0">
+          {%- for link in section.settings.suggested_menu.links -%}
+            <li>
+              <a
+                class="inline-flex min-h-11 items-center border border-gray-300 px-4 text-sm hover:border-[var(--error-accent)] hover:text-[var(--error-accent)]"
+                href="{{ link.url }}"
+              >
+                {{ link.title }}
+              </a>
+            </li>
+          {%- endfor -%}
+        </ul>
+      </nav>
+    {%- endif -%}
   </div>
 </section>
+
+{% schema %}
+{
+  "name": "404 page",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Something's missing." },
+    {
+      "type": "text",
+      "id": "message",
+      "label": "Message",
+      "default": "Sorry, we can't find that page. There is plenty to explore on the home page."
+    },
+    { "type": "link_list", "id": "suggested_menu", "label": "Suggested links menu" },
+    { "type": "color", "id": "accent_color", "label": "Accent color", "default": "#7d1717" }
+  ]
+}
+{% endschema %}

@@ -137,3 +137,19 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Operating system artifacts
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Editor and backup artifacts (these must never reach a Shopify theme upload)
+*.bak
+*.orig
+*.rej
+*~

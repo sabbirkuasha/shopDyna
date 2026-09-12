@@ -1,4 +1,18 @@
 {% liquid
+  assign sort_by = collection.sort_by | default: collection.default_sort_by
+
+  assign active_filter_count = 0
+  for filter in collection.filters
+    case filter.type
+      when 'price_range'
+        if filter.min_value.value != null or filter.max_value.value != null
+          assign active_filter_count = active_filter_count | plus: 1
+        endif
+      else
+        assign active_filter_count = active_filter_count | plus: filter.active_values.size
+    endcase
+  endfor
+
   assign category_navigation = section.settings.category_menu
   assign category_links = blank
   assign related_links = blank
@@ -156,6 +170,33 @@
         {% endif %}
 
         <form class="flex justify-end md:col-start-2 lg:col-start-4" method="get">
+          {%- comment -%}
+            Carry the active storefront filters through the sort form, so
+            changing the order never silently drops them.
+          {%- endcomment -%}
+          {%- for filter in collection.filters -%}
+            {%- case filter.type -%}
+              {%- when 'price_range' -%}
+                {%- if filter.min_value.value != null -%}
+                  <input
+                    type="hidden"
+                    name="{{ filter.min_value.param_name }}"
+                    value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}"
+                  >
+                {%- endif -%}
+                {%- if filter.max_value.value != null -%}
+                  <input
+                    type="hidden"
+                    name="{{ filter.max_value.param_name }}"
+                    value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}"
+                  >
+                {%- endif -%}
+              {%- else -%}
+                {%- for value in filter.active_values -%}
+                  <input type="hidden" name="{{ value.param_name }}" value="{{ value.value | escape }}">
+                {%- endfor -%}
+            {%- endcase -%}
+          {%- endfor -%}
           <label class="sr-only" for="SortBy-{{ section.id }}">Sort products</label>
           <select
             class="h-11 w-44 cursor-pointer border-0 bg-transparent px-3 text-base uppercase outline-none focus-visible:ring-2 focus-visible:ring-[var(--collection-accent)]"
@@ -163,7 +204,6 @@
             name="sort_by"
             data-sort-select
           >
-            {% assign sort_by = collection.sort_by | default: collection.default_sort_by %}
             <option
               value="{{ collection.default_sort_by }}"
               {% if sort_by == collection.default_sort_by %}
@@ -229,7 +269,17 @@
         </div>
       {% endif %}
 
-      {% if collection.products_count > 0 %}
+      {% if section.settings.enable_filtering %}
+        {% render 'collection-filters',
+          filters: collection.filters,
+          form_url: collection.url,
+          results: paginate,
+          section_id: section.id,
+          sort_by: sort_by
+        %}
+      {% endif %}
+
+      {% if paginate.items > 0 %}
         <div class="grid grid-cols-1 gap-4 bg-white p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {% for product in collection.products -%}
             {%- render 'product_single', product_card_product: product -%}
@@ -242,9 +292,9 @@
             {%- if paginate.next -%}
               {{- paginate.current_offset | plus: paginate.page_size -}}
             {%- else -%}
-              {{- collection.products_count -}}
+              {{- paginate.items -}}
             {%- endif %}
-            of {{ collection.products_count }} results
+            of {{ paginate.items }} results
           </p>
         </div>
 
@@ -267,6 +317,18 @@
             {%- endif %}
           </nav>
         {% endif %}
+      {% elsif active_filter_count > 0 %}
+        <div class="px-5 py-16 text-center">
+          <div class="mx-auto inline-block border border-gray-300 p-7 text-gray-600">
+            <h2 class="m-0 text-xl text-gray-700">No products match these filters</h2>
+            <p class="mt-2">Try removing a filter to see more of {{ collection.title | escape }}.</p>
+            <a
+              class="mt-4 inline-flex min-h-11 items-center justify-center bg-[var(--collection-accent)] px-8 py-2 uppercase text-white"
+              href="{{ collection.url }}{% if sort_by != blank %}?sort_by={{ sort_by }}{% endif %}"
+              >Clear all filters</a
+            >
+          </div>
+        </div>
       {% else %}
         <div class="px-5 py-16 text-center">
           <div class="mx-auto inline-block border border-gray-300 p-7 text-gray-600">
@@ -324,6 +386,13 @@
       "default": false
     },
     { "type": "checkbox", "id": "show_description", "label": "Show collection description", "default": true },
+    {
+      "type": "checkbox",
+      "id": "enable_filtering",
+      "label": "Show storefront filters",
+      "default": true,
+      "info": "Filters come from the Shopify Search & Discovery app. Nothing is shown until filters are configured there."
+    },
     {
       "type": "range",
       "id": "products_per_page",

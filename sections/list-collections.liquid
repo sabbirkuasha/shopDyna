@@ -1,24 +1,121 @@
-<section class="p-5 ">
-  <div class="flex gap-2 flex-row flex-wrap  mx-auto justify-center flex-grow">
-    {% for collection in collections %}
-      <div class="card bg-base-100 hover:shadow-xl duration-500 transition-all border border-black/20 max-w-72 w-full  ">
-        <figure class="px-6 pt-6  h-1/2 ">
-          <img
-            width="auto"
-            height="50px"
-            src="{{ collection.image | image_url }}"
-            alt="{{- collection.title }}"
-            class="rounded-xl my-auto"
-          >
-        </figure>
-        <div class="card-body items-center text-center">
-          <h2 class="card-title">{{- collection.title }}</h2>
-          <p>A card component has a figure, a body part, and inside body there are title and actions parts</p>
-          <div class="card-actions w-full ">
-            <a href="{{ collection.url }}" class="btn w-full btn-outline ">Browse Now</a>
-          </div>
+{%- comment -%}
+  Collection index.
+
+  Lists either every published collection or a merchant-selected set of them.
+  A collection without an image falls back to its first product image, then to
+  a typographic tile, so the grid never shows a gap.
+{%- endcomment -%}
+
+<section class="bg-white py-10 text-gray-900 sm:py-14" style="--list-accent: {{ section.settings.accent_color }}">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6">
+    <header class="text-center">
+      <h1 class="m-0 text-3xl font-bold uppercase tracking-tight text-[var(--list-accent)] sm:text-5xl">
+        {{ section.settings.heading | default: page_title | escape }}
+      </h1>
+      {%- if section.settings.subheading != blank -%}
+        <div class="mx-auto mt-3 max-w-2xl leading-7 text-gray-600 [&_p]:m-0">{{ section.settings.subheading }}</div>
+      {%- endif -%}
+    </header>
+
+    {%- paginate collections by section.settings.collections_per_page -%}
+      {%- if collections.size == 0 -%}
+        <div class="mt-12 border border-gray-300 p-12 text-center text-gray-600">
+          <h2 class="m-0 text-xl">No collections published yet</h2>
+          <p class="mt-2">Collections appear here once they are published to the Online Store channel.</p>
         </div>
-      </div>
-    {% endfor %}
+      {%- else -%}
+        <div class="mt-10 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+          {%- for collection in collections -%}
+            {%- liquid
+              assign tile_image = collection.image
+              if tile_image == blank
+                assign tile_image = collection.products.first.featured_image
+              endif
+              assign tile_alt = tile_image.alt | default: collection.title
+            -%}
+            <article class="group relative overflow-hidden bg-gray-100">
+              <a class="block" href="{{ collection.url }}">
+                {%- if tile_image != blank -%}
+                  {{
+                    tile_image
+                    | image_url: width: 1200
+                    | image_tag:
+                      class: 'block aspect-[633/750] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]',
+                      widths: '300, 450, 600, 900, 1200',
+                      sizes: '(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 48vw',
+                      loading: 'lazy',
+                      alt: tile_alt
+                  }}
+                {%- else -%}
+                  <div class="flex aspect-[633/750] w-full items-center justify-center bg-gradient-to-br from-stone-100 to-stone-300 p-6 text-center">
+                    <span class="text-base font-semibold uppercase tracking-widest text-gray-500 md:text-xl">
+                      {{- collection.title | escape -}}
+                    </span>
+                  </div>
+                {%- endif -%}
+
+                <div class="absolute inset-x-0 bottom-0 flex flex-col items-center bg-gradient-to-t from-black/65 via-black/15 to-transparent px-3 pb-3 pt-14 text-center md:pb-5 md:pt-20">
+                  <h2 class="m-0 text-sm font-bold uppercase text-white drop-shadow-md sm:text-lg md:text-xl">
+                    {{ collection.title | escape }}
+                  </h2>
+                  {%- if section.settings.show_product_count -%}
+                    <p class="mt-1 text-xs text-white/80">
+                      {{ collection.all_products_count }}
+                      {% if collection.all_products_count == 1 %}product{% else %}products{% endif %}
+                    </p>
+                  {%- endif -%}
+                  <span class="mt-2 inline-flex min-h-9 items-center justify-center bg-[var(--list-accent)] px-4 text-[10px] font-medium uppercase tracking-wide text-white shadow-md md:min-h-11 md:px-7 md:text-sm">
+                    {{- section.settings.button_label | escape -}}
+                  </span>
+                </div>
+              </a>
+            </article>
+          {%- endfor -%}
+        </div>
+
+        {%- if paginate.pages > 1 -%}
+          <nav class="mt-10 flex items-center justify-center gap-2" aria-label="Collection pagination">
+            {%- if paginate.previous -%}
+              <a
+                class="border border-gray-300 px-4 py-2 hover:border-[var(--list-accent)] hover:text-[var(--list-accent)]"
+                href="{{ paginate.previous.url }}"
+                >Previous</a
+              >
+            {%- endif -%}
+            <span class="px-3 text-sm text-gray-600">Page {{ paginate.current_page }} of {{ paginate.pages }}</span>
+            {%- if paginate.next -%}
+              <a
+                class="border border-gray-300 px-4 py-2 hover:border-[var(--list-accent)] hover:text-[var(--list-accent)]"
+                href="{{ paginate.next.url }}"
+                >Next</a
+              >
+            {%- endif -%}
+          </nav>
+        {%- endif -%}
+      {%- endif -%}
+    {%- endpaginate -%}
   </div>
 </section>
+
+{% schema %}
+{
+  "name": "Collections list",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Collections" },
+    { "type": "richtext", "id": "subheading", "label": "Subheading" },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "View products" },
+    { "type": "checkbox", "id": "show_product_count", "label": "Show product count", "default": true },
+    {
+      "type": "range",
+      "id": "collections_per_page",
+      "label": "Collections per page",
+      "min": 8,
+      "max": 48,
+      "step": 4,
+      "default": 24
+    },
+    { "type": "color", "id": "accent_color", "label": "Accent color", "default": "#7d1717" }
+  ],
+  "presets": [{ "name": "Collections list" }]
+}
+{% endschema %}

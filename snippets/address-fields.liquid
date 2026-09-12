@@ -1,0 +1,131 @@
+{%- comment -%}
+  The field set shared by the new-address and edit-address forms.
+
+  Accepts:
+    form - the customer_address form object
+    key  - a unique suffix for element ids ('New' or the address id)
+
+  Usage:
+    {% render 'address-fields', form: form, key: address.id %}
+{%- endcomment -%}
+
+{%- liquid
+  assign field_class = 'h-12 w-full border border-gray-300 px-4 outline-none focus:border-[var(--account-accent)]'
+  assign label_class = 'mb-2 block text-sm font-medium'
+-%}
+
+<div class="grid gap-5 sm:grid-cols-2">
+  <div>
+    <label class="{{ label_class }}" for="AddressFirstName-{{ key }}">First name</label>
+    <input
+      class="{{ field_class }}"
+      id="AddressFirstName-{{ key }}"
+      name="address[first_name]"
+      type="text"
+      value="{{ form.first_name }}"
+      autocomplete="given-name"
+    >
+  </div>
+  <div>
+    <label class="{{ label_class }}" for="AddressLastName-{{ key }}">Last name</label>
+    <input
+      class="{{ field_class }}"
+      id="AddressLastName-{{ key }}"
+      name="address[last_name]"
+      type="text"
+      value="{{ form.last_name }}"
+      autocomplete="family-name"
+    >
+  </div>
+  <div class="sm:col-span-2">
+    <label class="{{ label_class }}" for="AddressCompany-{{ key }}">Company (optional)</label>
+    <input
+      class="{{ field_class }}"
+      id="AddressCompany-{{ key }}"
+      name="address[company]"
+      type="text"
+      value="{{ form.company }}"
+      autocomplete="organization"
+    >
+  </div>
+  <div class="sm:col-span-2">
+    <label class="{{ label_class }}" for="AddressStreet1-{{ key }}">Address</label>
+    <input
+      class="{{ field_class }}"
+      id="AddressStreet1-{{ key }}"
+      name="address[address1]"
+      type="text"
+      value="{{ form.address1 }}"
+      autocomplete="address-line1"
+      required
+    >
+  </div>
+  <div class="sm:col-span-2">
+    <label class="{{ label_class }}" for="AddressStreet2-{{ key }}">Apartment, suite, etc. (optional)</label>
+    <input
+      class="{{ field_class }}"
+      id="AddressStreet2-{{ key }}"
+      name="address[address2]"
+      type="text"
+      value="{{ form.address2 }}"
+      autocomplete="address-line2"
+    >
+  </div>
+  <div>
+    <label class="{{ label_class }}" for="AddressCity-{{ key }}">City</label>
+    <input
+      class="{{ field_class }}"
+      id="AddressCity-{{ key }}"
+      name="address[city]"
+      type="text"
+      value="{{ form.city }}"
+      autocomplete="address-level2"
+      required
+    >
+  </div>
+  <div>
+    <label class="{{ label_class }}" for="AddressZip-{{ key }}">Postal code</label>
+    <input
+      class="{{ field_class }}"
+      id="AddressZip-{{ key }}"
+      name="address[zip]"
+      type="text"
+      value="{{ form.zip }}"
+      autocomplete="postal-code"
+    >
+  </div>
+  <div>
+    <label class="{{ label_class }}" for="AddressCountry-{{ key }}">Country / region</label>
+    <select
+      class="{{ field_class }}"
+      id="AddressCountry-{{ key }}"
+      name="address[country]"
+      data-default="{{ form.country }}"
+      data-address-country="{{ key }}"
+      autocomplete="country"
+    >
+      {{ all_country_option_tags }}
+    </select>
+  </div>
+  <div id="AddressProvinceContainer-{{ key }}">
+    <label class="{{ label_class }}" for="AddressProvince-{{ key }}">State / province</label>
+    <select
+      class="{{ field_class }}"
+      id="AddressProvince-{{ key }}"
+      name="address[province]"
+      data-default="{{ form.province }}"
+      autocomplete="address-level1"
+    ></select>
+  </div>
+  <div class="sm:col-span-2">
+    <label class="{{ label_class }}" for="AddressPhone-{{ key }}">Phone (optional)</label>
+    <input
+      class="{{ field_class }}"
+      id="AddressPhone-{{ key }}"
+      name="address[phone]"
+      type="tel"
+      value="{{ form.phone }}"
+      autocomplete="tel"
+    >
+  </div>
+</div>

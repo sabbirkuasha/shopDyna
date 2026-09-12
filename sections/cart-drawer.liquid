@@ -2,6 +2,8 @@
   <div class="invisible fixed inset-0 z-[80] bg-black/50 opacity-0 transition" data-cart-drawer-overlay></div>
   <aside
     class="invisible fixed inset-y-0 right-0 z-[90] flex w-[min(440px,92vw)] translate-x-full flex-col bg-white text-gray-900 shadow-2xl transition"
+    role="dialog"
+    aria-modal="true"
     aria-hidden="true"
     aria-label="Shopping cart"
     data-cart-drawer
@@ -20,7 +22,7 @@
         aria-label="Close cart"
         data-cart-drawer-close
       >
-        <svg class="size-6 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+        <svg class="size-6 fill-none stroke-current stroke-2" aria-hidden="true" viewBox="0 0 24 24">
           <path d="m5 5 14 14M19 5 5 19"/>
         </svg>
       </button>
@@ -28,7 +30,7 @@
     {% if cart.item_count == 0 %}
       <div class="grid flex-1 place-items-center p-8 text-center">
         <div>
-          <svg class="mx-auto size-20 fill-none stroke-gray-300 stroke-1" viewBox="0 0 24 24">
+          <svg class="mx-auto size-20 fill-none stroke-gray-300 stroke-1" aria-hidden="true" viewBox="0 0 24 24">
             <path d="M3 3h2l2.2 10.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.6L21 6H6"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/>
           </svg>
           <h3 class="mt-4 text-xl font-semibold">Your cart is empty</h3>
@@ -50,11 +52,7 @@
       <div class="flex-1 overflow-y-auto p-5">
         <div class="space-y-5">
           {% for item in cart.items %}
-            {%- assign item_included_vat = item.final_line_price
-              | times: vat_rate
-              | divided_by: vat_divisor
-              | round
-            -%}
+            {%- assign item_included_vat = item.final_line_price | times: vat_rate | divided_by: vat_divisor | round -%}
             <article class="grid grid-cols-[88px_1fr] gap-4 border-b border-gray-200 pb-5" data-cart-line>
               <a class="h-28 overflow-hidden bg-gray-100" href="{{ item.url }}">
                 {%- if item.image -%}
@@ -76,6 +74,8 @@
                     data-cart-remove
                     data-line="{{ forloop.index }}"
                     data-quantity="0"
+                    data-item-title="{{ item.product.title | escape }}"
+                    aria-label="Remove {{ item.product.title | escape }} from your cart"
                   >
                     Remove
                   </button>
@@ -98,8 +98,11 @@
                     data-cart-change
                     data-line="{{ forloop.index }}"
                     data-quantity="{{ item.quantity | minus: 1 }}"
-                    aria-label="Decrease {{ item.product.title }} quantity"
-                    {% if item.quantity <= 1 %}disabled{% endif %}
+                    data-item-title="{{ item.product.title | escape }}"
+                    aria-label="Decrease {{ item.product.title | escape }} quantity"
+                    {% if item.quantity <= 1 %}
+                      disabled
+                    {% endif %}
                   >
                     −</button
                   ><span class="relative flex-1 text-center" aria-live="polite">
@@ -110,15 +113,15 @@
                         <path class="fill-none stroke-[var(--cart-drawer-accent)] stroke-2" d="M12 3a9 9 0 0 1 9 9"></path>
                       </svg>
                       <span class="sr-only">Updating quantity</span>
-                    </span>
-                  </span
+                    </span> </span
                   ><button
                     class="size-9 cursor-pointer border-y-0 border-r-0 border-l border-gray-300 bg-gray-100 text-xl transition-colors hover:bg-gray-200 active:bg-[var(--cart-drawer-accent)] active:text-white disabled:cursor-wait disabled:bg-gray-50 disabled:text-gray-300"
                     type="button"
                     data-cart-change
                     data-line="{{ forloop.index }}"
                     data-quantity="{{ item.quantity | plus: 1 }}"
-                    aria-label="Increase {{ item.product.title }} quantity"
+                    data-item-title="{{ item.product.title | escape }}"
+                    aria-label="Increase {{ item.product.title | escape }} quantity"
                   >
                     +
                   </button>
@@ -141,7 +144,8 @@
               <span>Included VAT ({{ vat_rate }}%)</span><span>{{ included_vat | money }}</span>
             </div>
             <div class="mb-3 flex justify-between border-t border-gray-200 pt-3 text-lg">
-              <strong>Total (VAT included)</strong><strong class="text-[var(--cart-drawer-accent)]">{{ cart.total_price | money }}</strong>
+              <strong>Total (VAT included)</strong
+              ><strong class="text-[var(--cart-drawer-accent)]">{{ cart.total_price | money }}</strong>
             </div>
           </div>
           <div

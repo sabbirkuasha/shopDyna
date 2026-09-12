@@ -1,8 +1,20 @@
 <!doctype html>
-<html lang="en" class="scroll-smooth motion-reduce:scroll-auto">
+{%- liquid
+  assign rtl_locales = 'ar,arc,ckb,dv,fa,ha,he,khw,ks,ps,sd,ur,uz-AF,yi'
+  assign text_direction = 'ltr'
+  if rtl_locales contains request.locale.iso_code
+    assign text_direction = 'rtl'
+  endif
+-%}
+<html
+  lang="{{ request.locale.iso_code }}"
+  dir="{{ text_direction }}"
+  class="scroll-smooth motion-reduce:scroll-auto"
+>
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="{{ settings.accent_color }}">
     <script>
       try {
         if (sessionStorage.getItem('deshal-page-transition') === 'pending') {
@@ -47,12 +59,20 @@
         }
       }
     </style>
-    <link rel="icon" href="{{ 'plannet.ico' | asset_url }}" type="image/x-icon">
+    {% render 'meta-tags' %}
     {{ content_for_header }}
     {{ 'tailwind.output.css' | asset_url | stylesheet_tag: preload: true, media: 'all' }}
-    <title>{{ page_title }}</title>
+    {% render 'structured-data' %}
   </head>
   <body class="template-{{ template.name | handle }}">
+    <a
+      class="sr-only z-[200] focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:inline-flex focus:min-h-11 focus:items-center focus:rounded focus:bg-[var(--skip-link-bg,#7d1717)] focus:px-5 focus:py-2 focus:font-semibold focus:text-white focus:no-underline focus:outline-2 focus:outline-offset-2 focus:outline-white"
+      href="#main"
+      style="--skip-link-bg: {{ settings.accent_color }}"
+    >
+      Skip to content
+    </a>
+    <div class="sr-only" role="status" aria-live="polite" aria-atomic="true" data-live-region></div>
     <div
       class="pointer-events-none fixed inset-0 z-[100] grid place-items-center bg-gradient-to-br from-[#5e1010] via-[#7d1717] to-[#3d0909] opacity-0"
       aria-hidden="true"
@@ -70,7 +90,7 @@
     <div class="sticky top-0 z-40">
       {% section 'navbar' %}
     </div>
-    <main id="main" role="main">
+    <main id="main" tabindex="-1" class="focus:outline-none">
       {{ content_for_layout }}
     </main>
     {% section 'cart-drawer' %}
