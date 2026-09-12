@@ -234,6 +234,41 @@ for (const [path, reason] of forbidden) {
     errors.push(`${path}: must not exist — ${reason}`);
 }
 
+/*
+ * Shopify rejects the whole upload if a theme directory contains a file with
+ * the wrong extension — including editor or `sed -i` temp files that happen to
+ * be sitting there when the dev server syncs.
+ */
+const allowedExtensions = {
+  // .json in sections/ covers section groups (e.g. header-group.json).
+  sections: [".liquid", ".json"],
+  snippets: [".liquid"],
+  layout: [".liquid"],
+  templates: [".liquid", ".json"],
+  locales: [".json"],
+  config: [".json"],
+};
+
+for (const [dir, allowed] of Object.entries(allowedExtensions)) {
+  const absolute = join(root, dir);
+  if (!existsSync(absolute)) continue;
+
+  const walk = (current, relativeDir) => {
+    for (const entry of readdirSync(current, { withFileTypes: true })) {
+      if (entry.isDirectory()) {
+        walk(join(current, entry.name), `${relativeDir}/${entry.name}`);
+      } else if (!allowed.includes(extname(entry.name))) {
+        errors.push(
+          `${relativeDir}/${entry.name}: unexpected file in ${dir}/ — ` +
+            `Shopify requires ${allowed.join(" or ")} here and will reject the upload`,
+        );
+      }
+    }
+  };
+
+  walk(absolute, dir);
+}
+
 const scanForArtifacts = (dir) => {
   const absolute = join(root, dir);
   if (!existsSync(absolute)) return;

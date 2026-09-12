@@ -23,18 +23,18 @@
   style="--product-accent:{{ section.settings.accent_color }}; --gallery-max-h: {{ section.settings.gallery_max_height }}svh; --gallery-ratio: {{ gallery_ratio }}; --gallery-col-w: calc(var(--gallery-max-h) * var(--gallery-ratio) + {{ gallery_rail }});"
   data-main-product
 >
-  <nav class="px-5 pb-3 text-sm text-gray-600 lg:px-0" aria-label="Breadcrumb">
+  <nav class="px-5 pb-4 text-base text-gray-600 sm:text-lg lg:px-0" aria-label="Breadcrumb">
     <ol class="flex list-none flex-wrap items-center gap-2 p-0">
       <li><a class="hover:text-[var(--product-accent)] hover:underline" href="{{ routes.root_url }}">Home</a></li>
       {% if product.collections.first != blank %}
-        <li>›</li>
+        <li aria-hidden="true">›</li>
         <li>
           <a class="hover:text-[var(--product-accent)] hover:underline" href="{{ product.collections.first.url }}">
             {{- product.collections.first.title -}}
           </a>
         </li>
       {% endif %}
-      <li>›</li>
+      <li aria-hidden="true">›</li>
       <li class="font-semibold text-[var(--product-accent)]" aria-current="page">{{ product.title }}</li>
     </ol>
   </nav>
