@@ -1,4 +1,16 @@
 {% liquid
+  # The gallery column is sized by the image's height, so its width has to be
+  # derived from the product image's own aspect ratio. Without this the column
+  # keeps a fixed fraction of the row and leaves empty space beside the image.
+  assign gallery_ratio = product.featured_media.preview_image.aspect_ratio | default: 0.8
+
+  # The thumbnail rail (w-20) and its gap-3 only exist when there is more than
+  # one media item, so only reserve that width when it is actually rendered.
+  assign gallery_rail = '0rem'
+  if product.media.size > 1
+    assign gallery_rail = '5.75rem'
+  endif
+
   assign selected_variant = product.selected_or_first_available_variant
   assign product_form_id = 'ProductForm-' | append: section.id
   assign designer = product.metafields.custom.designer.value
@@ -8,7 +20,7 @@
 <section
   id="MainProduct-{{ section.id }}"
   class="bg-white py-3 text-gray-900 lg:px-2 xl:px-10 2xl:px-20"
-  style="--product-accent:{{ section.settings.accent_color }}"
+  style="--product-accent:{{ section.settings.accent_color }}; --gallery-max-h: {{ section.settings.gallery_max_height }}svh; --gallery-ratio: {{ gallery_ratio }}; --gallery-col-w: calc(var(--gallery-max-h) * var(--gallery-ratio) + {{ gallery_rail }});"
   data-main-product
 >
   <nav class="px-5 pb-3 text-sm text-gray-600 lg:px-0" aria-label="Breadcrumb">
@@ -27,12 +39,17 @@
     </ol>
   </nav>
 
-  <div class="grid grid-cols-1 items-stretch lg:grid-cols-[minmax(0,1.6fr)_minmax(380px,1fr)] lg:gap-5">
+  {%- comment -%}
+    The gallery track hugs the image (image width + thumbnail rail), and the
+    details column takes whatever is left, so it stays fluid. minmax(0, ...)
+    lets the gallery shrink on short, wide windows rather than overflow.
+  {%- endcomment -%}
+  <div class="grid grid-cols-1 items-stretch lg:grid-cols-[minmax(0,var(--gallery-col-w))_minmax(380px,1fr)] lg:gap-5">
     <div class="min-w-0 px-5 lg:h-full lg:px-0" data-product-gallery>
       {% if product.media.size > 0 %}
         <div class="flex h-full flex-col gap-3 lg:flex-row">
           {% if product.media.size > 1 %}
-            <div class="order-2 flex gap-2 overflow-x-auto lg:order-1 lg:max-h-[700px] lg:w-20 lg:shrink-0 lg:flex-col lg:overflow-y-auto">
+            <div class="order-2 flex gap-2 overflow-x-auto lg:order-1 lg:max-h-[var(--gallery-max-h)] lg:w-20 lg:shrink-0 lg:flex-col lg:overflow-y-auto">
               {% for media in product.media -%}
                 <button
                   class="shrink-0 cursor-pointer overflow-hidden border-2 {% if forloop.first %}border-[var(--product-accent)]{% else %}border-transparent{% endif %} bg-gray-100 p-0"
@@ -50,9 +67,14 @@
               {%- endfor %}
             </div>
           {% endif %}
-          <div class="order-1 min-w-0 flex-1 bg-gray-50 lg:order-2 lg:flex lg:items-start lg:justify-center">
+          {%- comment -%}
+            No background on this column. On desktop the image is sized by
+            height, so it rarely fills the column width — a background here
+            would show as empty panels either side of the image.
+          {%- endcomment -%}
+          <div class="order-1 min-w-0 flex-1 lg:order-2 lg:flex lg:items-start lg:justify-start">
             {% for media in product.media %}
-              <div class="{% unless forloop.first %}hidden{% endunless %}" data-media-panel="{{ media.id }}">
+              <div class="w-full{% unless forloop.first %} hidden{% endunless %}" data-media-panel="{{ media.id }}">
                 {% case media.media_type -%}
                   {%- when 'image' -%}
                     <button
@@ -60,13 +82,20 @@
                       type="button"
                       data-zoom-open="ProductZoom-{{ section.id }}-{{ media.id }}"
                     >
+                      {%- comment -%}
+                        Mobile sizes the image by width, which fits a portrait
+                        shot comfortably on a phone. Desktop sizes it by height
+                        instead, so a tall product image is visible in one
+                        screen without scrolling; the width then follows the
+                        image's own aspect ratio.
+                      {%- endcomment -%}
                       {{
                         media
                         | image_url: width: 1800
                         | image_tag:
-                          class: 'block h-auto max-h-[900px] w-full object-contain',
+                          class: 'mx-auto block h-auto w-full lg:mx-0 lg:max-h-[var(--gallery-max-h)] lg:w-auto lg:max-w-full',
                           widths: '600,900,1200,1500,1800',
-                          sizes: '(min-width:1024px) 62vw,100vw',
+                          sizes: '(min-width:1024px) 45vw,100vw',
                           loading: 'eager',
                           alt: media.alt
                       }}
@@ -534,39 +563,100 @@
         return;
       }
 
+      const mapLink = (outlet) => {
+        const link = document.createElement('a');
+        link.href = outlet.map_location;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.className = 'block font-semibold uppercase text-[var(--product-accent)] hover:underline';
+        link.textContent = 'View in Google Map';
+        return link;
+      };
+
+      const phoneLink = (outlet) => {
+        const link = document.createElement('a');
+        link.href = `tel:${outlet.phone}`;
+        link.className = 'block font-bold text-gray-900 hover:text-[var(--product-accent)]';
+        link.textContent = outlet.phone;
+        return link;
+      };
+
+      /*
+       * Desktop: one table row per outlet, matching the production storefront.
+       * Visibility lives on the wrapper because `lg:table` would also pull in
+       * daisyUI's `.table` component styles.
+       */
+      const tableWrap = document.createElement('div');
+      tableWrap.className = 'hidden overflow-x-auto lg:block';
+
+      const table = document.createElement('table');
+      table.className = 'w-full border-collapse text-left text-sm';
+
+      const head = document.createElement('thead');
+      head.className = 'bg-gray-100 text-xs uppercase tracking-wide text-gray-500';
+      const headRow = document.createElement('tr');
+      ['Shop', 'Address', 'Location'].forEach((label) => {
+        const cell = document.createElement('th');
+        cell.scope = 'col';
+        cell.className = 'p-3 font-semibold';
+        cell.textContent = label;
+        headRow.append(cell);
+      });
+      head.append(headRow);
+      table.append(head);
+
+      const body = document.createElement('tbody');
+      availableOutlets.forEach((outlet) => {
+        const row = document.createElement('tr');
+        row.className = 'border-b border-gray-200 last:border-0';
+
+        const shop = document.createElement('td');
+        shop.className = 'p-3 align-top';
+        const name = document.createElement('div');
+        name.className = 'font-semibold uppercase text-gray-900';
+        name.textContent = outlet.name || 'Deshal outlet';
+        shop.append(name);
+        if (outlet.phone) shop.append(phoneLink(outlet));
+        row.append(shop);
+
+        const address = document.createElement('td');
+        address.className = 'p-3 align-top text-gray-600';
+        address.textContent = outlet.address || '';
+        row.append(address);
+
+        const location = document.createElement('td');
+        location.className = 'whitespace-nowrap p-3 align-top';
+        if (outlet.map_location) location.append(mapLink(outlet));
+        row.append(location);
+
+        body.append(row);
+      });
+      table.append(body);
+      tableWrap.append(table);
+      outletResults.append(tableWrap);
+
+      /* Mobile: the same rows stacked as cards, since a table will not fit. */
       const list = document.createElement('div');
-      list.className = 'grid gap-3 sm:grid-cols-2';
+      list.className = 'grid max-h-96 grid-cols-1 gap-3 overflow-y-auto lg:hidden';
       availableOutlets.forEach((outlet) => {
         const card = document.createElement('article');
-        card.className = 'border border-gray-200 p-4';
+        card.className = 'space-y-1 border border-gray-200 p-4 text-sm';
+
         const name = document.createElement('h3');
-        name.className = 'm-0 text-lg font-bold';
+        name.className = 'm-0 font-bold uppercase text-gray-900';
         name.textContent = outlet.name || 'Deshal outlet';
         card.append(name);
 
+        if (outlet.phone) card.append(phoneLink(outlet));
+
         if (outlet.address) {
           const address = document.createElement('p');
-          address.className = 'my-2 text-sm text-gray-600';
+          address.className = 'm-0 text-gray-600';
           address.textContent = outlet.address;
           card.append(address);
         }
-        const actions = document.createElement('div');
-        actions.className = 'mt-3 flex flex-wrap gap-4 text-sm font-semibold text-[var(--product-accent)]';
-        if (outlet.phone) {
-          const phone = document.createElement('a');
-          phone.href = `tel:${outlet.phone}`;
-          phone.textContent = outlet.phone;
-          actions.append(phone);
-        }
-        if (outlet.map_location) {
-          const map = document.createElement('a');
-          map.href = outlet.map_location;
-          map.target = '_blank';
-          map.rel = 'noopener noreferrer';
-          map.textContent = 'View on map ↗';
-          actions.append(map);
-        }
-        card.append(actions);
+
+        if (outlet.map_location) card.append(mapLink(outlet));
         list.append(card);
       });
       outletResults.append(list);
@@ -635,6 +725,18 @@
       "default": "https://pos.deshal.org"
     },
     { "type": "url", "id": "wishlist_url", "label": "Wishlist page" },
+    { "type": "header", "content": "Gallery" },
+    {
+      "type": "range",
+      "id": "gallery_max_height",
+      "label": "Maximum image height",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 80,
+      "info": "Share of the browser window height the main image may use on desktop. Lower this if the sticky header hides the top of tall images."
+    },
     { "type": "header", "content": "Inventory" },
     {
       "type": "range",
