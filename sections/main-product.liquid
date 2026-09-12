@@ -400,27 +400,48 @@
           </button>
         </div>
 
-        <div class="mt-1 flex flex-wrap gap-2 uppercase">
+        {%- comment -%}
+          These two share one row at every width. Each is `flex-1 min-w-0` so
+          they split the space evenly instead of wrapping, and the labels shorten
+          below `sm` where the full wording would wrap to two lines.
+
+          The long labels also carry `truncate`, because the space available
+          depends on the details column rather than the viewport: at exactly the
+          `lg` breakpoint that column is near its 380px minimum, and a viewport
+          media query cannot see that. Truncation keeps the row intact in those
+          narrow windows instead of letting the text spill out.
+
+          A stable `aria-label` carries the full wording to assistive technology
+          whichever label is on screen.
+        {%- endcomment -%}
+        <div class="mt-1 flex gap-2 uppercase">
           <button
-            class="inline-flex h-11 cursor-pointer items-center justify-center border border-gray-400 bg-white px-4 hover:border-[var(--product-accent)]"
+            class="inline-flex h-11 min-w-0 flex-1 cursor-pointer items-center justify-center gap-2 whitespace-nowrap border border-gray-400 bg-white px-3 hover:border-[var(--product-accent)]"
             type="button"
             aria-pressed="false"
+            aria-label="Add to favourites"
             data-favorite-toggle
             data-product='{"handle":{{ product.handle | json }},"title":{{ product.title | json }},"url":{{ product.url | json }},"image":{{ product.featured_image | image_url: width: 700 | json }},"price":{{ product.price | money | json }}}'
           >
-            <svg class="mr-2 size-5 fill-none stroke-current stroke-1.5" aria-hidden="true" viewBox="0 0 24 24">
+            <svg class="size-5 shrink-0 fill-none stroke-current stroke-1.5" aria-hidden="true" viewBox="0 0 24 24">
               <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.9-8.6a5.5 5.5 0 0 0-.1-7.8Z"/>
             </svg>
-            Add to favourites
+            <span class="sm:hidden">Favourite</span>
+            <span class="hidden min-w-0 truncate sm:inline">Add to favourites</span>
           </button>
           {% if section.settings.enable_outlet_availability and section.settings.outlet_stock_api_url != blank %}
             <button
-              class="inline-flex h-11 min-w-52 flex-1 cursor-pointer items-center justify-center border border-gray-400 bg-white px-4 hover:border-[var(--product-accent)] disabled:cursor-wait disabled:opacity-60"
+              class="inline-flex h-11 min-w-0 flex-1 cursor-pointer items-center justify-center gap-2 whitespace-nowrap border border-gray-400 bg-white px-3 hover:border-[var(--product-accent)] disabled:cursor-wait disabled:opacity-60"
               type="button"
+              aria-label="Check in-store availability"
               data-outlet-availability
               data-api-url="{{ section.settings.outlet_stock_api_url | escape }}"
             >
-              Check in-store availability
+              <svg class="size-5 shrink-0 fill-none stroke-current stroke-1.5" aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M12 21s7-5.2 7-11a7 7 0 1 0-14 0c0 5.8 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/>
+              </svg>
+              <span class="sm:hidden">In store</span>
+              <span class="hidden min-w-0 truncate sm:inline">Check in-store availability</span>
             </button>
           {% endif %}
         </div>
