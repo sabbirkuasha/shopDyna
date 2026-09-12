@@ -169,7 +169,32 @@
     let offsetY = 0;
     let lastFocused = null;
 
+    /*
+     * Keep the zoomed image overlapping the stage. Without this a pan can throw
+     * the image completely off screen with no way back except closing.
+     */
+    const clampOffsets = () => {
+      if (scale <= 1) {
+        offsetX = 0;
+        offsetY = 0;
+        return;
+      }
+      const stageRect = stage?.getBoundingClientRect();
+      if (!stageRect) return;
+      const limitX = Math.max(
+        0,
+        (image.clientWidth * scale - stageRect.width) / 2,
+      );
+      const limitY = Math.max(
+        0,
+        (image.clientHeight * scale - stageRect.height) / 2,
+      );
+      offsetX = Math.min(limitX, Math.max(-limitX, offsetX));
+      offsetY = Math.min(limitY, Math.max(-limitY, offsetY));
+    };
+
     const applyTransform = () => {
+      clampOffsets();
       image.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
       image.classList.toggle("cursor-zoom-in", scale === 1);
       image.classList.toggle("cursor-grab", scale > 1);
@@ -211,11 +236,23 @@
       }
     };
 
+    /*
+     * Lock the root element as well as body. `overflow: hidden` on body only
+     * stops the page when the browser propagates it up from body to the
+     * viewport, which does not happen reliably once another rule touches the
+     * root's overflow — daisyUI sets `:root { overflow: hidden }` for its own
+     * modals for the same reason. Locking both is unambiguous.
+     */
+    const lockScroll = (locked) => {
+      document.documentElement.classList.toggle("overflow-hidden", locked);
+      document.body.classList.toggle("overflow-hidden", locked);
+    };
+
     const open = (target) => {
       lastFocused = document.activeElement;
       show(target, false);
       dialog.showModal();
-      document.body.classList.add("overflow-hidden");
+      lockScroll(true);
       closeButton?.focus();
 
       if (gsap() && !prefersReducedMotion()) {
@@ -240,7 +277,7 @@
      * here keeps both routes identical — including restoring focus.
      */
     dialog.addEventListener("close", () => {
-      document.body.classList.remove("overflow-hidden");
+      lockScroll(false);
       resetZoom();
       /*
        * Return focus to the slide the viewer ended on, which may differ from
@@ -301,6 +338,16 @@
       applyTransform();
     });
 
+    /*
+     * Nothing inside the lightbox scrolls, so any wheel here would otherwise
+     * chain straight through to the document and scroll the page behind the
+     * dialog. Swallow it at the dialog level; the stage handler below still
+     * gets the event first and turns it into a zoom.
+     */
+    dialog.addEventListener("wheel", (event) => event.preventDefault(), {
+      passive: false,
+    });
+
     /* Wheel zoom, anchored on the image centre. */
     stage?.addEventListener(
       "wheel",
@@ -344,7 +391,18 @@
       return Math.hypot(a.x - b.x, a.y - b.y);
     };
 
+    /*
+     * Belt and braces alongside the draggable="false" attribute: a native image
+     * drag would fire pointercancel and abandon the pan half way through.
+     */
+    image.addEventListener("dragstart", (event) => event.preventDefault());
+
     image.addEventListener("pointerdown", (event) => {
+      /*
+       * Deliberately no preventDefault() here: it would suppress the
+       * compatibility mouse events that the double-click zoom below relies on.
+       * Selection is handled by `select-none` on the image instead.
+       */
       pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
       image.setPointerCapture?.(event.pointerId);
 

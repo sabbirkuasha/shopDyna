@@ -522,8 +522,17 @@
       ]
     </script>
 
+    {%- comment -%}
+      `touch-none` and `overscroll-contain` stop a touch drag or scroll inside
+      the viewer from reaching the page behind it. Pinch and pan still work,
+      because they are driven by pointer events rather than browser panning.
+
+      Keep comments outside an opening tag: a whitespace-trimming Liquid tag
+      placed between an element name and its first attribute eats the space
+      between them, and the browser then reads one invented tag name.
+    {%- endcomment -%}
     <dialog
-      class="m-0 h-full max-h-none w-full max-w-none bg-transparent p-0 text-white backdrop:bg-black/90"
+      class="m-0 h-full max-h-none w-full max-w-none touch-none overscroll-contain bg-transparent p-0 text-white backdrop:bg-black/90"
       aria-label="Product image viewer"
       data-lightbox
     >
@@ -545,9 +554,15 @@
             Seeded with the first image's dimensions so the element has a real
             aspect ratio before the script swaps in the chosen image.
           {%- endcomment -%}
+          {%- comment -%}
+            draggable="false" is required, not cosmetic: without it a mouse drag
+            starts the browser's native image drag, which fires pointercancel
+            and aborts panning mid-gesture.
+          {%- endcomment -%}
           <img
-            class="absolute inset-0 m-auto max-h-full max-w-full touch-none object-contain"
+            class="absolute inset-0 m-auto max-h-full max-w-full touch-none select-none object-contain"
             alt=""
+            draggable="false"
             width="{{ image_media.first.preview_image.width }}"
             height="{{ image_media.first.preview_image.height }}"
             data-lightbox-image
