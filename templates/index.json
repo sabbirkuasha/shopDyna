@@ -56,7 +56,7 @@
           "settings": {
             "title": "Men",
             "button_label": "View products",
-            "link": "/collections/men",
+            "link": "/collections/men-1",
             "desktop_fallback": "home-men-desktop",
             "mobile_fallback": "home-men-mobile"
           }
