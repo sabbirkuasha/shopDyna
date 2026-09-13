@@ -27,7 +27,9 @@
           }
         }
       },
-      "block_order": ["default_slide"],
+      "block_order": [
+        "default_slide"
+      ],
       "settings": {
         "accessibility_label": "Deshal seasonal collection",
         "autoplay": true,
@@ -44,7 +46,7 @@
           "settings": {
             "title": "Women",
             "button_label": "View products",
-            "link": "/collections/women",
+            "link": "/collections/women-1",
             "desktop_fallback": "home-women-desktop",
             "mobile_fallback": "home-women-mobile"
           }
@@ -88,7 +90,13 @@
           }
         }
       },
-      "block_order": ["women", "men", "kids", "accessories", "home_decor"],
+      "block_order": [
+        "women",
+        "men",
+        "kids",
+        "accessories",
+        "home_decor"
+      ],
       "settings": {
         "accent_color": "#7d1717",
         "show_noya": true,
@@ -106,5 +114,9 @@
       }
     }
   },
-  "order": ["hero", "showcase", "video"]
+  "order": [
+    "hero",
+    "showcase",
+    "video"
+  ]
 }
