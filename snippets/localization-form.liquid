@@ -43,7 +43,7 @@
 {%- if has_countries or has_languages -%}
   <div class="flex flex-wrap gap-4">
     {%- if has_countries -%}
-      {%- form 'localization', class: 'contents', id: 'CountryForm-' | append: prefix -%}
+      {%- form prefix -%}
         <div>
           <label class="mb-2 block text-xs font-semibold uppercase tracking-wide" for="CountrySelect-{{ prefix }}">
             Country / region
@@ -80,7 +80,7 @@
     {%- endif -%}
 
     {%- if has_languages -%}
-      {%- form 'localization', class: 'contents', id: 'LanguageForm-' | append: prefix -%}
+      {%- form prefix -%}
         <div>
           <label class="mb-2 block text-xs font-semibold uppercase tracking-wide" for="LanguageSelect-{{ prefix }}">
             Language
@@ -127,3 +127,18 @@
     })();
   </script>
 {%- endif -%}
+{% comment %}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: "{%- form 'localization', class: 'contents', id: 'CountryForm-' | append:
+    prefix -%}"
+  to: "{%- form prefix -%}"
+  position: 1431..1450
+- from: "{%- form 'localization', class: 'contents', id: 'LanguageForm-' | append:
+    prefix -%}"
+  to: "{%- form prefix -%}"
+  position: 2726..2745
+{% endcomment %}
